@@ -1,0 +1,41 @@
+name: "juke build and deploy"
+on:
+  push:
+jobs:
+  build:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up JDK 11 for x64
+        uses: actions/setup-java@v4
+        with:
+          java-version: '23'
+          distribution: 'corretto'
+          architecture: x64
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.TOKEN }}
+
+      - name: Log in to DigitalOcean Container Registry with short-lived credentials
+        run: doctl registry login --expiry-seconds 12000 --access-token ${{ secrets.TOKEN }} -v
+
+      - name: Check if image exists
+        id: check_image
+        run: |
+          TAG=$(echo $GITHUB_SHA | head -c7)
+          if doctl registry repository list-tags app --format Tag | grep -q $TAG; then
+            echo "Image with tag $TAG already exists."
+            echo "image_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Image with tag $TAG does not exist."
+            echo "image_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build and push container image
+        if: steps.check_image.outputs.image_exists == 'false'
+        run: |
+          TAG=$(echo $GITHUB_SHA | head -c7)
+          mvn clean spring-boot:build-image -Dspring-boot.build-image.imageName=${{ secrets.REGISTRY_NAME }}/juke:$TAG
+          docker push ${{ secrets.REGISTRY_NAME }}/juke:$TAG

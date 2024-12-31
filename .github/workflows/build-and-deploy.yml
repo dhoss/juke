@@ -3,11 +3,12 @@ on:
   push:
 jobs:
   build:
+    environment: dev
     runs-on: "ubuntu-latest"
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Set up JDK 11 for x64
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           java-version: '23'

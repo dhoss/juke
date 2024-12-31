@@ -38,5 +38,5 @@ jobs:
         if: steps.check_image.outputs.image_exists == 'false'
         run: |
           TAG=$(echo $GITHUB_SHA | head -c7)
-          mvn clean spring-boot:build-image -Dspring-boot.build-image.imageName=${{ secrets.REGISTRY_NAME }}/juke/juke:$TAG
+          mvn clean spring-boot:build-image -Dspring-boot.build-image.imageName=${{ secrets.REGISTRY_NAME }}/juke:$TAG
           docker push ${{ secrets.REGISTRY_NAME }}/juke:$TAG

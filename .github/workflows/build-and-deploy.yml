@@ -22,6 +22,9 @@ jobs:
       - name: Log in to DigitalOcean Container Registry with short-lived credentials
         run: doctl registry login --expiry-seconds 12000 --access-token ${{ secrets.TOKEN }} -v
 
+      - name: Update app spec if needed
+        run: doctl apps update ${{ secrets.APP_ID }} --spec do/app-spec.yml
+
       - name: Check if image exists
         id: check_image
         run: |

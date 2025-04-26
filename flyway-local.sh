@@ -1,0 +1,1 @@
+flyway -url='jdbc:postgresql://127.0.0.1:5432/juke' -user=juke -configFiles="src/main/resources/db/flyway-local.conf" $1

@@ -1,0 +1,31 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+  thymeleaf: # Thymeleaf
+    cache: false
+    mode: HTML
+    encoding: UTF-8
+    prefix: file:src/main/resources/templates/
+    resources: # Static resources
+      static-locations: file:src/main/resources/static/
+      cache:
+        period: 0
+  devtools:
+    restart:
+      additional-paths: file:src/main/resources/static/css/
+  application:
+    name: juke
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      jdbc-url: >
+        jdbc:postgresql://localhost:5432/juke
+      pool-name: juke-pool
+      username: juke
+      password: juke
+logging:
+  level:
+    in.stonecolddev: DEBUG
+    org.springframework.jdbc.core: TRACE
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG

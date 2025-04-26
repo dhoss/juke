@@ -1,0 +1,425 @@
+body {
+	color: #4b253c;
+	background-color: #d3d1b8;
+	font-size: 8pt;
+	font-family: helvetica;
+	padding: 0px;
+	margin: 0px;
+}
+
+p {
+	font-family: helvetica;
+	font-size: 8pt;
+	font-weight: 100;
+}
+
+ol {
+	font-family: helvetica;
+	font-size: 8pt;
+}
+
+ul {
+	font-family: helvetica;
+	font-size: 8pt;
+}
+
+li {
+	font-family: helvetica;
+	font-size: 8pt;
+}
+
+a {
+	color: #4b253c;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #4b253c;
+	font-weight: bold;
+	text-decoration: underline overline;
+}
+
+select {
+	font-size: 8pt;
+}
+
+input {
+	font-size: 8pt;
+}
+
+.menuHeader {
+	color: #4b253c;
+	background-color: #d3d1b8;
+	border-color: #DDDDCC;
+	font-size: 10pt;
+	font-family: helvetica;
+	font-weight: bold;
+	border-style: outset;
+	border-width: 2px;
+	width: 100%;
+}
+
+.menuItem {
+	color: #2e4b36;
+	background-color: #d3d1b8;
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 8pt;
+	width: 100%;
+}
+
+.menuItem a {
+	color: #2e4b36;
+	text-decoration: none;
+}
+
+.menuItem a:hover {
+	color: #2e4b36;
+	text-decoration: underline overline;
+}
+
+.highlightText {
+	color: #DDDDCC;
+	font-size: 8pt;
+	font-weight: bold;
+	font-style: italic;
+}
+
+.tableLabel {
+	color: #4b253c;
+	font-family: helvetica;
+	font-size: 8pt;
+	font-weight: bold;
+}
+
+.tableLabel2 {
+	color: #2e4b36;
+	font-family: helvetica;
+	font-size: 10pt;
+	font-weight: bold;
+}
+
+.tableText {
+	color: #4b253c;
+	font-family: helvetica;
+	font-size: 8pt;
+	font-weight: normal;
+}
+
+.tableText2 {
+	color: #4b253c;
+	background-color: #d3d1b8;
+	border-color: #DDDDCC;
+	font-family: helvetica;
+	font-size: 8pt;
+	font-weight: normal;
+	border-style: outset;
+	border-width: 2px;
+}
+
+.tableHeader {
+	color: #4b253c;
+	background-color: #d3d1b8;
+	border-color: #DDDDCC;
+	font-family: helvetica;
+	font-size: 12pt;
+	font-weight: bold;
+	border-style: outset;
+	border-width: 2px;
+}
+
+.tableHeaderText {
+	color: #4b253c;
+	background-color: #d3d1b8;
+	border-color: #DDDDCC;
+	font-family: helvetica;
+	font-size: 12pt;
+	font-weight: bold;
+	border-width: 0px;
+	padding: 0px;
+}
+
+.news-item-title {
+}
+
+.news-item {
+  font-size: 10pt;
+}
+
+.news-item-body {
+
+  font-face: book antiqua;
+}
+
+.news-item-info {
+  font-size: 10pt;
+}
+
+.tableHeaderSmall {
+	color: #4b253c;
+	background-color: #d3d1b8;
+	border-color: #DDDDCC;
+	font-family: helvetica;
+	font-size: 10pt;
+	font-weight: bold;
+	border-style: outset;
+	border-width: 2;
+}
+
+.tableFooter {
+	color: #4b253c;
+	background-color: #d3d1b8;
+	border-color: #DDDDCC;
+	font-family: helvetica;
+	font-size: 10pt;
+	font-weight: normal;
+	border-style: inset;
+	border-width: 2px;
+}
+
+.tableColumnHeader {
+	color: #4b253c;
+	background-color: #d3d1b8;
+	border-color: #DDDDCC;
+	font-size: 8pt;
+	font-family: helvetica;
+	font-weight: bold;
+	border-style: outset;
+	border-width: 2px;
+	padding: 0px;
+}
+
+.tableColumnHeader a {
+	color: #4b253c;
+	text-decoration: none;
+}
+
+.tableColumnHeader a:hover {
+	color: #4b253c;
+	text-decoration: underline overline;
+}
+
+.tableHeaderItem {
+	color: #4b253c;
+	background-color: #d3d1b8;
+	border-color: #DDDDCC;
+	font-family: helvetica;
+	font-size: 8pt;
+	font-weight: bold;
+	border-style: outset;
+	border-width: 2px;
+}
+
+.tableButtons {
+	color: #304f20;
+	background-color: #d3d1b8;
+	border-color: #DDDDCC;
+	font-family: helvetica;
+	font-size: 8pt;
+	font-weight: bold;
+	text-decoration: none;
+	text-align: center;
+	text-valign: middle;
+	padding-left: 2px;
+	padding-right: 2px;
+	margin-left: 2px;
+	margin-right: 2px;
+	margin-bottom: 2px;
+	border-style: outset;
+	border-width: 1px;
+}
+
+.tableButtonsInactive {
+	color: #304f20;
+	background-color: #cff5cf;
+	border-color: #DDDDCC;
+	font-family: helvetica;
+	font-size: 8pt;
+	font-weight: bold;
+	text-decoration: none;
+	text-align: center;
+	text-valign: middle;
+	padding-left: 2px;
+	padding-right: 2px;
+	margin-left: 2px;
+	margin-right: 2px;
+	margin-bottom: 2px;
+	border-style: outset;
+	border-width: 1px;
+}
+
+.prevnextButtons {
+	color: #304f20;
+	background-color: #d3d1b8;
+	border-color: #DDDDCC;
+	height: 14;
+	padding-left: 2px;
+	padding-right: 2px;
+	margin-left: 2px;
+	top: 0px;
+	font-size: 8pt;
+	border-style: outset;
+	border-width: 2px;
+	font-family: helvetica;
+	font-weight: bold;
+	text-decoration: none;
+	cursor: hand;
+}
+
+.linkButtons {
+	color: #dde4ba;
+	background-color: #426645;
+	border-color: #DDDDCC;
+	height: 20px;
+	padding-left: 4px;
+	padding-right: 4px;
+	margin-left: 10px;
+	top: 0px;
+	font-size: 8pt;
+	border-style: outset;
+	border-width: 2px;
+	font-family: helvetica;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.tableTop {
+	color: #2e4b36;
+	background-color: #ede9d1;
+	border-color: #DDDDCC;
+	font-family: helvetica;
+	font-size: 8pt;
+	font-weight: 600;
+	border-style: outset;
+	border-width: 2px;
+	padding: 2px;
+}
+
+.tableTopText {
+	color: #2e4b36;
+	background-color: #ede9d1;
+	font-family: helvetica;
+	font-size: 8pt;
+	font-weight: 600;
+	border-width: 0px;
+	padding: 0px;
+}
+
+.tableTopNormal {
+	color: #2e4b36;
+	background-color: #ede9d1;
+	border-color: #DDDDCC;
+	font-size: 8pt;
+	font-weight: 100;
+	border-style: outset;
+	border-width: 2px;
+	padding: 2px;
+}
+
+.tableInput {
+	color: #2e4b36;
+	background-color: #d3d1b8;
+	border-color: #DDDDCC;
+	font-size: 8pt;
+	border-style: inset;
+	border-width: 1px;
+}
+
+.tableInput a {
+	color: #2e4b36;
+	text-decoration: none;
+}
+
+.tableInput a:hover {
+	color: #2e4b36;
+	text-decoration: underline overline;
+}
+
+.tableInputInside {
+	color: #2e4b36;
+	font-size: 8pt;
+	font-weight: 600;
+	font-family: helvetica;
+}
+
+.tableInputInside a {
+	color: #2e4b36;
+	text-decoration: none;
+}
+
+.tableInputInside a:hover {
+	color: #2e4b36;
+	text-decoration: underline overline;
+}
+
+.tableInputError {
+	color: #FF0000;
+	background-color: #d3d1b8;
+	border-color: #DDDDCC;
+	font-size: 8pt;
+	border-style: inset;
+	border-width: 1px;
+}
+
+.tableInputWarning {
+	color: #0000FF;
+	background-color: #d3d1b8;
+	border-color: #DDDDCC;
+	font-size: 8pt;
+	border-style: inset;
+	border-width: 1px;
+}
+
+.textInputError {
+	color: #FF0000;
+	background-color: #d3d1b8;
+	border-color: #DDDDCC;
+	font-size: 8pt;
+	border-style: outset;
+	border-width: 1px;
+}
+
+.textInputWarning {
+	color: #0000FF;
+	background-color: #d3d1b8;
+	border-color: #DDDDCC;
+	font-size: 8pt;
+	border-style: outset;
+	border-width: 1px;
+}
+
+.warningText {
+	color: #ca0f26;
+	font-weight: 900;
+}
+
+.elements {
+	color: #4b253c;
+	background-color: #FFFFCE;
+	scrollbar-arrow-color: #FFFFCE;
+	scrollbar-face-color: #4b253c;
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 8pt;
+	border-style: inset;
+}
+
+.elements0 {
+	color: #006573;
+	background-color: #FFFFCE;
+}
+
+.elements1 {
+	color: #006573;
+	background-color: #FFFFCE;
+	scrollbar-arrow-color: #FFFFCE;
+	scrollbar-face-color: #4b253c;
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 8pt;
+	border-style: outset;
+	scrollbar-arrow-color: #66FFFF;
+	scrollbar-face-color: #006573;
+}
+
+span {
+	font-weight=normal;
+}

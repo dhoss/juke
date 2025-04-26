@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+    <link th:href="@{/css/styles.css}" rel="stylesheet" />
+    <link rel="SHORTCUT ICON" href="https://web.archive.org/web/20031008164617im_/http://www.czleagues.com/cz.ico">
+
+    <title th:text="${page.title}"></title>
+    <meta charset="UTF-8" />
+</head>
+<body topmargin="0" leftmargin="0" marginheight="0" marginwidth="0">
+<table border="0" width="100%" cellspacing="0" cellpadding="0">
+    <tr>
+        <td width="100%" valign="top" align="left">
+            <table border="0" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td width="100%">
+                        <table border="0" width="100%" cellspacing="0" cellpadding="0">
+                            <tr>
+                                <td colspan="2">
+                                    <table border="0" cellspacing="0" cellpadding="0" class="tableTop" width="100%">
+                                        <tr>
+                                            <td>
+                                                <!-- header -->
+                                                <table border="0" cellspacing="0" cellpadding="0" class="tableHeader" width="100%">
+                                                    <tr>
+                                                        <td valign="top" align="left" width="50%"><img border="0" src="https://web.archive.org/web/20031008164617im_/http://www.czleagues.com/images/logos/cz_girl.jpg" width="410" height="100" alt="cz_girl"></td>
+                                                        <td valign="top" align="right">
+                                                            <a href="https://web.archive.org/web/20031008164617/http://www.czleagues.com/combat/mw3/" target="_top"><img src="https://web.archive.org/web/20031008164617im_/http://www.czleagues.com/combat/mw3/images/cz_mw3_165x100.gif" border="0" width="165" height="100" alt="cz_mw3_165x100"></a>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="100%" colspan="2">
+                                    <!-- top navbar -->
+                                    <table border="0" cellspacing="0" cellpadding="0" class="tableTop" width="100%">
+                                        <tr>
+                                            <td class="tableColumnHeader" align="center">Welcome Guest</td>
+                                            <td class="tableColumnHeader" align="center" onmouseover="changeColumn(this,'on');style.cursor='hand'" onmouseout="changeColumn(this,'off')" onclick="window.location='index.php?op=login'">
+                                                <a href="index.php?op=login">Login</a>
+                                            </td>
+                                            <td class="tableColumnHeader" align="center" onmouseover="changeColumn(this,'on');style.cursor='hand'" onmouseout="changeColumn(this,'off')" onclick="window.location='index.php?op=user_add'">
+                                                <a href="index.php?op=user_add">New Account</a>
+                                            </td>
+                                            <td class="tableColumnHeader" align="center" onmouseover="changeColumn(this,'on');style.cursor='hand'" onmouseout="changeColumn(this,'off')" onclick="window.location='mailto:cz_mw3_admin@czleagues.com'">Contact</td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <!-- start of left navbar -->
+                                <td width="200" valign="top" align="left">
+                                    <table border="0" cellspacing="0" cellpadding="0" class="tableTop" width="200">
+                                        <tr>
+                                            <td>
+                                                <table border="0" cellspacing="0" cellpadding="0" class="tableTop" width="100%">
+                                                    <tr>
+                                                        <td class="tableInput" align="center">October 08, 2003 11:44:09</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="tableColumnHeader" align="center" onmouseover="changeColumn(this,'on');style.cursor='hand'" onmouseout="changeColumn(this,'off')" onclick="window.location='index.php?op=users_online'">
+                                                            <a href="index.php?op=users_online">Users Online: 7</a>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <center>
+                                        <table border="0" width="100%" class="tableTop">
+                                            <tr>
+                                                <td class="tableHeader" width="100%" align="center">Menu</td>
+                                            </tr>
+                                            <tr>
+                                                <td width="100%">
+                                                    <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                                                        <tr>
+                                                            <td name="info" class="menuHeader" onmouseover="changeMenuHeader(this, 'on');style.cursor='hand'" onmouseout="changeMenuHeader(this, 'off')" onclick="ShowMenu221(ForumMenu, 'ForumMenuCookie');">Forums and Polls</td>
+                                                        </tr>
+                                                    </table>
+                                                    <div class="menuHeader" id="ForumMenu">
+                                                        <div width="100%" class="menuItem" onmouseover="changeMenuItem(this, 'on');style.cursor='hand'" onmouseout="changeMenuItem(this, 'off')" onclick="window.open('https://web.archive.org/web/20031008164617/http://www.czleagues.com/forums')">
+                                                            Forums and Polls
+                                                        </div>
+                                                    </div>
+                                                    <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                                                        <tr>
+                                                            <td name="info" class="menuHeader" onmouseover="changeMenuHeader(this, 'on');style.cursor='hand'" onmouseout="changeMenuHeader(this, 'off')" onclick="ShowMenu221(InfoMenu, 'InfoMenuCookie');">Info</td>
+                                                        </tr>
+                                                    </table>
+                                                    <div class="menuHeader" id="InfoMenu">
+                                                        <div width="100%" class="menuItem" onmouseover="changeMenuItem(this, 'on');style.cursor='hand'" onmouseout="changeMenuItem(this, 'off')" onclick="window.location='https://web.archive.org/web/20031008164617/http://www.czleagues.com/combat/mw3/?op=news'">
+                                                            <a href="https://web.archive.org/web/20031008164617/http://www.czleagues.com/combat/mw3/?op=news">News</a>
+                                                        </div>
+                                                        <div width="100%" class="menuItem" onmouseover="changeMenuItem(this, 'on');style.cursor='hand'" onmouseout="changeMenuItem(this, 'off')" onclick="window.location='https://web.archive.org/web/20031008164617/http://www.czleagues.com/combat/mw3/?op=rules'">
+                                                            <a href="https://web.archive.org/web/20031008164617/http://www.czleagues.com/combat/mw3/?op=rules">Rules</a>
+                                                        </div>
+                                                    </div>
+                                                    <script language="Javascript">
+                                                        <!--
+                                                        // hide menu
+                                                        ShowMenu221(InfoMenu);
+                                                        // -->
+                                                    </script>
+                                                    <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                                                        <tr>
+                                                            <td name="search" class="menuHeader" onmouseover="changeMenuHeader(this, 'on');style.cursor='hand'" onmouseout="changeMenuHeader(this, 'off')" onclick="ShowMenu221(SearchMenu, 'SearchMenuCookie');">Search</td>
+                                                        </tr>
+                                                    </table>
+                                                    <div class="menuHeader" id="SearchMenu">
+                                                        <div width="100%" class="menuItem" onmouseover="changeMenuItem(this, 'on');style.cursor='hand'" onmouseout="changeMenuItem(this, 'off')" onclick="window.location='https://web.archive.org/web/20031008164617/http://www.czleagues.com/combat/mw3/?op=stats_unit'">
+                                                            <a href="https://web.archive.org/web/20031008164617/http://www.czleagues.com/combat/mw3/?op=stats_unit">Unit Stats</a>
+                                                        </div>
+                                                        <div width="100%" class="menuItem" onmouseover="changeMenuItem(this, 'on');style.cursor='hand'" onmouseout="changeMenuItem(this, 'off')" onclick="window.location='https://web.archive.org/web/20031008164617/http://www.czleagues.com/combat/mw3/?op=stats_player'">
+                                                            <a href="https://web.archive.org/web/20031008164617/http://www.czleagues.com/combat/mw3/?op=stats_player">Player Stats</a>
+                                                        </div>
+                                                        <div width="100%" class="menuItem" onmouseover="changeMenuItem(this, 'on');style.cursor='hand'" onmouseout="changeMenuItem(this, 'off')" onclick="window.location='https://web.archive.org/web/20031008164617/http://www.czleagues.com/combat/mw3/?op=battle_view_unconfirmed'">
+                                                            <a href="https://web.archive.org/web/20031008164617/http://www.czleagues.com/combat/mw3/?op=battle_view_unconfirmed">View Unconfirmed Battles</a>
+                                                        </div>
+                                                        <div width="100%" class="menuItem" onmouseover="changeMenuItem(this, 'on');style.cursor='hand'" onmouseout="changeMenuItem(this, 'off')" onclick="window.location='https://web.archive.org/web/20031008164617/http://www.czleagues.com/combat/mw3/?op=battle_view_all'">
+                                                            <a href="https://web.archive.org/web/20031008164617/http://www.czleagues.com/combat/mw3/?op=battle_view_all">View All Battles</a>
+                                                        </div>
+                                                    </div>
+                                                    <script language="Javascript">
+                                                        <!--
+                                                        // hide menu
+                                                        ShowMenu221(SearchMenu);
+                                                        // -->
+                                                    </script>
+                                                    <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                                                        <tr>
+                                                            <td name="contact" class="menuHeader" onmouseover="changeMenuHeader(this, 'on');style.cursor='hand'" onmouseout="changeMenuHeader(this, 'off')" onclick="ShowMenu221(ContactMenu, 'ContactMenuCookie');">Contact</td>
+                                                        </tr>
+                                                    </table>
+                                                    <div class="menuHeader" id="ContactMenu">
+                                                        <div width="100%" class="menuItem" onmouseover="changeMenuItem(this, 'on');style.cursor='hand'" onmouseout="changeMenuItem(this, 'off')" onclick="window.location='https://web.archive.org/web/20031008164617/http://www.czleagues.com/combat/mw3/?op=contacts'">
+                                                            <a href="https://web.archive.org/web/20031008164617/http://www.czleagues.com/combat/mw3/?op=contacts">Admins</a>
+                                                        </div>
+                                                    </div>
+                                                    <script language="Javascript">
+                                                        <!--
+                                                        // hide menu
+                                                        ShowMenu221(ContactMenu);
+                                                        // -->
+                                                    </script>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </center>
+                                    <center>
+                                        <table border="0" cellspacing="0" cellpadding="0" class="tableTop" width="200">
+                                            <tr>
+                                                <td class="tableHeader">Quick Stats</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <table border="0" cellspacing="0" cellpadding="0" class="tableTop" width="100%">
+                                                        <tr>
+                                                            <td class="tableLabel" align="left">Members</td>
+                                                            <td class="tableInput" align="left">922</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="tableLabel" align="left">Units</td>
+                                                            <td class="tableInput" align="left">27</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="tableLabel" align="left">Battles (Cycle)</td>
+                                                            <td class="tableInput" align="left">254</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="tableLabel" align="left">Historic Battles</td>
+                                                            <td class="tableInput" align="left">34243</td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </center>
+                                </td>
+                                <td width="100%" valign="top" align="left">
+                                    <!-- begin news section -->
+                                    <table border="0" width="100%" height="100%">
+                                        <tr>
+                                            <td valign="top">
+                                                <!-- begin news item section -->
+                                                <th:block th:replace="~{motd}" />                                                <!-- end news item section -->
+                                                <table border="0" width="100%" class="tableTop">
+                                                    <tr>
+                                                        <td class="tableHeader" width="100%">News</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td th:each="item : ${newsItems}" th:insert="~{news-item :: news(${item})}"></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <!-- end news section -->
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="100%" colspan="2">
+                                    <table border="0" cellspacing="0" cellpadding="0" class="tableTopNormal" width="100%" height="100%">
+                                        <tr>
+                                            <td>
+                                                <table border="0" cellspacing="0" cellpadding="0" class="tableTopNormal" width="100%" height="100%">
+                                                    <tr>
+                                                        <td align="center">Copyright</td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="100%" colspan="2">
+                                    <div align="center">
+                                        <center>
+                                            <table class="tableHeader" width="100%">
+                                                <tr>
+                                                    <td align="center" colspan="2"><font face="Arial" size="1">
+                                                        Copyright © 2025 stonecolddev.in
+                                                    </a>.</font></td>
+                                                </tr>
+                                                <tr>
+                                                    <td align="center" colspan="2">
+                                                        <div>
+                                                        <font face="Arial" size="1">
+                                                        Juke vVERSION
+                                                        </font>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td width="100%" align="center" colspan="2">
+                                                        <center>
+                                                            <font size="-2">Juke vVERSION created this page in 0.52 seconds : 18 queries executed</font>
+                                                        </center>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </center>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="100%" colspan="2"></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

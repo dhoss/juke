@@ -1,0 +1,25 @@
+<table border="0" width="100%" class="tableTop" th:fragment="news-item">
+    <tr>
+        <td width="100%">
+                <table class="tableHeader" border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tr>
+                        <td class="tableHeaderText" colspan="2" width="100%">
+                            <span th:text="${page.components.get('motd').title}"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="tableHeaderText news-item-info">
+                            <span th:text="${page.components.get('motd').author.userName}" /> on <span th:text="${page.components.get('motd').publishedOn}"/>
+                        </td>
+                    </tr>
+                </table>
+                <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                    <tr>
+                        <td class="tableTopNormal">
+                            <span th:text="${page.components.get('motd').body}" />
+                        </td>
+                    </tr>
+                </table>
+        </td>
+    </tr>
+</table>

@@ -1,5 +1,6 @@
 package in.stonecolddev.juke.ui;
 
+import in.stonecolddev.juke.metrics.PerRequestMetricsCollector;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ public class DefaultPageBuilder implements PageBuilder {
 
   private final Logger log = LoggerFactory.getLogger(DefaultPageBuilder.class);
 
+  private final PerRequestMetricsCollector perRequestMetricsCollector;
 
   private final JdbcTemplate jdbcTemplate;
   private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -23,9 +25,11 @@ public class DefaultPageBuilder implements PageBuilder {
   private final ModelMapper mapper;
 
   public DefaultPageBuilder(
+      PerRequestMetricsCollector perRequestMetricsCollector,
       NamedParameterJdbcTemplate namedParameterJdbcTemplate,
       ModelMapper mapper
   ) {
+    this.perRequestMetricsCollector = perRequestMetricsCollector;
     this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     this.jdbcTemplate = namedParameterJdbcTemplate.getJdbcTemplate();
     this.mapper = mapper;
@@ -33,6 +37,9 @@ public class DefaultPageBuilder implements PageBuilder {
 
   public Page findPage(String slug) {
     SqlParameterSource namedParameters = new MapSqlParameterSource().addValue("slug", slug);
+
+    // TODO: make an enum of counters we're tracking and use them instead of strings
+    perRequestMetricsCollector.findOrCreateCounter("pageQueryCounter").increment();
 
     return mapper.map(
         namedParameterJdbcTemplate.query(
@@ -67,6 +74,8 @@ public class DefaultPageBuilder implements PageBuilder {
 
   // TODO: may want to move this somewhere else
   public List<PageComponent> news() {
+    // TODO: make an enum of counters we're tracking and use them instead of strings
+    perRequestMetricsCollector.findOrCreateCounter("pageQueryCounter").increment();
     return jdbcTemplate.query(
         """
             select
@@ -86,5 +95,9 @@ public class DefaultPageBuilder implements PageBuilder {
         .stream()
         .map(e -> mapper.map(e, PageComponent.class))
         .toList();
+  }
+
+  public PerRequestMetricsCollector pageMetrics() {
+    return this.perRequestMetricsCollector;
   }
 }

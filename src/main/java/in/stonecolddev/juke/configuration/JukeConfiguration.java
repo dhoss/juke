@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Profile;
 @ConfigurationProperties(prefix = "juke")
 @Profile({"local", "unit-test", "it-test", "dev", "prod"})
 @Data
-//@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(fluent = true)

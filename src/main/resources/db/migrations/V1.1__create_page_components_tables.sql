@@ -1,3 +1,4 @@
+-- TODO: add versions
 create table pages (
   id integer not null generated always as identity primary key,
   author_id integer not null references authors(id),
@@ -11,12 +12,14 @@ create table pages (
 
 create type page_component_type as enum('news', 'post', 'motd', 'sidebar', 'header', 'footer', 'top_nav_bar');
 
+-- TODO: add versions
 create table page_components(
   id integer not null generated always as identity primary key,
   author_id integer not null references authors(id),
   title varchar(255) unique not null,
   body text not null,
   type page_component_type not null,
+  slug varchar(30) not null,
   is_deleted boolean not null default false,
   created_on timestamptz not null default now(),
   updated_on timestamptz,

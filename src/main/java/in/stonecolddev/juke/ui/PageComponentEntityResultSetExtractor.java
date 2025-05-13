@@ -33,7 +33,8 @@ public class PageComponentEntityResultSetExtractor implements ResultSetExtractor
               .build());
       pageComponentEntityBuilder.title(rs.getString("page_component_title"));
       pageComponentEntityBuilder.body(rs.getString("page_component_body"));
-      pageComponentEntityBuilder.type(Page.ComponentType.valueOf(rs.getString("page_component_type").toUpperCase()));
+      pageComponentEntityBuilder.slug(rs.getString("page_component_slug"));
+      pageComponentEntityBuilder.type(PageComponent.ComponentType.valueOf(rs.getString("page_component_type").toUpperCase()));
       pageComponentEntityBuilder.publishedOn(rs.getObject("page_component_published_on", OffsetDateTime.class));
 
       pageComponentEntities.add(pageComponentEntityBuilder.build());

@@ -17,6 +17,16 @@ public class PageComponent {
   private String title;
   private OffsetDateTime publishedOn;
   private Author author;
-  private Page.ComponentType type;
+  private ComponentType type;
   private String body;
+
+  public enum ComponentType {
+    MOTD,
+    POST,
+    NEWS,
+    HEADER,
+    FOOTER,
+    SIDEBAR,
+    TOP_NAV_BAR
+  }
 }

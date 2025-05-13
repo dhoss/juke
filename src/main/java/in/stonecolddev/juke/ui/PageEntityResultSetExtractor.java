@@ -46,7 +46,7 @@ public class PageEntityResultSetExtractor implements ResultSetExtractor<PageEnti
 
       pageComponentBuilder.body(rs.getString("page_component_body"));
       String pageComponentType = rs.getString("page_component_type");
-      pageComponentBuilder.type(Page.ComponentType.valueOf(pageComponentType.toUpperCase()));
+      pageComponentBuilder.type(PageComponent.ComponentType.valueOf(pageComponentType.toUpperCase()));
       pageComponentBuilder.publishedOn(rs.getObject("page_component_published_on", OffsetDateTime.class));
       pageComponents.put(pageComponentType, pageComponentBuilder.build());
 

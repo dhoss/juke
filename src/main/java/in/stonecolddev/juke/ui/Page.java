@@ -10,7 +10,7 @@ import java.time.OffsetDateTime;
 import java.util.Map;
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(fluent = true)
@@ -21,12 +21,4 @@ public class Page {
   private Map<String, PageComponent> components;
   private String slug;
 
-  public enum ComponentType {
-    MOTD,
-    POST,
-    NEWS,
-    HEADER,
-    FOOTER,
-    TOP_NAV_BAR
-  }
 }

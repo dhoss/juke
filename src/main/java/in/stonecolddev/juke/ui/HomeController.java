@@ -1,6 +1,7 @@
 package in.stonecolddev.juke.ui;
 
 
+import in.stonecolddev.juke.configuration.JukeConfiguration;
 import in.stonecolddev.juke.metrics.PerRequestMetricsCollector;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -17,28 +18,26 @@ public class HomeController {
 
   private final Logger log = LoggerFactory.getLogger(HomeController.class);
 
-  private final PerRequestMetricsCollector perRequestMetricsCollector;
+  private final JukeConfiguration jukeConfiguration;
 
   private final DefaultPageBuilder pageBuilder;
 
   public HomeController(
-      PerRequestMetricsCollector perRequestMetricsCollector,
+      JukeConfiguration jukeConfiguration,
       DefaultPageBuilder pageBuilder) {
-    this.perRequestMetricsCollector = perRequestMetricsCollector;
+    this.jukeConfiguration = jukeConfiguration;
     this.pageBuilder = pageBuilder;
   }
 
   @GetMapping("/")
   public ModelAndView home() {
 
-    MeterRegistry registry = perRequestMetricsCollector.meterRegistry();
-    Timer.Sample pageConstructionSample = Timer.start(registry);
     ModelAndView mv = new ModelAndView("index");
     mv.addObject("page", pageBuilder.findPage("front-page"));
     mv.addObject("newsItems", pageBuilder.news());
-    mv.addObject("pageQueryCounter", pageBuilder.pageMetrics().counterValue("pageQueryCounter"));
-    pageConstructionSample.stop(registry.timer("pageConstructionTimer"));
-    mv.addObject("pageConstructionTimer", registry.timer("pageConstructionTimer").totalTime(TimeUnit.SECONDS));
+    log.debug("******* CONFIG {}", jukeConfiguration);
+    // TODO: figure out why this isn't working
+    mv.addObject("jukeAppVersion", jukeConfiguration.version());
 
     return mv;
   }

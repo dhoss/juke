@@ -17,7 +17,8 @@ public class PageComponentEntity {
     private AuthorEntity author;
     private String title;
     private String body;
-    private Page.ComponentType type;
+    private String slug;
+    private PageComponent.ComponentType type;
     private Boolean isDeleted;
     private OffsetDateTime createdOn;
     private OffsetDateTime updatedOn;

@@ -3,7 +3,7 @@
 <head>
 
     <link th:href="@{/css/styles.css}" rel="stylesheet" />
-    <link rel="SHORTCUT ICON" href="https://web.archive.org/web/20031008164617im_/http://www.czleagues.com/cz.ico">
+    <link rel="SHORTCUT ICON" th:href="@{/img/cz.ico}">
 
     <title th:text="${page.title}"></title>
     <meta charset="UTF-8" />
@@ -24,9 +24,10 @@
                                                 <!-- header -->
                                                 <table border="0" cellspacing="0" cellpadding="0" class="tableHeader" width="100%">
                                                     <tr>
-                                                        <td valign="top" align="left" width="50%"><img border="0" src="https://web.archive.org/web/20031008164617im_/http://www.czleagues.com/images/logos/cz_girl.jpg" width="410" height="100" alt="cz_girl"></td>
+                                                        <td valign="top" align="left" width="50%"><img border="0" th:src="@{/img/cz_girl.jpg}" width="410" height="100" alt="cz_girl"></td>
                                                         <td valign="top" align="right">
-                                                            <a href="https://web.archive.org/web/20031008164617/http://www.czleagues.com/combat/mw3/" target="_top"><img src="https://web.archive.org/web/20031008164617im_/http://www.czleagues.com/combat/mw3/images/cz_mw3_165x100.gif" border="0" width="165" height="100" alt="cz_mw3_165x100"></a>
+                                                            <a href="https://web.archive.org/web/20031008164617/http://www.czleagues.com/combat/mw3/" target="_top"><img th:src="@{/img/cz_mw3_165x100.gif}" 
+                                                            border="0" width="165" height="100" alt="cz_mw3_165x100"></a>
                                                         </td>
                                                     </tr>
                                                 </table>

@@ -226,8 +226,12 @@
                                             <table class="tableHeader" width="100%">
                                                 <tr>
                                                     <td align="center" colspan="2"><font face="Arial" size="1">
-                                                        Copyright © 2025 stonecolddev.in
-                                                    </a>.</font></td>
+                                                        Copyright © <span id="copyright-year"></span> <a href="https://stonecolddev.in">stonecolddev.in</a>.
+                                                        <script>
+                                                        document.getElementById('copyright-year').textContent = new Date().getFullYear();
+                                                        </script>
+
+                                                    </font></td>
                                                 </tr>
                                                 <tr>
                                                     <td align="center" colspan="2">

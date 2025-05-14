@@ -30,6 +30,7 @@ public class HomeController {
     ModelAndView mv = new ModelAndView("index");
     mv.addObject("page", pageBuilder.findPage("front-page"));
     mv.addObject("newsItems", pageBuilder.news());
+    mv.addObject("sidebarItems", pageBuilder.news());
     log.debug("******* CONFIG {}", jukeConfiguration);
     // TODO: figure out why this isn't working
     mv.addObject("jukeAppVersion", jukeConfiguration.version());

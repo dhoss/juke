@@ -26,7 +26,7 @@ public class PageEntityResultSetExtractor implements ResultSetExtractor<PageEnti
     log.info("Building page entity");
     while (rs.next()) {
 
-      pageEntityBuilder.id(rs.getInt("id"));
+      pageEntityBuilder.id(rs.getInt("page_id"));
       pageEntityBuilder.author(
           AuthorEntity.builder()
               .id(rs.getInt("author_id"))

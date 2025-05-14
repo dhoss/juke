@@ -31,6 +31,7 @@ public class HomeController {
     mv.addObject("page", pageBuilder.findPage("front-page"));
     mv.addObject("newsItems", pageBuilder.news());
     mv.addObject("sidebarItems", pageBuilder.news());
+    log.debug("**** COMPILE FOR VIEW {}", pageBuilder.compileForView("front-page"));
     log.debug("******* CONFIG {}", jukeConfiguration);
     // TODO: figure out why this isn't working
     mv.addObject("jukeAppVersion", jukeConfiguration.version());

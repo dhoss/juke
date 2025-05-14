@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class DefaultPageBuilder implements PageBuilder {
@@ -26,6 +27,7 @@ public class DefaultPageBuilder implements PageBuilder {
 
   private final ModelMapper mapper;
 
+  // TODO: make this a fluent api, fuck it why not
   public DefaultPageBuilder(
       PerRequestMetricsCollector perRequestMetricsCollector,
       NamedParameterJdbcTemplate namedParameterJdbcTemplate,
@@ -46,49 +48,48 @@ public class DefaultPageBuilder implements PageBuilder {
     Page foundPage = mapper.map(
         namedParameterJdbcTemplate.query(
             // TODO: pull common query pieces out and compose queries from them
-        """
-            select
-              p.id
-            , p.title as "page_title"
-            , p.published_on as "page_published_on"
-            , a.user_name as "page_author"
-            , a.id as "author_id"
-            , pc.id as "page_component_id"
-            , pc.title as "page_component_title"
-            , pc.author_id as "page_component_author_id"
-            , pa.user_name as "page_component_author_name"
-            , pc.body as "page_component_body"
-            , pc.type as "page_component_type"
-            , pc.published_on as "page_component_published_on"
-            from pages p
-            left join authors a on a.id = p.author_id
-            left join page_components_to_page_mappings pipm on pipm.page_id = p.id
-            left join page_components pc on pc.id = pipm.page_component_id
-            left join authors pa on pa.id = pc.author_id
-            where p.is_deleted = false
-            and pc.is_deleted = false
-            and p.slug = :slug
-            order by pc.published_on desc
-            """,
+            """
+                select
+                    pc.title as "page_component_title"
+                  , pc.id as "page_component_id"
+                  , pc.type as "page_component_type"
+                  , pc.body as "page_component_body"
+                  , pc.published_on as "page_component_published_on"
+                  , pc.author_id as "page_component_author_id"
+                  , pca.user_name as "page_component_author_name"
+                  , p.id as "page_id"
+                  , p.published_on as "page_published_on"
+                  , p.title as "page_title"
+                  , a.user_name as "page_author"
+                  , a.id as "author_id"
+                from pages p
+                inner join page_components_to_page_mappings pcm on p.id = pcm.page_id
+                left join page_components pc on pc.id = pcm.page_component_id
+                left join authors a on a.id = p.author_id
+                left join authors pca on pca.id = pc.author_id
+                where p.slug = 'front-page'
+                and p.is_deleted = false
+                order by pc.published_on desc
+                """,
         namedParameters,
         new PageEntityResultSetExtractor()), Page.class);
-    Map<String, PageComponent> foundPageComponents = foundPage.components();
+
     Page basePage = basePage();
-    Map<String, PageComponent> mergedBaseAndFoundPageComponents = new HashMap<>(basePage.components());
-    foundPageComponents.forEach(
-        (key, value) -> mergedBaseAndFoundPageComponents.merge(
-            key, value, (foundValue, baseValue) -> foundValue
-        ));
-    log.debug("**** PAGE BEFORE MERGES {}", basePage);
-    Page build = basePage.toBuilder()
+    Map<String, PageComponent> mergedComponents = new HashMap<>(basePage.components());
+
+    foundPage.components().forEach(
+        (key, value) ->
+            mergedComponents.merge(
+                key, value, (foundValue, baseValue) -> foundValue));
+
+    return basePage.toBuilder()
         .title(foundPage.title())
         .author(foundPage.author())
-        .components(mergedBaseAndFoundPageComponents)
+        .components(mergedComponents)
         .build();
-    log.debug("**** PAGE WITH MERGES {}", build);
-    return build;
   }
 
+  // TODO: this is only being used in findPage, so figure out how to inline it there
   public Page basePage() {
 
     // TODO: make an enum of counters we're tracking and use them instead of strings
@@ -99,30 +100,51 @@ public class DefaultPageBuilder implements PageBuilder {
             // TODO: pull common query pieces out and compose queries from them
             """
                 select
-                 p.id
-                , p.title as "page_title"
-                , p.published_on as "page_published_on"
-                , a.user_name as "page_author"
-                , a.id as "author_id"
-                , pc.id as "page_component_id"
-                , pc.title as "page_component_title"
-                , pc.author_id as "page_component_author_id"
-                , pa.user_name as "page_component_author_name"
-                , pc.body as "page_component_body"
-                , pc.type as "page_component_type"
-                , pc.published_on as "page_component_published_on"
+                    pc.title as "page_component_title"
+                  , pc.id as "page_component_id"
+                  , pc.type as "page_component_type"
+                  , pc.body as "page_component_body"
+                  , pc.published_on as "page_component_published_on"
+                  , pc.author_id as "page_component_author_id"
+                  , pca.user_name as "page_component_author_name"
+                  , p.id as "page_id"
+                  , p.published_on as "page_published_on"
+                  , p.title as "page_title"
+                  , a.user_name as "page_author"
+                  , a.id as "author_id"
                 from pages p
+                inner join page_components_to_page_mappings pcm on p.id = pcm.page_id
+                left join page_components pc on pc.id = pcm.page_component_id
                 left join authors a on a.id = p.author_id
-                left join page_components_to_page_mappings pipm on pipm.page_id = p.id
-                left join page_components pc on pc.id = pipm.page_component_id
-                left join authors pa on pa.id = pc.author_id
-                where p.is_deleted = false
-                and p.slug = 'base-page'
-                and pc.is_deleted = false
-                and pc.type in('motd', 'header', 'footer', 'sidebar', 'top_nav_bar')
+                left join authors pca on pca.id = pc.author_id
+                where p.slug = 'base-page'
+                and p.is_deleted = false
                 order by pc.published_on desc
-                """,
+            """,
             new PageEntityResultSetExtractor()), Page.class);
+  }
+
+  public Map<String, Object> compileForView(String slug) {
+    Map<String, Object> pageView = new HashMap<>();
+
+    Page page = findPage(slug);
+
+    for (PageComponent.ComponentType type : PageComponent.ComponentType.values()) {
+
+      page.components()
+          .entrySet()
+          .stream()
+          .filter(t -> t.getValue().type() == type)
+          .findFirst()
+          .map(Map.Entry::getValue)
+          .ifPresent(
+              pageComponent -> pageView.put(
+                  type.toString().toLowerCase() + "Items", pageComponent));
+    }
+
+    pageView.put("page", page);
+
+    return pageView;
   }
 
   // TODO: may want to move this somewhere else
@@ -132,7 +154,7 @@ public class DefaultPageBuilder implements PageBuilder {
     return jdbcTemplate.query(
         """
             select
-              pc.id
+              pc.id as "page_component_id"
             , pc.slug as "page_component_slug"
             , pc.author_id as "page_component_author_id"
             , a.user_name as "page_component_author"

@@ -25,7 +25,7 @@ public class PageComponentEntityResultSetExtractor implements ResultSetExtractor
     List<PageComponentEntity> pageComponentEntities = new ArrayList<>();
     log.info("Building page component entity");
     while (rs.next()) {
-      pageComponentEntityBuilder.id(rs.getInt("id"));
+      pageComponentEntityBuilder.id(rs.getInt("page_component_id"));
       pageComponentEntityBuilder.author(
           AuthorEntity.builder()
               .id(rs.getInt("page_component_author_id"))

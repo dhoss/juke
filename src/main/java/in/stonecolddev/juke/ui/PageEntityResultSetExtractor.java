@@ -8,7 +8,9 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PageEntityResultSetExtractor implements ResultSetExtractor<PageEntity> {
@@ -20,7 +22,7 @@ public class PageEntityResultSetExtractor implements ResultSetExtractor<PageEnti
   public PageEntity extractData(ResultSet rs) throws SQLException, DataAccessException {
 
     PageEntity.PageEntityBuilder pageEntityBuilder = PageEntity.builder();
-    Map<String, PageComponentEntity> pageComponents = new HashMap<>();
+    List<PageComponentEntity> pageComponents = new ArrayList<>();
     PageComponentEntity.PageComponentEntityBuilder pageComponentBuilder = PageComponentEntity.builder();
 
     log.info("Building page entity");
@@ -48,12 +50,14 @@ public class PageEntityResultSetExtractor implements ResultSetExtractor<PageEnti
       String pageComponentType = rs.getString("page_component_type");
       pageComponentBuilder.type(PageComponent.ComponentType.valueOf(pageComponentType.toUpperCase()));
       pageComponentBuilder.publishedOn(rs.getObject("page_component_published_on", OffsetDateTime.class));
-      pageComponents.put(pageComponentType, pageComponentBuilder.build());
+      pageComponents.add(pageComponentBuilder.build());
 
       pageEntityBuilder.title(rs.getString("page_title"));
       pageEntityBuilder.publishedOn(rs.getObject("page_published_on", OffsetDateTime.class));
 
     }
+
+    log.debug("**** PAGE COMPONENTS IN RS {}", pageComponents);
 
     pageEntityBuilder.pageComponents(pageComponents);
 

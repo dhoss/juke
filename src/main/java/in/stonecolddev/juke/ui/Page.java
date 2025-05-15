@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -18,7 +19,7 @@ public class Page {
   private String title;
   private OffsetDateTime publishedOn;
   private Author author;
-  private Map<String, PageComponent> components;
+  private List<PageComponent> components;
   private String slug;
 
 }

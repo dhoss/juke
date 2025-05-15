@@ -56,7 +56,8 @@
                             </tr>
                             <tr>
                                 <!-- start left navbar -->
-                                <td th:each="item : ${sidebarItems}" th:insert="~{sidebar-item :: sidebar(${item})}">
+                                <td>
+                                    <div th:each="item : ${sidebarItems}" th:insert="~{sidebar-item :: sidebar(${item})}"></div>
                                     <!-- <th:block th:replace="~{sidebar}" /> -->
                                 </td>
                                 <!-- end side bar -->

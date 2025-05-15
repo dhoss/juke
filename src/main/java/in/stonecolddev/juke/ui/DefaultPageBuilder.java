@@ -10,10 +10,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 public class DefaultPageBuilder implements PageBuilder {
@@ -45,6 +42,7 @@ public class DefaultPageBuilder implements PageBuilder {
     // TODO: make an enum of counters we're tracking and use them instead of strings
     perRequestMetricsCollector.findOrCreateCounter("pageQueryCounter").increment();
 
+    // we need to retrieve only the things that can be different from page to page
     Page foundPage = mapper.map(
         namedParameterJdbcTemplate.query(
             // TODO: pull common query pieces out and compose queries from them
@@ -75,12 +73,9 @@ public class DefaultPageBuilder implements PageBuilder {
         new PageEntityResultSetExtractor()), Page.class);
 
     Page basePage = basePage();
-    Map<String, PageComponent> mergedComponents = new HashMap<>(basePage.components());
+    List<PageComponent> mergedComponents = new ArrayList<>(basePage.components());
 
-    foundPage.components().forEach(
-        (key, value) ->
-            mergedComponents.merge(
-                key, value, (foundValue, baseValue) -> foundValue));
+    mergedComponents.addAll(foundPage.components());
 
     return basePage.toBuilder()
         .title(foundPage.title())
@@ -99,28 +94,28 @@ public class DefaultPageBuilder implements PageBuilder {
         namedParameterJdbcTemplate.query(
             // TODO: pull common query pieces out and compose queries from them
             """
-                select
-                    pc.title as "page_component_title"
-                  , pc.id as "page_component_id"
-                  , pc.type as "page_component_type"
-                  , pc.body as "page_component_body"
-                  , pc.published_on as "page_component_published_on"
-                  , pc.author_id as "page_component_author_id"
-                  , pca.user_name as "page_component_author_name"
-                  , p.id as "page_id"
-                  , p.published_on as "page_published_on"
-                  , p.title as "page_title"
-                  , a.user_name as "page_author"
-                  , a.id as "author_id"
-                from pages p
-                inner join page_components_to_page_mappings pcm on p.id = pcm.page_id
-                left join page_components pc on pc.id = pcm.page_component_id
-                left join authors a on a.id = p.author_id
-                left join authors pca on pca.id = pc.author_id
-                where p.slug = 'base-page'
-                and p.is_deleted = false
-                order by pc.published_on desc
-            """,
+                    select
+                        pc.title as "page_component_title"
+                      , pc.id as "page_component_id"
+                      , pc.type as "page_component_type"
+                      , pc.body as "page_component_body"
+                      , pc.published_on as "page_component_published_on"
+                      , pc.author_id as "page_component_author_id"
+                      , pca.user_name as "page_component_author_name"
+                      , p.id as "page_id"
+                      , p.published_on as "page_published_on"
+                      , p.title as "page_title"
+                      , a.user_name as "page_author"
+                      , a.id as "author_id"
+                    from pages p
+                    inner join page_components_to_page_mappings pcm on p.id = pcm.page_id
+                    left join page_components pc on pc.id = pcm.page_component_id
+                    left join authors a on a.id = p.author_id
+                    left join authors pca on pca.id = pc.author_id
+                    where p.slug = 'base-page'
+                    and p.is_deleted = false
+                    order by pc.published_on desc
+                """,
             new PageEntityResultSetExtractor()), Page.class);
   }
 
@@ -128,18 +123,14 @@ public class DefaultPageBuilder implements PageBuilder {
     Map<String, Object> pageView = new HashMap<>();
 
     Page page = findPage(slug);
-
     for (PageComponent.ComponentType type : PageComponent.ComponentType.values()) {
-
-      page.components()
-          .entrySet()
-          .stream()
-          .filter(t -> t.getValue().type() == type)
-          .findFirst()
-          .map(Map.Entry::getValue)
-          .ifPresent(
-              pageComponent -> pageView.put(
-                  type.toString().toLowerCase() + "Items", pageComponent));
+      List<PageComponent> c = new ArrayList<>();
+      for (var component : page.components()) {
+        if (component.type() == type) {
+          c.add(component);
+        }
+      }
+      pageView.put(type.name().toLowerCase() + "Items", c);
     }
 
     pageView.put("page", page);

@@ -8,6 +8,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.List;
+import java.util.Map;
+
 @Controller
 public class HomeController {
 
@@ -28,11 +31,19 @@ public class HomeController {
   public ModelAndView home() {
 
     ModelAndView mv = new ModelAndView("index");
+    Map<String, Object> modelMap = pageBuilder.compileForView("front-page");
+    log.debug("***** COMPILE FOR VIEW {}", modelMap);
+   // mv.addAllObjects(modelMap);
     mv.addObject("page", pageBuilder.findPage("front-page"));
+    mv.addObject("motdItems", List.of(Map.of("title", "motd title", "publishedOn", "date", "body", "motd body")));
     mv.addObject("newsItems", pageBuilder.news());
-    mv.addObject("sidebarItems", pageBuilder.news());
-    log.debug("**** COMPILE FOR VIEW {}", pageBuilder.compileForView("front-page"));
-    log.debug("******* CONFIG {}", jukeConfiguration);
+    mv.addObject("sidebarItems",
+        List.of(
+            Map.of(
+                "title", "sidebar title", "publishedOn", "date", "body", "sidebar body"),
+            Map.of(
+                "title", "sidebar title2", "publishedOn", "date", "body", "sidebar body2")
+        ));// pageBuilder.news());
     // TODO: figure out why this isn't working
     mv.addObject("jukeAppVersion", jukeConfiguration.version());
 

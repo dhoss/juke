@@ -48,6 +48,10 @@ input {
 	font-size: 8pt;
 }
 
+.sidebar-item {
+  width: 200px;
+}
+
 .menuHeader {
 	color: #4b253c;
 	background-color: #d3d1b8;

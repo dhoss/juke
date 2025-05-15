@@ -5,16 +5,16 @@
     <tr>
         <td width="100%">
             <div class="sidebar-item"  th:fragment="sidebar(item)">
-            <table width="100%" border="0" cellpadding="0" cellspacing="0">
-                <tr>
-                    <td name="info" class="menuHeader" onmouseover="changeMenuHeader(this, 'on');style.cursor='hand'" onmouseout="changeMenuHeader(this, 'off')" onclick="ShowMenu221(ForumMenu, 'ForumMenuCookie');">Forums and Polls</td>
-                </tr>
-            </table>
-            <div class="menuHeader" id="ForumMenu">
-                <div width="100%" class="menuItem" onmouseover="changeMenuItem(this, 'on');style.cursor='hand'" onmouseout="changeMenuItem(this, 'off')" onclick="window.open('https://web.archive.org/web/20031008164617/http://www.czleagues.com/forums')">
-                    Forums and Polls
+                <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td name="info" class="menuHeader"><span th:text="${item.title}"></span></td>
+                    </tr>
+                </table>
+                <div class="menuHeader" id="ForumMenu">
+                    <div class="menuItem" width="100%">
+                        <span th:text="${item.body}"></span>
+                    </div>
                 </div>
-            </div>
             </div>
         </td>
     </tr>

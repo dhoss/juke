@@ -19,7 +19,7 @@ create table sidebar_menus(
 
 create table sidebar_menu_items(
   id integer not null generated always as identity primary key,
-  sidebar_menu_id integer not null references sidebar_menus(id),
+  sidebar_menus_id integer not null references sidebar_menus(id),
   title varchar(30) not null,
   body varchar(30) not null,
   created_on timestamptz not null default now(),

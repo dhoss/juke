@@ -9,7 +9,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class PageEntityResultSetExtractor implements ResultSetExtractor<PageEntity> {
 
@@ -20,17 +19,14 @@ public class PageEntityResultSetExtractor implements ResultSetExtractor<PageEnti
   public PageEntity extractData(ResultSet rs) throws SQLException, DataAccessException {
 
     PageEntity.PageEntityBuilder pageEntityBuilder = PageEntity.builder();
-    //List<PageComponentEntity> pageComponents = new ArrayList<>();
-    //PageComponentEntity.PageComponentEntityBuilder pageComponentBuilder = PageComponentEntity.builder();
 
-    List<SidebarMenuEntity> sidebarMenuEntities = new ArrayList<>();
     Map<Integer, SidebarMenuEntity> sidebarMenuEntityMap = new HashMap<>();
+
     List<SidebarMenuItemEntity> sidebarMenuItemEntities = new ArrayList<>();
     Map<Integer, SidebarMenuItemEntity> sidebarMenuItemEntityMap = new HashMap<>();
 
     log.info("Building page entity");
     while (rs.next()) {
-
 
       pageEntityBuilder.id(rs.getInt("page_id"));
       pageEntityBuilder.author(
@@ -40,7 +36,6 @@ public class PageEntityResultSetExtractor implements ResultSetExtractor<PageEnti
               .build());
 
       Integer parentSidebarId = rs.getInt("sidebar_id");
-      log.debug("**** SIDEBAR ID {}", parentSidebarId);
 
       SidebarMenuEntity.SidebarMenuEntityBuilder sidebarMenuEntityBuilder = SidebarMenuEntity.builder();
       sidebarMenuEntityBuilder.id(parentSidebarId)
@@ -64,36 +59,11 @@ public class PageEntityResultSetExtractor implements ResultSetExtractor<PageEnti
         }
       }
 
-
-
-//      pageComponentBuilder.id(rs.getInt("page_component_id"));
-//      pageComponentBuilder.title(rs.getString("page_component_title"));
-//
-//      // This shouldn't happen
-//      if (rs.getInt("page_component_author_id") != 0) {
-//        pageComponentBuilder.author(AuthorEntity.builder()
-//            .id(rs.getInt("page_component_author_id"))
-//            .userName(rs.getString("page_component_author_name"))
-//            .build());
-//      }
-//
-//      pageComponentBuilder.body(rs.getString("page_component_body"));
-//      String pageComponentType = rs.getString("page_component_type");
-//      pageComponentBuilder.type(PageComponent.ComponentType.valueOf(pageComponentType.toUpperCase()));
-//      pageComponentBuilder.publishedOn(rs.getObject("page_component_published_on", OffsetDateTime.class));
-//      pageComponents.add(pageComponentBuilder.build());
-//
-
       pageEntityBuilder.title(rs.getString("page_title"));
       pageEntityBuilder.publishedOn(rs.getObject("page_published_on", OffsetDateTime.class));
 
     }
 
-   // log.debug("**** PAGE COMPONENTS IN RS {}", pageComponents);
-
-   // pageEntityBuilder.pageComponents(pageComponents);
-    //   forEach((k, v) -> sidebarMenuEntities.add(v));
-    //sidebarMenuEntityMap.forEach((k, v) -> sidebarMenuEntities.add(v));
     pageEntityBuilder.sidebarMenus(new ArrayList<>(sidebarMenuEntityMap.values()));//sidebarMenuEntities);
 
     return pageEntityBuilder.build();

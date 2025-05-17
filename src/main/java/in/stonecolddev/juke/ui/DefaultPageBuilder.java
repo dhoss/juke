@@ -19,7 +19,6 @@ public class DefaultPageBuilder implements PageBuilder {
 
   private final PerRequestMetricsCollector perRequestMetricsCollector;
 
-  private final JdbcTemplate jdbcTemplate;
   private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
   private final ModelMapper mapper;
@@ -32,13 +31,11 @@ public class DefaultPageBuilder implements PageBuilder {
   ) {
     this.perRequestMetricsCollector = perRequestMetricsCollector;
     this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
-    this.jdbcTemplate = namedParameterJdbcTemplate.getJdbcTemplate();
     this.mapper = mapper;
   }
 
   public Page findPage(String slug) {
     Map<String, String> configuration = configuration();
-    log.debug("**** CONFIGURATION {}", configuration);
 
     SqlParameterSource namedParameters =
         new MapSqlParameterSource()
@@ -47,8 +44,6 @@ public class DefaultPageBuilder implements PageBuilder {
 
     // TODO: make an enum of counters we're tracking and use them instead of strings
     perRequestMetricsCollector.findOrCreateCounter("pageQueryCounter").increment();
-
-
 
     return mapper.map(
         namedParameterJdbcTemplate.query(
@@ -72,67 +67,9 @@ public class DefaultPageBuilder implements PageBuilder {
             where p.slug = :slug
             and p.is_deleted = false
             """,
-           // """
-           //     select
-           //         pc.title as "page_component_title"
-           //       , pc.id as "page_component_id"
-           //       , pc.type as "page_component_type"
-           //       , pc.body as "page_component_body"
-           //       , pc.published_on as "page_component_published_on"
-           //       , pc.author_id as "page_component_author_id"
-           //       , pca.user_name as "page_component_author_name"
-           //       , p.id as "page_id"
-           //       , p.published_on as "page_published_on"
-           //       , p.title as "page_title"
-           //       , a.user_name as "page_author"
-           //       , a.id as "author_id"
-           //     from pages p
-           //     inner join page_components_to_page_mappings pcm on p.id = pcm.page_id
-           //     left join page_components pc on pc.id = pcm.page_component_id
-           //     left join authors a on a.id = p.author_id
-           //     left join authors pca on pca.id = pc.author_id
-           //     where p.slug = 'front-page'
-           //     and p.is_deleted = false
-           //     order by pc.published_on desc
-           //     """,
         namedParameters,
         new PageEntityResultSetExtractor()), Page.class);
   }
-
-  // TODO: this is only being used in findPage, so figure out how to inline it there
-//  public Page basePage() {
-//
-//    // TODO: make an enum of counters we're tracking and use them instead of strings
-//    perRequestMetricsCollector.findOrCreateCounter("pageQueryCounter").increment();
-//
-//    return mapper.map(
-//        namedParameterJdbcTemplate.query(
-//            // TODO: pull common query pieces out and compose queries from them
-//            """
-//                    select
-//                        pc.title as "page_component_title"
-//                      , pc.id as "page_component_id"
-//                      , pc.type as "page_component_type"
-//                      , pc.body as "page_component_body"
-//                      , pc.published_on as "page_component_published_on"
-//                      , pc.author_id as "page_component_author_id"
-//                      , pca.user_name as "page_component_author_name"
-//                      , p.id as "page_id"
-//                      , p.published_on as "page_published_on"
-//                      , p.title as "page_title"
-//                      , a.user_name as "page_author"
-//                      , a.id as "author_id"
-//                    from pages p
-//                    inner join page_components_to_page_mappings pcm on p.id = pcm.page_id
-//                    left join page_components pc on pc.id = pcm.page_component_id
-//                    left join authors a on a.id = p.author_id
-//                    left join authors pca on pca.id = pc.author_id
-//                    where p.slug = 'base-page'
-//                    and p.is_deleted = false
-//                    order by pc.published_on desc
-//                """,
-//            new PageEntityResultSetExtractor()), Page.class);
-//  }
 
   public Map<String, String> configuration() {
     perRequestMetricsCollector.findOrCreateCounter("pageQueryCounter").increment();
@@ -156,21 +93,8 @@ public class DefaultPageBuilder implements PageBuilder {
 
     Page page = findPage(slug);
     pageView.put("sidebarItems", page.sidebarMenus());
-  //  for (PageComponent.ComponentType type : PageComponent.ComponentType.values()) {
-  //    List<PageComponent> c = new ArrayList<>();
-  //    for (var component : page.components()) {
-  //      if (component.type() == type) {
-  //        c.add(component);
-  //      }
-  //    }
-  //    pageView.put(type.name().toLowerCase() + "Items", c);
-  //  }
-
     pageView.put("page", page);
-    log.debug("**** PAGE VIEW {}", pageView);
 
     return pageView;
   }
-
-
 }

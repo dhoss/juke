@@ -138,30 +138,5 @@ public class DefaultPageBuilder implements PageBuilder {
     return pageView;
   }
 
-  // TODO: may want to move this somewhere else
-  public List<PageComponent> news() {
-    // TODO: make an enum of counters we're tracking and use them instead of strings
-    perRequestMetricsCollector.findOrCreateCounter("pageQueryCounter").increment();
-    return jdbcTemplate.query(
-        """
-            select
-              pc.id as "page_component_id"
-            , pc.slug as "page_component_slug"
-            , pc.author_id as "page_component_author_id"
-            , a.user_name as "page_component_author"
-            , pc.title as "page_component_title"
-            , pc.body as "page_component_body"
-            , pc.type as "page_component_type"
-            , pc.published_on as "page_component_published_on"
-            from page_components pc
-            left join authors a on a.id = pc.author_id
-            where pc.is_deleted = false
-            and pc.type = 'news'
-            order by pc.published_on desc
-            """,
-        new PageComponentEntityResultSetExtractor())
-        .stream()
-        .map(e -> mapper.map(e, PageComponent.class))
-        .toList();
-  }
+
 }

@@ -1,8 +1,6 @@
 -- TODO: layouts and sidebar_menus are almost the exact same, figure out a way to generalize them
 create table layouts(
   id integer not null generated always as identity primary key,
-  version integer not null default 1,
-  page_title varchar(100) not null unique,
   slug varchar(100) not null unique,
   is_enabled boolean not null default false,
   created_on timestamptz not null default now(),
@@ -11,7 +9,6 @@ create table layouts(
 
 create table sidebar_menus(
   id integer not null generated always as identity primary key,
-  version integer not null default 1,
   layout_id integer not null references layouts(id),
   title varchar(100) not null unique,
   slug varchar(32) not null unique,

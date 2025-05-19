@@ -19,7 +19,6 @@ public class Page {
   private String title;
   private OffsetDateTime publishedOn;
   private Author author;
-  private List<PageComponent> components;
   private List<SidebarMenu> sidebarMenus;
   private String slug;
 }

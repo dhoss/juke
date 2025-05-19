@@ -1,7 +1,6 @@
 package in.stonecolddev.juke.ui;
 
 
-import in.stonecolddev.juke.configuration.JukeConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -13,14 +12,10 @@ public class HomeController {
 
   private final Logger log = LoggerFactory.getLogger(HomeController.class);
 
-  private final JukeConfiguration jukeConfiguration;
-
   private final DefaultPageBuilder pageBuilder;
 
   public HomeController(
-      JukeConfiguration jukeConfiguration,
       DefaultPageBuilder pageBuilder) {
-    this.jukeConfiguration = jukeConfiguration;
     this.pageBuilder = pageBuilder;
   }
 
@@ -28,9 +23,17 @@ public class HomeController {
   public ModelAndView home() {
 
     ModelAndView mv = new ModelAndView("index");
+    // TODO: it would be cool if we could have a definition for a given page and retrieving it by name
+    //       pulls in all of those components from the db
+    //       e.g. Page page = Page.builder().layout(layoutName).build();
+    //            // ...
+    //            page.withTitle("New Title");
+    //            page.withModule(Module.Poll.builder().name("Poll Name").options(List.of(...)));
+    //       or define it in the database with a dsl/template language somehow
     mv.addAllObjects(pageBuilder.compileForView("front-page"));
 
-    mv.addObject("jukeAppVersion", jukeConfiguration.getVersion());
+    mv.addObject("motd", pageBuilder.motd());
+    mv.addObject("news", pageBuilder.news());
 
     return mv;
   }

@@ -1,5 +1,6 @@
 package in.stonecolddev.juke.ui;
 
+import in.stonecolddev.juke.configuration.JukeConfiguration;
 import in.stonecolddev.juke.metrics.PerRequestMetricsCollector;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -21,12 +22,17 @@ public class CommonPagePropertiesInterceptor implements HandlerInterceptor {
 
   private final PerRequestMetricsCollector perRequestMetricsCollector;
 
+  private final JukeConfiguration jukeConfiguration;
 
   private Timer.Sample pageConstructionSample;
 
   private MeterRegistry registry;
 
-  public CommonPagePropertiesInterceptor(PerRequestMetricsCollector perRequestMetricsCollector) {
+  public CommonPagePropertiesInterceptor(
+      JukeConfiguration jukeConfiguration,
+      PerRequestMetricsCollector perRequestMetricsCollector
+  ) {
+    this.jukeConfiguration = jukeConfiguration;
     this.perRequestMetricsCollector = perRequestMetricsCollector;
   }
 
@@ -45,7 +51,8 @@ public class CommonPagePropertiesInterceptor implements HandlerInterceptor {
     mv.addAllObjects(
         Map.of(
             "pageConstructionTimer", registry.timer("pageConstructionTimer").totalTime(TimeUnit.SECONDS),
-            "pageQueryCounter", perRequestMetricsCollector.counterValue("pageQueryCounter")));
+            "pageQueryCounter", perRequestMetricsCollector.counterValue("pageQueryCounter"),
+            "jukeAppVersion", jukeConfiguration.getVersion()));
   }
 
 }

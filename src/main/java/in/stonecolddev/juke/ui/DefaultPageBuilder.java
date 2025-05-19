@@ -2,14 +2,16 @@ package in.stonecolddev.juke.ui;
 
 import in.stonecolddev.juke.metrics.PerRequestMetricsCollector;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
+import org.modelmapper.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Component;
 
+import java.time.OffsetDateTime;
 import java.util.*;
 
 @Component
@@ -37,13 +39,8 @@ public class DefaultPageBuilder implements PageBuilder {
   public Page findPage(String slug) {
     Map<String, String> configuration = configuration();
 
-    SqlParameterSource namedParameters =
-        new MapSqlParameterSource()
-            .addValue("slug", slug)
-            .addValue("layoutId", Integer.parseInt(configuration.get("layoutId")));
-
     // TODO: make an enum of counters we're tracking and use them instead of strings
-    perRequestMetricsCollector.findOrCreateCounter("pageQueryCounter").increment();
+    perRequestMetricsCollector.incrementPageQueryCounter();
 
     return mapper.map(
         namedParameterJdbcTemplate.query(
@@ -68,13 +65,15 @@ public class DefaultPageBuilder implements PageBuilder {
             where p.slug = :slug
             and p.is_deleted = false
             """,
-        namedParameters,
+            new MapSqlParameterSource()
+                .addValue("slug", slug)
+                .addValue("layoutId", Integer.parseInt(configuration.get("layoutId"))),
         new PageEntityResultSetExtractor()), Page.class);
   }
 
   // TODO: this may be better suited as a bean created on startup
   public Map<String, String> configuration() {
-    perRequestMetricsCollector.findOrCreateCounter("pageQueryCounter").increment();
+    perRequestMetricsCollector.incrementPageQueryCounter();
 
     return namedParameterJdbcTemplate.query(
         """
@@ -88,6 +87,64 @@ public class DefaultPageBuilder implements PageBuilder {
           return kv;
         }
     );
+  }
+
+  public News motd() {
+    return findNews("motd").getFirst();
+  }
+
+  public List<News> news() {
+    return findNews("news");
+  }
+
+  private List<News> findNews(String type) {
+    // TODO: make an enum of counters we're tracking and use them instead of strings
+    perRequestMetricsCollector.incrementPageQueryCounter();
+
+    // for mapping to a List
+    mapper.getConfiguration()
+        .setFieldMatchingEnabled(true)
+        .setFieldAccessLevel(Configuration.AccessLevel.PRIVATE);
+
+    List<NewsEntity> newsEntities = namedParameterJdbcTemplate.query(
+        """
+            select
+              n.id as "news_id"
+            , n.title as "news_title"
+            , n.body as "news_body"
+            , n.type as "news_type"
+            , n.created_on as "news_created_on"
+            , n.published_on as "news_published_on"
+            , a.id as "author_id"
+            , a.user_name as "author_name"
+            from news n
+            left join authors a on a.id = n.author_id
+            where n.type = :type::news_type
+            and n.published_on is not null
+            order by n.published_on desc
+            """,
+        new MapSqlParameterSource().addValue("type", type),
+        rs -> {
+          List<NewsEntity> newsRows = new ArrayList<>();
+          while (rs.next()) {
+            NewsEntity.NewsEntityBuilder newsBuilder = NewsEntity.builder();
+            newsBuilder.id(rs.getInt("news_id"))
+                .title(rs.getString("news_title"))
+                .body(rs.getString("news_body"))
+                .createdOn(rs.getObject("news_created_on", OffsetDateTime.class))
+                .publishedOn(rs.getObject("news_published_on", OffsetDateTime.class))
+                .type(rs.getString("news_type"))
+                .author(AuthorEntity.builder()
+                    .id(rs.getInt("author_id"))
+                    .userName(rs.getString("author_name"))
+                    .build());
+            newsRows.add(newsBuilder.build());
+          }
+          return newsRows;
+        });
+
+    return mapper.map(newsEntities, new TypeToken<List<News>>(){}.getType());
+
   }
 
   // TODO: really not sure we even need this

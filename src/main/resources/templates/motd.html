@@ -1,25 +1,23 @@
-<table border="0" width="100%" class="tableTop" th:fragment="news-item">
+<table border="0" width="100%" class="tableTop">
     <tr>
         <td width="100%">
                 <table class="tableHeader" border="0" cellspacing="0" cellpadding="0" width="100%">
                     <tr>
                         <td class="tableHeaderText" colspan="2" width="100%">
-                            motdItems.get(0).title
-                            <!--<span th:text="${motdItems.get(0).title}"/>-->
+                            <span th:text="${motd.title}"/>
                         </td>
                     </tr>
                     <tr>
                         <td class="tableHeaderText news-item-info">
-                            <!--<span th:text="${page.components.get('motd').author.userName}" />--> on motdItems.get(0).publishedOn
-                            <!----<span th:text="${page.components.get('motd').author.userName}" />-- on <span th:text="${motdItems.get(0).publishedOn}"/>-->
+                            <!-- TODO: format dates -->
+                            <span th:text="${motd.author.userName}" /> on <span th:text="${motd.createdOn}"/>
                         </td>
                     </tr>
                 </table>
                 <table border="0" cellspacing="0" cellpadding="0" width="100%">
                     <tr>
                         <td class="tableTopNormal">
-                            ${motdItems.get(0).body}
-                            <!--<span th:text="${motdItems.get(0).body}" />-->
+                            <span th:text="${motd.body}" />
                         </td>
                     </tr>
                 </table>

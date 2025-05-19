@@ -16,4 +16,8 @@ public class PerRequestMetricsCollector implements WithMetrics {
     return meterRegistry;
   }
 
+  public void incrementPageQueryCounter() {
+    findOrCreateCounter("pageQueryCounter").increment();
+  }
+
 }

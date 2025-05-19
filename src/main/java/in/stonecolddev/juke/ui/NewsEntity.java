@@ -12,14 +12,12 @@ import java.time.OffsetDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PageComponentEntity {
+public class NewsEntity {
     private Integer id;
-    private AuthorEntity author;
     private String title;
+    private AuthorEntity author;
     private String body;
-    private String slug;
-    private PageComponent.ComponentType type;
-    private Boolean isDeleted;
+    private String type;
     private OffsetDateTime createdOn;
     private OffsetDateTime updatedOn;
     private OffsetDateTime publishedOn;

@@ -82,7 +82,7 @@
                                                         <td class="tableHeader" width="100%">News</td>
                                                     </tr>
                                                     <tr>
-                                                        <td th:each="item : ${newsItems}" th:insert="~{news-item :: news(${item})}"></td>
+                                                        <td th:each="item : ${news}" th:insert="~{news-item :: news(${item})}"></td>
                                                     </tr>
                                                 </table>
                                             </td>

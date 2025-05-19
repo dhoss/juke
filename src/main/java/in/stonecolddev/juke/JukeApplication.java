@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @SpringBootApplication
-@ConfigurationPropertiesScan
+//@ConfigurationPropertiesScan
 public class JukeApplication {
 
 	public static void main(String[] args) {

@@ -2,8 +2,14 @@ spring:
   profiles:
     active: local
 management:
+  info:
+    env:
+      enabled: true
   endpoints:
     enabled-by-default: false
   endpoint:
     health:
       enabled: true
+# this gets replaced properly when you run mvn clean compile but not mvn clean spring-boot:run
+juke:
+  version: '@project.version@'

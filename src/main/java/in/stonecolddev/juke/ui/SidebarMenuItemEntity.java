@@ -8,18 +8,17 @@ import lombok.experimental.Accessors;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Data
-@Builder(toBuilder = true)
-@NoArgsConstructor
+@Builder
 @AllArgsConstructor
+@NoArgsConstructor
 @Accessors(fluent = true)
-public class Page {
+public class SidebarMenuItemEntity {
+  private Integer id;
+  private Integer sidebarMenuId;
   private String title;
-  private OffsetDateTime publishedOn;
-  private Author author;
-  private List<PageComponent> components;
-  private List<SidebarMenu> sidebarMenus;
-  private String slug;
+  private String body;
+  private OffsetDateTime createdOn;
+  private OffsetDateTime updatedOn;
 }

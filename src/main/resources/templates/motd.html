@@ -4,19 +4,22 @@
                 <table class="tableHeader" border="0" cellspacing="0" cellpadding="0" width="100%">
                     <tr>
                         <td class="tableHeaderText" colspan="2" width="100%">
-                            <span th:text="${page.components.get('motd').title}"/>
+                            motdItems.get(0).title
+                            <!--<span th:text="${motdItems.get(0).title}"/>-->
                         </td>
                     </tr>
                     <tr>
                         <td class="tableHeaderText news-item-info">
-                            <span th:text="${page.components.get('motd').author.userName}" /> on <span th:text="${page.components.get('motd').publishedOn}"/>
+                            <!--<span th:text="${page.components.get('motd').author.userName}" />--> on motdItems.get(0).publishedOn
+                            <!----<span th:text="${page.components.get('motd').author.userName}" />-- on <span th:text="${motdItems.get(0).publishedOn}"/>-->
                         </td>
                     </tr>
                 </table>
                 <table border="0" cellspacing="0" cellpadding="0" width="100%">
                     <tr>
                         <td class="tableTopNormal">
-                            <span th:text="${page.components.get('motd').body}" />
+                            ${motdItems.get(0).body}
+                            <!--<span th:text="${motdItems.get(0).body}" />-->
                         </td>
                     </tr>
                 </table>

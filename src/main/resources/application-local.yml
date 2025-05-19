@@ -29,6 +29,3 @@ logging:
     in.stonecolddev: DEBUG
     org.springframework.jdbc.core: TRACE
     org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
-juke:
-  version: "1"
-  #"${project.version}"

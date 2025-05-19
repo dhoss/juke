@@ -3,6 +3,7 @@ package in.stonecolddev.juke.metrics;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 
+// TODO: determine if we actually need this
 public interface WithMetrics {
 
   MeterRegistry meterRegistry();

@@ -11,7 +11,6 @@
 <!-- TODO: refactor to use thymeleaf layout dialect https://www.thymeleaf.org/doc/articles/layouts.html -->
 <body>
 <table border="0" width="100%" cellspacing="0" cellpadding="0" height="100%">
-    <!--<table border="0" width="100%" cellspacing="0" cellpadding="0" height="100%">-->
     <tr>
         <td width="100%" valign="top" align="left">
             <table border="0" width="100%" cellspacing="0" cellpadding="0">
@@ -36,15 +35,15 @@
                             </tr>
                             <tr>
                                 <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-                                <td width="100%" valign="top" align="left">
+                                <td width="100%" valign="top" align="left" height="100%">
                                     <!-- begin page body -->
-                                    <div th:text="${page.body}" id="page-body"></div>
+                                    <div th:utext="${page.body}" id="page-body"></div>
                                     <!-- end page body -->
                                 </td>
                             </tr>
                             <tr>
-                                <td width="100%" colspan="2">
-                                    <table border="0" cellspacing="0" cellpadding="0" class="tableTopNormal" width="100%" height="100%">
+                                <td width="100%" colspan="2" height="100%">
+                                    <table border="0" cellspacing="0" cellpadding="0" class="tableTopNormal" width="100%">
                                         <tr>
                                             <td>
                                                 <table border="0" cellspacing="0" cellpadding="0" class="tableTopNormal" width="100%" height="100%">

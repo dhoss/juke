@@ -1,6 +1,9 @@
 package in.stonecolddev.juke.ui;
 
 import in.stonecolddev.juke.metrics.PerRequestMetricsCollector;
+import org.commonmark.node.Node;
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.modelmapper.config.Configuration;
@@ -8,11 +11,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class DefaultPageBuilder implements PageBuilder {
@@ -24,6 +29,10 @@ public class DefaultPageBuilder implements PageBuilder {
   private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
   private final ModelMapper mapper;
+
+  private final Parser parser = Parser.builder().build();
+
+  private final HtmlRenderer renderer = HtmlRenderer.builder().build();
 
   // TODO: make this a fluent api, fuck it why not
   public DefaultPageBuilder(
@@ -152,7 +161,12 @@ public class DefaultPageBuilder implements PageBuilder {
   public Map<String, Object> compileForView(String slug) {
     Map<String, Object> pageView = new HashMap<>();
 
-    pageView.put("page", findPage(slug));
+    Page page = findPage(slug);
+    pageView.put(
+        "page",
+        page.toBuilder()
+            .body(renderer.render(parser.parse(page.body())))
+            .build());
 
     return pageView;
   }

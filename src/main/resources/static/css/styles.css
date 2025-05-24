@@ -13,7 +13,6 @@ body {
 
 p {
 	font-family: helvetica;
-	font-size: 8pt;
 	font-weight: 100;
 }
 
@@ -59,12 +58,6 @@ div {
 
 .sidebar {
   width: 200px;
-}
-
-div.container {
-  height: 100%;
-  width: 100%;
-  border: 1px solid #000000;
 }
 
 .container-table {

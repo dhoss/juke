@@ -25,7 +25,7 @@ insert into sidebar_menus(title, slug, is_enabled, layout_id)
 values('Info', 'info', true, (select id from layouts where slug='default'));
 
 insert into sidebar_menu_items(sidebar_menus_id, title, body)
-values((select id from sidebar_menus where slug='info'), 'About', '/about');
+values((select id from sidebar_menus where slug='info'), 'About', '/about.html');
 
 insert into sidebar_menu_items(sidebar_menus_id, title, body)
 values((select id from sidebar_menus where slug='info'), 'Juke Source Code', 'https://github.com/dhoss/juke');

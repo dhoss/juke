@@ -22,7 +22,7 @@ public class PageController {
 
   @GetMapping("/{pageSlug}.html")
   public ModelAndView findPage(@PathVariable("pageSlug") String pageSlug) {
-    ModelAndView mv = new ModelAndView("pages/page.html");
+    ModelAndView mv = new ModelAndView("pages/page");
 
     mv.addAllObjects(pageBuilder.compileForView(pageSlug));
 

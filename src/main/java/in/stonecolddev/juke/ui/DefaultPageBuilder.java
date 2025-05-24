@@ -36,7 +36,7 @@ public class DefaultPageBuilder implements PageBuilder {
     this.mapper = mapper;
   }
 
-  public Page findPage(String slug) {
+  private Page findPage(String slug) {
     Map<String, String> configuration = configuration();
 
     // TODO: make an enum of counters we're tracking and use them instead of strings
@@ -56,6 +56,7 @@ public class DefaultPageBuilder implements PageBuilder {
             , p.id as "page_id"
             , p.published_on as "page_published_on"
             , p.title as "page_title"
+            , p.body as "page_body"
             , a.user_name as "page_author"
             , a.id as "author_id"
             from pages p
@@ -72,7 +73,7 @@ public class DefaultPageBuilder implements PageBuilder {
   }
 
   // TODO: this may be better suited as a bean created on startup
-  public Map<String, String> configuration() {
+  private Map<String, String> configuration() {
     perRequestMetricsCollector.incrementPageQueryCounter();
 
     return namedParameterJdbcTemplate.query(

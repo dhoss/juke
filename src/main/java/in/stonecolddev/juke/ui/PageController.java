@@ -24,6 +24,8 @@ public class PageController {
   public ModelAndView findPage(@PathVariable("pageSlug") String pageSlug) {
     ModelAndView mv = new ModelAndView("pages/page.html");
 
+    mv.addAllObjects(pageBuilder.compileForView(pageSlug));
+
     return mv;
   }
 }

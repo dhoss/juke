@@ -1,7 +1,9 @@
 package in.stonecolddev.juke.ui;
 
+import java.util.Map;
+
 public interface PageBuilder {
 
-  Page findPage(String pageSlug);
+  Map<String, Object> compileForView(String pageSlug);
 
 }

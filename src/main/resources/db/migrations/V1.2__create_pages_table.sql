@@ -6,6 +6,7 @@ create table pages (
   is_deleted boolean not null default false,
   slug varchar(30) not null,
   layout_id integer not null references layouts(id),
+  body varchar, -- TODO: index with tsearch2
   created_on timestamptz not null default now(),
   updated_on timestamptz,
   published_on timestamptz

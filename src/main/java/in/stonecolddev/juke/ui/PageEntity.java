@@ -21,6 +21,7 @@ public class PageEntity {
     private AuthorEntity author;
     private String title;
     private List<SidebarMenuEntity> sidebarMenus;
+    private String body;
     // TODO: isDeleted, createdOn etc should go in an interface and table entities should extend it
     private Boolean isDeleted;
     private String slug;

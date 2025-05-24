@@ -53,6 +53,8 @@ public class PageEntityResultSetExtractor implements ResultSetExtractor<PageEnti
       pageEntityBuilder.title(rs.getString("page_title"));
       pageEntityBuilder.publishedOn(rs.getObject("page_published_on", OffsetDateTime.class));
 
+      pageEntityBuilder.body(rs.getString("page_body"));
+
     }
 
     List<SidebarMenuEntity> mergedSidebarMenuEntities = new ArrayList<>();

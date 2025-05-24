@@ -11,12 +11,13 @@ values(
 (select id from layouts where slug = 'default'),
 now());
 
-insert into pages(author_id, title, slug, layout_id, published_on)
+insert into pages(author_id, title, slug, layout_id, body, published_on)
 values(
 (select id from authors where email = 'devin.austin@gmail.com'),
 'Juke CMS - About',
 'about',
 (select id from layouts where slug = 'default'),
+'About Juke Text',
 now());
 
 -- create default menus
@@ -24,7 +25,7 @@ insert into sidebar_menus(title, slug, is_enabled, layout_id)
 values('Info', 'info', true, (select id from layouts where slug='default'));
 
 insert into sidebar_menu_items(sidebar_menus_id, title, body)
-values((select id from sidebar_menus where slug='info'), 'About', '/pages/about');
+values((select id from sidebar_menus where slug='info'), 'About', '/about');
 
 insert into sidebar_menu_items(sidebar_menus_id, title, body)
 values((select id from sidebar_menus where slug='info'), 'Juke Source Code', 'https://github.com/dhoss/juke');

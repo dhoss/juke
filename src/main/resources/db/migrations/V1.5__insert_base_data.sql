@@ -17,7 +17,8 @@ values(
 'Juke CMS - About',
 'about',
 (select id from layouts where slug = 'default'),
-'About Juke Text',
+E'## About Juke Text  \n'
+'Juke is a spiritual clone of phpnuke.',
 now());
 
 -- create default menus

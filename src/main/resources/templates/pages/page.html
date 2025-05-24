@@ -9,8 +9,9 @@
     <meta charset="UTF-8" />
 </head>
 <!-- TODO: refactor to use thymeleaf layout dialect https://www.thymeleaf.org/doc/articles/layouts.html -->
-<body topmargin="0" leftmargin="0" marginheight="0" marginwidth="0">
-<table border="0" width="100%" cellspacing="0" cellpadding="0">
+<body>
+<table border="0" width="100%" cellspacing="0" cellpadding="0" height="100%">
+    <!--<table border="0" width="100%" cellspacing="0" cellpadding="0" height="100%">-->
     <tr>
         <td width="100%" valign="top" align="left">
             <table border="0" width="100%" cellspacing="0" cellpadding="0">
@@ -37,7 +38,7 @@
                                 <div th:replace="fragments/sidebar :: sidebar"></div>
                                 <td width="100%" valign="top" align="left">
                                     <!-- begin page body -->
-                                    <div th:text="${page.body}"></div>
+                                    <div th:text="${page.body}" id="page-body"></div>
                                     <!-- end page body -->
                                 </td>
                             </tr>
@@ -48,7 +49,12 @@
                                             <td>
                                                 <table border="0" cellspacing="0" cellpadding="0" class="tableTopNormal" width="100%" height="100%">
                                                     <tr>
-                                                        <td align="center">Copyright</td>
+                                                        <td align="center">
+                                                            Copyright © <span id="copyright-year"></span> <a href="https://stonecolddev.in">stonecolddev.in</a>.
+                                                            <script>
+                                                                document.getElementById('copyright-year').textContent = new Date().getFullYear();
+                                                            </script>
+                                                        </td>
                                                     </tr>
                                                 </table>
                                             </td>
@@ -61,24 +67,6 @@
                                     <div align="center">
                                         <center>
                                             <table class="tableHeader" width="100%">
-                                                <tr>
-                                                    <td align="center" colspan="2"><font face="Arial" size="1">
-                                                        Copyright © <span id="copyright-year"></span> <a href="https://stonecolddev.in">stonecolddev.in</a>.
-                                                        <script>
-                                                        document.getElementById('copyright-year').textContent = new Date().getFullYear();
-                                                        </script>
-
-                                                    </font></td>
-                                                </tr>
-                                                <tr>
-                                                    <td align="center" colspan="2">
-                                                        <div>
-                                                        <font face="Arial" size="1">
-                                                        Juke <span th:text="${jukeAppVersion}"></span>
-                                                        </font>
-                                                        </div>
-                                                    </td>
-                                                </tr>
                                                 <tr>
                                                     <td width="100%" align="center" colspan="2">
                                                         <center>

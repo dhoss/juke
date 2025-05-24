@@ -14,32 +14,12 @@ jobs:
           java-version: '23'
           distribution: 'corretto'
           architecture: x64
-      - name: Install doctl
-        uses: digitalocean/action-doctl@v2
+      - name: Install dependencies
+        run: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+      - name: Run tests and collect coverage
+        run: mvn -B test
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
         with:
-          token: ${{ secrets.TOKEN }}
-
-      - name: Log in to DigitalOcean Container Registry with short-lived credentials
-        run: doctl registry login --expiry-seconds 12000 --access-token ${{ secrets.TOKEN }} -v
-
-      - name: Update app spec if needed
-        run: doctl apps update ${{ secrets.APP_ID }} --spec do/app-spec.yml
-
-      - name: Check if image exists
-        id: check_image
-        run: |
-          TAG=$(echo $GITHUB_SHA | head -c7)
-          if doctl registry repository list-tags app --format Tag | grep -q $TAG; then
-            echo "Image with tag $TAG already exists."
-            echo "image_exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "Image with tag $TAG does not exist."
-            echo "image_exists=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Build and push container image
-        if: steps.check_image.outputs.image_exists == 'false'
-        run: |
-          TAG=$(echo $GITHUB_SHA | head -c7)
-          mvn clean spring-boot:build-image -Dspring-boot.build-image.imageName=${{ secrets.REGISTRY_NAME }}/juke:$TAG
-          docker push ${{ secrets.REGISTRY_NAME }}/juke:$TAG
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: dhoss/juke

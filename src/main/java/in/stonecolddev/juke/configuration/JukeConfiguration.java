@@ -10,5 +10,6 @@ import org.springframework.context.annotation.Profile;
 @Profile({"local", "unit-test", "it-test", "dev", "prod"})
 @Data
 public class JukeConfiguration {
+  // TODO: combine this with database configuration
   private String version;
 }

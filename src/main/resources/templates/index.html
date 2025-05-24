@@ -8,6 +8,7 @@
     <title th:text="${page.title}"></title>
     <meta charset="UTF-8" />
 </head>
+<!-- TODO: refactor to use thymeleaf layout dialect https://www.thymeleaf.org/doc/articles/layouts.html -->
 <body topmargin="0" leftmargin="0" marginheight="0" marginwidth="0">
 <table border="0" width="100%" cellspacing="0" cellpadding="0">
     <tr>
@@ -21,16 +22,7 @@
                                     <table border="0" cellspacing="0" cellpadding="0" class="tableTop" width="100%">
                                         <tr>
                                             <td>
-                                                <!-- header -->
-                                                <table border="0" cellspacing="0" cellpadding="0" class="tableHeader" width="100%">
-                                                    <tr>
-                                                        <td valign="top" align="left" width="50%"><img border="0" th:src="@{/img/cz_girl.jpg}" width="410" height="100" alt="cz_girl"></td>
-                                                        <td valign="top" align="right">
-                                                            <a href="https://web.archive.org/web/20031008164617/http://www.czleagues.com/combat/mw3/" target="_top"><img th:src="@{/img/cz_mw3_165x100.gif}" 
-                                                            border="0" width="165" height="100" alt="cz_mw3_165x100"></a>
-                                                        </td>
-                                                    </tr>
-                                                </table>
+                                                <div th:replace="~{fragments/header :: header}"></div>
                                             </td>
                                         </tr>
                                     </table>
@@ -38,37 +30,11 @@
                             </tr>
                             <tr>
                                 <td width="100%" colspan="2">
-                                    <!-- start top navbar -->
-                                    <table border="0" cellspacing="0" cellpadding="0" class="tableTop" width="100%">
-                                        <tr>
-                                            <td class="tableColumnHeader" align="center">Welcome Guest</td>
-                                            <td class="tableColumnHeader" align="center" onmouseover="changeColumn(this,'on');style.cursor='hand'" onmouseout="changeColumn(this,'off')" onclick="window.location='index.php?op=login'">
-                                                <a href="index.php?op=login">Login</a>
-                                            </td>
-                                            <td class="tableColumnHeader" align="center" onmouseover="changeColumn(this,'on');style.cursor='hand'" onmouseout="changeColumn(this,'off')" onclick="window.location='index.php?op=user_add'">
-                                                <a href="index.php?op=user_add">New Account</a>
-                                            </td>
-                                            <td class="tableColumnHeader" align="center" onmouseover="changeColumn(this,'on');style.cursor='hand'" onmouseout="changeColumn(this,'off')" onclick="window.location='mailto:cz_mw3_admin@czleagues.com'">Contact</td>
-                                        </tr>
-                                    </table>
-                                    <!-- end top navbar -->
+                                    <div th:replace="~{fragments/top-navbar :: top-navbar}"></div>
                                 </td>
                             </tr>
                             <tr>
-                                <!-- start left navbar -->
-                                <td>
-                                    <table border="1" cellspacing="0" cellpadding="0" class="tableTop" width="200">
-                                        <tr>
-                                            <td class="tableHeader" width="100%" align="center">Menu</td>
-                                        </tr>
-                                        <tr>
-                                            <td width="100%">
-                                                <div th:each="item : ${page.sidebarMenus}" th:insert="~{sidebar-item :: sidebar(${item})}"></div>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </td>
-                                <!-- end side bar -->
+                                <div th:replace="~{fragments/sidebar :: sidebar}"></div>
                                 <td width="100%" valign="top" align="left">
                                     <!-- begin news section -->
                                     <table border="0" width="100%" height="100%">

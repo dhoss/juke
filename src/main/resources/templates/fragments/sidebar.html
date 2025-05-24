@@ -1,0 +1,12 @@
+<td th:fragment="sidebar" valign="top">
+    <table border="1" cellspacing="0" cellpadding="0" class="tableTop" width="200">
+        <tr>
+            <td class="tableHeader" width="100%" align="center">Menu</td>
+        </tr>
+        <tr>
+            <td width="100%">
+                <div th:each="item : ${page.sidebarMenus}" th:insert="~{sidebar-item :: sidebar(${item})}"></div>
+            </td>
+        </tr>
+    </table>
+</td>

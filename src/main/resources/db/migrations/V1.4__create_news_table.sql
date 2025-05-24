@@ -10,3 +10,32 @@ create table news(
   updated_on timestamptz,
   published_on timestamptz
 );
+
+-- create a motd
+insert into news(title, author_id, body, type, published_on)
+values(
+  'Welcome to Juke',
+  (select id from authors where email = 'devin.austin@gmail.com'),
+  'Welcome to the Juke CMS',
+  'motd',
+  now()
+);
+
+-- create some news
+insert into news(title, author_id, body, type, published_on)
+values(
+  'Juke News',
+  (select id from authors where email = 'devin.austin@gmail.com'),
+  'News about juke',
+  'news',
+  now()
+);
+
+insert into news(title, author_id, body, type, published_on)
+values(
+  'More Juke News',
+  (select id from authors where email = 'devin.austin@gmail.com'),
+  'More news about juke',
+  'news',
+  now()
+);

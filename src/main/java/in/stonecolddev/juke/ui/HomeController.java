@@ -12,10 +12,10 @@ public class HomeController {
 
   private final Logger log = LoggerFactory.getLogger(HomeController.class);
 
-  private final DefaultPageBuilder pageBuilder;
+  private final DefaultPageHandler pageBuilder;
 
   public HomeController(
-      DefaultPageBuilder pageBuilder) {
+      DefaultPageHandler pageBuilder) {
     this.pageBuilder = pageBuilder;
   }
 

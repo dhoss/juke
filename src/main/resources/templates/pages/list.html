@@ -1,0 +1,16 @@
+<!DOCTYPE HTML>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{pages/layout/default-admin-page}">
+<head>
+    <title layout:fragment="title">Juke - List Pages</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<main layout:fragment="content">
+<h1>Pages</h1>
+<ul>
+    <li th:each="page : ${pages}"><a th:text="${page.title}" th:href="@{/{slug}(slug=${page.slug})}"></a></li>
+</ul>
+</main>
+</body>
+</html>

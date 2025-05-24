@@ -7,6 +7,9 @@ create table layouts(
   updated_on timestamptz
 );
 
+-- create default layout
+insert into layouts(slug, is_enabled) values('default', true);
+
 create table sidebar_menus(
   id integer not null generated always as identity primary key,
   layout_id integer not null references layouts(id),
@@ -25,3 +28,25 @@ create table sidebar_menu_items(
   created_on timestamptz not null default now(),
   updated_on timestamptz
 );
+
+-- create default menus
+insert into sidebar_menus(title, slug, is_enabled, layout_id)
+values('Info', 'info', true, (select id from layouts where slug='default'));
+
+insert into sidebar_menu_items(sidebar_menus_id, title, body)
+values((select id from sidebar_menus where slug='info'), 'About', '/about.html');
+
+insert into sidebar_menu_items(sidebar_menus_id, title, body)
+values((select id from sidebar_menus where slug='info'), 'Juke Source Code', 'https://github.com/dhoss/juke');
+
+insert into sidebar_menus(title, slug, is_enabled, layout_id)
+values('Forums', 'forums', true, (select id from layouts where slug='default'));
+
+insert into sidebar_menu_items(sidebar_menus_id, title, body)
+values((select id from sidebar_menus where slug='forums'), 'General', '/forums/general');
+
+insert into sidebar_menu_items(sidebar_menus_id, title, body)
+values((select id from sidebar_menus where slug='forums'), 'Computers', '/forums/computers');
+
+insert into sidebar_menu_items(sidebar_menus_id, title, body)
+values((select id from sidebar_menus where slug='forums'), 'Gaming', '/forums/gaming');

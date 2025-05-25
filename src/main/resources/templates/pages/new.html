@@ -1,0 +1,16 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>Juke - Create New Page</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<h1>Create new page</h1>
+<form action="#" th:action="@{/pages/create}" th:object="${page}" method="post">
+    <p>Title: <input type="text" th:field="*{title}" /></p>
+    <p>Body: <textarea th:field="*{body}" rows="10" cols="50"></textarea></p>
+    <p>Publish on: <input type="datetime-local" th:field="*{publishedOn}" /></p>
+    <p><input type="submit" value="Submit" /></p>
+</form>
+</body>
+</html>

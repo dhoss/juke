@@ -5,7 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -25,6 +27,24 @@ public class PageController {
     ModelAndView mv = new ModelAndView("pages/page");
 
     mv.addAllObjects(pageBuilder.compileForView(pageSlug));
+
+    return mv;
+  }
+
+  @GetMapping("/pages/new")
+  public ModelAndView newPage() {
+    ModelAndView mv = new ModelAndView("pages/new");
+
+    mv.addObject("page", new CreatePageForm());
+
+    return mv;
+  }
+
+  @PostMapping("/pages/create")
+  public ModelAndView createPage(@ModelAttribute CreatePageForm page) {
+    log.debug("***** PAGE {}", page);
+    ModelAndView mv = new ModelAndView("pages/create-result");
+    mv.addObject("page", page);
 
     return mv;
   }

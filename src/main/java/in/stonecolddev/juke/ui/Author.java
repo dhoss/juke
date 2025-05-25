@@ -12,5 +12,6 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @Accessors(fluent = true)
 public class Author {
+  // TODO: add email field
   private String userName;
 }

@@ -15,18 +15,18 @@ public class PageController {
 
   private final Logger log = LoggerFactory.getLogger(PageController.class);
 
-  private final DefaultPageBuilder pageBuilder;
+  private final DefaultPageHandler pageHandler;
 
   public PageController(
-      DefaultPageBuilder pageBuilder) {
-    this.pageBuilder = pageBuilder;
+      DefaultPageHandler pageHandler) {
+    this.pageHandler = pageHandler;
   }
 
   @GetMapping("/{pageSlug}.html")
   public ModelAndView findPage(@PathVariable("pageSlug") String pageSlug) {
     ModelAndView mv = new ModelAndView("pages/page");
 
-    mv.addAllObjects(pageBuilder.compileForView(pageSlug));
+    mv.addAllObjects(pageHandler.compileForView(pageSlug));
 
     return mv;
   }
@@ -41,10 +41,10 @@ public class PageController {
   }
 
   @PostMapping("/pages/create")
-  public ModelAndView createPage(@ModelAttribute CreatePageForm page) {
-    log.debug("***** PAGE {}", page);
+  public ModelAndView createPage(@ModelAttribute CreatePageForm pageFormData) {
     ModelAndView mv = new ModelAndView("pages/create-result");
-    mv.addObject("page", page);
+
+    mv.addObject("page", pageHandler.createPage(pageFormData));
 
     return mv;
   }

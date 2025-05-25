@@ -1,28 +1,35 @@
 package in.stonecolddev.juke.ui;
 
+import com.github.slugify.Slugify;
 import in.stonecolddev.juke.metrics.PerRequestMetricsCollector;
-import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeMap;
 import org.modelmapper.TypeToken;
 import org.modelmapper.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Component
-public class DefaultPageBuilder implements PageBuilder {
+public class DefaultPageHandler implements PageBuilder {
 
-  private final Logger log = LoggerFactory.getLogger(DefaultPageBuilder.class);
+  private final Logger log = LoggerFactory.getLogger(DefaultPageHandler.class);
 
   private final PerRequestMetricsCollector perRequestMetricsCollector;
 
@@ -35,7 +42,7 @@ public class DefaultPageBuilder implements PageBuilder {
   private final HtmlRenderer renderer = HtmlRenderer.builder().build();
 
   // TODO: make this a fluent api, fuck it why not
-  public DefaultPageBuilder(
+  public DefaultPageHandler(
       PerRequestMetricsCollector perRequestMetricsCollector,
       NamedParameterJdbcTemplate namedParameterJdbcTemplate,
       ModelMapper mapper
@@ -43,8 +50,17 @@ public class DefaultPageBuilder implements PageBuilder {
     this.perRequestMetricsCollector = perRequestMetricsCollector;
     this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     this.mapper = mapper;
+
+
+    TypeMap<CreatePageForm, PageEntity> propertyMapper = this.mapper.createTypeMap(CreatePageForm.class, PageEntity.class);
+    Converter<LocalDateTime, OffsetDateTime> dateTimeConverter =
+        l -> OffsetDateTime.of(l.getSource(), ZoneOffset.UTC); // TODO: timezone should be configurable
+    propertyMapper.addMappings(
+        m -> m.using(dateTimeConverter).map(
+            CreatePageForm::getPublishedOn, PageEntity::setPublishedOn));// (p, v) -> p.publishedOn(OffsetDateTime.of((LocalDateTime) v, ZoneOffset.UTC))));
   }
 
+  // TODO: this should return an Optional<Page>
   private Page findPage(String slug) {
     Map<String, String> configuration = configuration();
 
@@ -157,7 +173,6 @@ public class DefaultPageBuilder implements PageBuilder {
 
   }
 
-  // TODO: really not sure we even need this
   public Map<String, Object> compileForView(String slug) {
     Map<String, Object> pageView = new HashMap<>();
 
@@ -169,5 +184,60 @@ public class DefaultPageBuilder implements PageBuilder {
             .build());
 
     return pageView;
+  }
+
+  public Page createPage(CreatePageForm pageForm) {
+    log.debug("**** PAGEFORM {}", pageForm);
+
+    PageEntity pageFromForm = mapper.map(pageForm, PageEntity.class);
+
+    perRequestMetricsCollector.incrementPageQueryCounter();
+    // TODO: i would prefer to use a wither here
+    pageFromForm = pageFromForm.toBuilder().author(
+        namedParameterJdbcTemplate.getJdbcTemplate().query(
+            "select id, user_name, email from authors where email = 'devin.austin@gmail.com'",
+            rs -> {
+              var author = AuthorEntity.builder();
+              while (rs.next()) {
+                log.debug("**** AUTHOR {}", rs.getInt("id"));
+                log.debug("**** AUTHOR {}", rs.getString("user_name"));
+                log.debug("**** AUTHOR {}", rs.getString("email"));
+                author
+                    .id(rs.getInt("id"))
+                    .userName(rs.getString("user_name"))
+                    .email(rs.getString("email"));
+              }
+              return author.build();
+        })).build();
+    log.debug("**** AUTHOR IN PAGE {}", pageFromForm.author());
+
+    Slugify slugGenerator = Slugify.builder().build();
+    String pageSlug = slugGenerator.slugify(pageFromForm.title());
+
+    perRequestMetricsCollector.incrementPageQueryCounter();
+    log.debug("**** PAGE FROM FORM {}", pageFromForm.title());
+    log.debug("**** PAGE FROM FORM {}", pageFromForm.body());
+    log.debug("**** PAGE FROM FORM {}", pageFromForm.author().id());
+    log.debug("**** PAGE FROM FORM {}", pageSlug);
+    log.debug("**** PAGE FROM FORM {}", pageFromForm.publishedOn());
+    Map<String, ? extends Serializable> values = Map.of(
+        "title", pageFromForm.title(),
+        "body", pageFromForm.body(),
+        "authorId", pageFromForm.author().id(),
+        "slug", pageSlug,
+        "publishedOn", pageFromForm.publishedOn());
+    log.debug("***** PARAMETERS {}", values);
+    namedParameterJdbcTemplate.update(
+        """
+            insert into pages(title, body, author_id, slug, layout_id, published_on)
+            values(:title, :body, :authorId, :slug, (select id from layouts where slug = 'default'), :publishedOn)
+            """,
+        new MapSqlParameterSource().addValues(
+            values
+        ));
+
+    perRequestMetricsCollector.incrementPageQueryCounter();
+
+    return findPage(pageSlug);
   }
 }

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(fluent = true)
@@ -28,4 +28,8 @@ public class PageEntity {
     private OffsetDateTime createdOn;
     private OffsetDateTime updatedOn;
     private OffsetDateTime publishedOn;
+
+    public void setPublishedOn(OffsetDateTime dt) {
+        this.publishedOn(dt);
+    }
 }

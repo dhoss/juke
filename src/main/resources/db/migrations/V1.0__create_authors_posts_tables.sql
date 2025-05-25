@@ -5,3 +5,5 @@ create table authors (
   created_on timestamptz,
   updated_on timestamptz
 );
+
+-- TODO: create posts table

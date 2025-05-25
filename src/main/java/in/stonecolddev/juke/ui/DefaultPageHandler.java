@@ -53,11 +53,11 @@ public class DefaultPageHandler implements PageBuilder {
 
 
     TypeMap<CreatePageForm, PageEntity> propertyMapper = this.mapper.createTypeMap(CreatePageForm.class, PageEntity.class);
-    Converter<LocalDateTime, OffsetDateTime> dateTimeConverter =
-        l -> OffsetDateTime.of(l.getSource(), ZoneOffset.UTC); // TODO: timezone should be configurable
+    // TODO: timezone should be configurable
     propertyMapper.addMappings(
-        m -> m.using(dateTimeConverter).map(
-            CreatePageForm::getPublishedOn, PageEntity::setPublishedOn));// (p, v) -> p.publishedOn(OffsetDateTime.of((LocalDateTime) v, ZoneOffset.UTC))));
+        m -> m.using(
+            (Converter<LocalDateTime, OffsetDateTime>) l -> OffsetDateTime.of(l.getSource(), ZoneOffset.UTC))
+            .map(CreatePageForm::getPublishedOn, PageEntity::setPublishedOn));
   }
 
   // TODO: this should return an Optional<Page>
@@ -187,7 +187,6 @@ public class DefaultPageHandler implements PageBuilder {
   }
 
   public Page createPage(CreatePageForm pageForm) {
-    log.debug("**** PAGEFORM {}", pageForm);
 
     PageEntity pageFromForm = mapper.map(pageForm, PageEntity.class);
 
@@ -199,9 +198,6 @@ public class DefaultPageHandler implements PageBuilder {
             rs -> {
               var author = AuthorEntity.builder();
               while (rs.next()) {
-                log.debug("**** AUTHOR {}", rs.getInt("id"));
-                log.debug("**** AUTHOR {}", rs.getString("user_name"));
-                log.debug("**** AUTHOR {}", rs.getString("email"));
                 author
                     .id(rs.getInt("id"))
                     .userName(rs.getString("user_name"))
@@ -209,35 +205,25 @@ public class DefaultPageHandler implements PageBuilder {
               }
               return author.build();
         })).build();
-    log.debug("**** AUTHOR IN PAGE {}", pageFromForm.author());
 
     Slugify slugGenerator = Slugify.builder().build();
     String pageSlug = slugGenerator.slugify(pageFromForm.title());
 
     perRequestMetricsCollector.incrementPageQueryCounter();
-    log.debug("**** PAGE FROM FORM {}", pageFromForm.title());
-    log.debug("**** PAGE FROM FORM {}", pageFromForm.body());
-    log.debug("**** PAGE FROM FORM {}", pageFromForm.author().id());
-    log.debug("**** PAGE FROM FORM {}", pageSlug);
-    log.debug("**** PAGE FROM FORM {}", pageFromForm.publishedOn());
-    Map<String, ? extends Serializable> values = Map.of(
-        "title", pageFromForm.title(),
-        "body", pageFromForm.body(),
-        "authorId", pageFromForm.author().id(),
-        "slug", pageSlug,
-        "publishedOn", pageFromForm.publishedOn());
-    log.debug("***** PARAMETERS {}", values);
     namedParameterJdbcTemplate.update(
         """
             insert into pages(title, body, author_id, slug, layout_id, published_on)
             values(:title, :body, :authorId, :slug, (select id from layouts where slug = 'default'), :publishedOn)
             """,
         new MapSqlParameterSource().addValues(
-            values
-        ));
+            Map.of(
+                "title", pageFromForm.title(),
+                "body", pageFromForm.body(),
+                "authorId", pageFromForm.author().id(),
+                "slug", pageSlug,
+                "publishedOn", pageFromForm.publishedOn())));
 
     perRequestMetricsCollector.incrementPageQueryCounter();
-
     return findPage(pageSlug);
   }
 }

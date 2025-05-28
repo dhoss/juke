@@ -97,6 +97,50 @@ public class DefaultPageHandler implements PageBuilder {
         new PageEntityResultSetExtractor()), Page.class);
   }
 
+
+  // TODO: pagination
+  public List<Page> listPages() {
+    Map<String, String> configuration = configuration();
+
+    // TODO: make an enum of counters we're tracking and use them instead of strings
+    perRequestMetricsCollector.incrementPageQueryCounter();
+
+    return mapper.map(
+        namedParameterJdbcTemplate.query(
+            // TODO: pull common query pieces out and compose queries from them
+            """
+            select
+              p.id as "page_id"
+            , p.title as "page_title"
+            , p.slug as "page_slug"
+            , p.is_deleted as "page_is_deleted"
+            , p.published_on as "page_published_on"
+            , a.user_name as "page_author"
+            , a.id as "author_id"
+            from pages p
+            left join authors a on a.id = p.author_id
+            order by p.published_on desc
+            """,
+            rs -> {
+              List<PageEntity> pageEntities = new ArrayList<>();
+              while (rs.next()){
+                PageEntity.PageEntityBuilder pb = PageEntity.builder();
+                pb.id(rs.getInt("page_id"));
+                pb.author(
+                    AuthorEntity.builder()
+                        .id(rs.getInt("author_id"))
+                        .userName(rs.getString("page_author"))
+                        .build());
+                pb.title(rs.getString("page_title"));
+                pb.isDeleted(rs.getBoolean("page_is_deleted"));
+                pb.slug(rs.getString("page_slug"));
+                pb.publishedOn(rs.getObject("page_published_on", OffsetDateTime.class));
+                pageEntities.add(pb.build());
+              }
+              return pageEntities;
+            }),  new TypeToken<List<Page>>(){}.getType());
+  }
+
   // TODO: this may be better suited as a bean created on startup
   private Map<String, String> configuration() {
     perRequestMetricsCollector.incrementPageQueryCounter();

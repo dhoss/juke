@@ -48,4 +48,13 @@ public class PageController {
 
     return mv;
   }
+
+  @GetMapping("/pages")
+  public ModelAndView listPages() {
+    ModelAndView mv = new ModelAndView("pages/list");
+
+    mv.addObject("pages", pageHandler.listPages());
+
+    return mv;
+  }
 }

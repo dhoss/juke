@@ -41,12 +41,12 @@ public class PageController {
   }
 
   @PostMapping("/pages/create")
-  public ModelAndView createPage(@ModelAttribute CreatePageForm pageFormData) {
-    ModelAndView mv = new ModelAndView("pages/create-result");
+  public String createPage(@ModelAttribute CreatePageForm pageFormData) {
 
-    mv.addObject("page", pageHandler.createPage(pageFormData));
+    // TODO: validation/error handling
+    pageHandler.createPage(pageFormData);
 
-    return mv;
+    return "redirect:/pages";
   }
 
   @GetMapping("/pages")

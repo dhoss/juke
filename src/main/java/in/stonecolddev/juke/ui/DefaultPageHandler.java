@@ -100,7 +100,6 @@ public class DefaultPageHandler implements PageBuilder {
 
   // TODO: pagination
   public List<Page> listPages() {
-    Map<String, String> configuration = configuration();
 
     // TODO: make an enum of counters we're tracking and use them instead of strings
     perRequestMetricsCollector.incrementPageQueryCounter();

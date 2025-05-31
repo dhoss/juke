@@ -42,7 +42,6 @@ public class PageController {
 
   @PostMapping("/pages/create")
   public String createPage(@ModelAttribute CreatePageForm pageFormData) {
-    log.debug("**** PAGE PUBLISHED ON {}", pageFormData.getPublishedOn());
 
     // TODO: validation/error handling
     pageHandler.createPage(pageFormData);

@@ -33,8 +33,6 @@ public class DefaultPageHandler implements PageBuilder {
 
   private final HtmlRenderer renderer = HtmlRenderer.builder().build();
 
-  private final Clock clock;
-
   private final Map<String, String> configuration;
 
   // TODO: make this a fluent api, fuck it why not
@@ -48,26 +46,12 @@ public class DefaultPageHandler implements PageBuilder {
     this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     this.mapper = mapper;
     this.configuration = configuration();
-    log.debug("**** CLOCK ZONE BEFORE CONFIG {}", clock.getZone());
-    this.clock = clock;//.withZone(ZoneId.of(configuration.get("timezone")));
-
-  //  log.debug("****** TZ {}", configuration.get("timezone"));
-  //  log.debug("**** ZONEID FROM CONFIG {}", ZoneId.of(configuration.get("timezone")));
-  //  log.debug("**** ZONE {}", clock.getZone());
-  //  log.debug("**** ZONE ID {}", clock.getZone().getId());
-  //  log.debug("***** ZONE OFFSET {}", ZoneOffset.of(clock.getZone().getRules().)//getZone().getId()));
 
     TypeMap<CreatePageForm, PageEntity> propertyMapper = this.mapper.createTypeMap(CreatePageForm.class, PageEntity.class);
-    // TODO: timezone should be configurable
     propertyMapper.addMappings(
         m -> m.using(
-            (Converter<LocalDateTime, OffsetDateTime>)
-                l -> {
-              log.debug("**** LDT IN CONVERTER {}", l.getSource());
-              log.debug("**** LDT AFTER CONVERSTION {}",  l.getSource().atOffset(ZoneOffset.of(clock.getZone().getRules().getOffset(Instant.now()).getId())));
-                  return l.getSource().atOffset(ZoneOffset.of(clock.getZone().getRules().getOffset(Instant.now()).getId()));
-                  //OffsetDateTime.of(l.getSource(), ZoneOffset.of(clock.getZone().getId()));
-                })
+            (Converter<LocalDateTime, OffsetDateTime>) l ->
+                   l.getSource().atOffset(ZoneOffset.of(clock.getZone().getRules().getOffset(Instant.now()).getId())))
             .map(CreatePageForm::getPublishedOn, PageEntity::setPublishedOn));
   }
 
@@ -150,9 +134,10 @@ public class DefaultPageHandler implements PageBuilder {
             }),  new TypeToken<List<Page>>(){}.getType());
   }
 
+  // TODO: this should probably be a DTO
+  // TODO: move to a config class
   // TODO: this may be better suited as a bean created on startup
   private Map<String, String> configuration() {
-  //  perRequestMetricsCollector.incrementPageQueryCounter();
 
     return namedParameterJdbcTemplate.query(
         """
@@ -241,6 +226,7 @@ public class DefaultPageHandler implements PageBuilder {
     } else {
       renderedBody = renderer.render(parser.parse(body));
     }
+
     pageView.put(
         "page",
         page.toBuilder()
@@ -253,8 +239,6 @@ public class DefaultPageHandler implements PageBuilder {
   public void createPage(CreatePageForm pageForm) {
 
     PageEntity pageFromForm = mapper.map(pageForm, PageEntity.class);
-    log.debug("PAGE FORM TZ {}", pageForm.getPublishedOn());
-    log.debug("PAGE ENTRITY TZ {}", pageFromForm.publishedOn());
 
     perRequestMetricsCollector.incrementPageQueryCounter();
     // TODO: i would prefer to use a wither here
@@ -287,7 +271,6 @@ public class DefaultPageHandler implements PageBuilder {
                 "authorId", pageFromForm.author().id(),
                 "slug", pageSlug,
                 "publishedOn", pageFromForm.publishedOn())));
-    //"publishedOn", pageFromForm.publishedOn().atZoneSameInstant(clock.getZone()))));
 
   }
 }

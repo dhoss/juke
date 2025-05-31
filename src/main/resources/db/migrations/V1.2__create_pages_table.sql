@@ -11,3 +11,20 @@ create table pages (
   updated_on timestamptz,
   published_on timestamptz
 );
+
+insert into pages(author_id, title, slug, layout_id, published_on)
+values(
+(select id from authors where email = 'devin.austin@gmail.com'),
+'Juke CMS - Welcome', 'front-page',
+(select id from layouts where slug = 'default'),
+now());
+
+insert into pages(author_id, title, slug, layout_id, body, published_on)
+values(
+(select id from authors where email = 'devin.austin@gmail.com'),
+'Juke CMS - About',
+'about',
+(select id from layouts where slug = 'default'),
+E'## About Juke Text  \n'
+'Juke is a spiritual clone of phpnuke.',
+now());

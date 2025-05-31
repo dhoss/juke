@@ -13,18 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.*;
+import java.util.*;
 
 @Component
 public class DefaultPageHandler implements PageBuilder {
@@ -41,8 +33,13 @@ public class DefaultPageHandler implements PageBuilder {
 
   private final HtmlRenderer renderer = HtmlRenderer.builder().build();
 
+  private final Clock clock;
+
+  private final Map<String, String> configuration;
+
   // TODO: make this a fluent api, fuck it why not
   public DefaultPageHandler(
+      Clock clock,
       PerRequestMetricsCollector perRequestMetricsCollector,
       NamedParameterJdbcTemplate namedParameterJdbcTemplate,
       ModelMapper mapper
@@ -50,19 +47,32 @@ public class DefaultPageHandler implements PageBuilder {
     this.perRequestMetricsCollector = perRequestMetricsCollector;
     this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     this.mapper = mapper;
+    this.configuration = configuration();
+    log.debug("**** CLOCK ZONE BEFORE CONFIG {}", clock.getZone());
+    this.clock = clock;//.withZone(ZoneId.of(configuration.get("timezone")));
 
+  //  log.debug("****** TZ {}", configuration.get("timezone"));
+  //  log.debug("**** ZONEID FROM CONFIG {}", ZoneId.of(configuration.get("timezone")));
+  //  log.debug("**** ZONE {}", clock.getZone());
+  //  log.debug("**** ZONE ID {}", clock.getZone().getId());
+  //  log.debug("***** ZONE OFFSET {}", ZoneOffset.of(clock.getZone().getRules().)//getZone().getId()));
 
     TypeMap<CreatePageForm, PageEntity> propertyMapper = this.mapper.createTypeMap(CreatePageForm.class, PageEntity.class);
     // TODO: timezone should be configurable
     propertyMapper.addMappings(
         m -> m.using(
-            (Converter<LocalDateTime, OffsetDateTime>) l -> OffsetDateTime.of(l.getSource(), ZoneOffset.UTC))
+            (Converter<LocalDateTime, OffsetDateTime>)
+                l -> {
+              log.debug("**** LDT IN CONVERTER {}", l.getSource());
+              log.debug("**** LDT AFTER CONVERSTION {}",  l.getSource().atOffset(ZoneOffset.of(clock.getZone().getRules().getOffset(Instant.now()).getId())));
+                  return l.getSource().atOffset(ZoneOffset.of(clock.getZone().getRules().getOffset(Instant.now()).getId()));
+                  //OffsetDateTime.of(l.getSource(), ZoneOffset.of(clock.getZone().getId()));
+                })
             .map(CreatePageForm::getPublishedOn, PageEntity::setPublishedOn));
   }
 
   // TODO: this should return an Optional<Page>
   private Page findPage(String slug) {
-    Map<String, String> configuration = configuration();
 
     // TODO: make an enum of counters we're tracking and use them instead of strings
     perRequestMetricsCollector.incrementPageQueryCounter();
@@ -142,16 +152,21 @@ public class DefaultPageHandler implements PageBuilder {
 
   // TODO: this may be better suited as a bean created on startup
   private Map<String, String> configuration() {
-    perRequestMetricsCollector.incrementPageQueryCounter();
+  //  perRequestMetricsCollector.incrementPageQueryCounter();
 
     return namedParameterJdbcTemplate.query(
         """
-        select * from configuration
+        select
+          c.layout_id
+        , t.tz_name
+        from configuration c
+        left join timezones t on t.id = c.timezone_id
         """,
         rs -> {
           Map<String, String> kv = new HashMap<>();
           while (rs.next()) {
             kv.put("layoutId", rs.getString("layout_id"));
+            kv.put("timezone", rs.getString("tz_name"));
           }
           return kv;
         }
@@ -175,7 +190,8 @@ public class DefaultPageHandler implements PageBuilder {
         .setFieldMatchingEnabled(true)
         .setFieldAccessLevel(Configuration.AccessLevel.PRIVATE);
 
-    List<NewsEntity> newsEntities = namedParameterJdbcTemplate.query(
+    return mapper.map(
+        namedParameterJdbcTemplate.query(
         """
             select
               n.id as "news_id"
@@ -210,9 +226,7 @@ public class DefaultPageHandler implements PageBuilder {
             newsRows.add(newsBuilder.build());
           }
           return newsRows;
-        });
-
-    return mapper.map(newsEntities, new TypeToken<List<News>>(){}.getType());
+        }), new TypeToken<List<News>>(){}.getType());
 
   }
 
@@ -220,18 +234,27 @@ public class DefaultPageHandler implements PageBuilder {
     Map<String, Object> pageView = new HashMap<>();
 
     Page page = findPage(slug);
+    String body = page.body();
+    String renderedBody;
+    if (Optional.ofNullable(body).isEmpty()) {
+      renderedBody = "";
+    } else {
+      renderedBody = renderer.render(parser.parse(body));
+    }
     pageView.put(
         "page",
         page.toBuilder()
-            .body(renderer.render(parser.parse(page.body())))
+            .body(renderedBody)
             .build());
 
     return pageView;
   }
 
-  public Page createPage(CreatePageForm pageForm) {
+  public void createPage(CreatePageForm pageForm) {
 
     PageEntity pageFromForm = mapper.map(pageForm, PageEntity.class);
+    log.debug("PAGE FORM TZ {}", pageForm.getPublishedOn());
+    log.debug("PAGE ENTRITY TZ {}", pageFromForm.publishedOn());
 
     perRequestMetricsCollector.incrementPageQueryCounter();
     // TODO: i would prefer to use a wither here
@@ -251,7 +274,6 @@ public class DefaultPageHandler implements PageBuilder {
 
     Slugify slugGenerator = Slugify.builder().build();
     String pageSlug = slugGenerator.slugify(pageFromForm.title());
-
     perRequestMetricsCollector.incrementPageQueryCounter();
     namedParameterJdbcTemplate.update(
         """
@@ -265,8 +287,7 @@ public class DefaultPageHandler implements PageBuilder {
                 "authorId", pageFromForm.author().id(),
                 "slug", pageSlug,
                 "publishedOn", pageFromForm.publishedOn())));
+    //"publishedOn", pageFromForm.publishedOn().atZoneSameInstant(clock.getZone()))));
 
-    perRequestMetricsCollector.incrementPageQueryCounter();
-    return findPage(pageSlug);
   }
 }

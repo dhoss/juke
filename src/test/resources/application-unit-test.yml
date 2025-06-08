@@ -29,3 +29,6 @@ logging:
     in.stonecolddev: DEBUG
     org.springframework.jdbc.core: TRACE
     org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+
+flyway:
+  enabled: false

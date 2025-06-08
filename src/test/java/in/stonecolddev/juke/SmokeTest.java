@@ -23,21 +23,14 @@ public class SmokeTest {
 	@Autowired
 	private PageController pageController;
 
-
-
 	@BeforeAll
 	public static void beforeAll() {
-		postgres.start();
-		System.setProperty("spring.datasource.hikari.jdbc-url", postgres.getJdbcUrl());
-		System.setProperty("spring.datasource.hikari.username", postgres.getUsername());
-		System.setProperty("spring.datasource.hikari.password", postgres.getPassword());
-
-		initDb(postgres.getJdbcUrl(), username, password);
+		startDatabase();
 	}
 
 	@AfterAll
 	public static void afterAll() {
-		postgres.stop();
+		stopDatabase();
 	}
 
 	@Test

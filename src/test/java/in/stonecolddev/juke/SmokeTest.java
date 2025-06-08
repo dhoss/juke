@@ -8,19 +8,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
 
-import static in.stonecolddev.juke.util.DbMigrations.initDb;
+import static in.stonecolddev.juke.util.Fixtures.Database.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @ActiveProfiles("it-test")
 @SpringBootTest
 public class SmokeTest {
 
-	private static String username = "juke";
-	private static String password = "juke";
-	private static String databaseName = "juke";
 
 	@Autowired
 	private HomeController homeController;
@@ -28,12 +23,6 @@ public class SmokeTest {
 	@Autowired
 	private PageController pageController;
 
-	// TODO: this needs to go somewhere common somehow
-	@Container
-	private static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
-			.withUsername(username)
-			.withPassword(password)
-			.withDatabaseName(databaseName);
 
 
 	@BeforeAll

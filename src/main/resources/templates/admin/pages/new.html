@@ -1,0 +1,32 @@
+<!DOCTYPE HTML>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout/default-admin-page}">
+<head>
+    <title>Juke - Create New Page</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link href="/summernote/summernote.min.css" rel="stylesheet">
+</head>
+<body>
+<main layout:fragment="content">
+    <!-- TODO: validation -->
+    <h1>Create new page</h1>
+    <form action="#" th:action="@{/admin/pages/create}" th:object="${page}" method="post">
+        <p>Title: <input type="text" th:field="*{title}" /></p>
+        <p>Body: <textarea th:field="*{body}" id="summernote"></textarea></p>
+        <script>
+            $(document).ready(function() {
+                $('#summernote').summernote({
+                   height: 300, // set editor height
+                   minHeight: null, // set minimum height of editor
+                   maxHeight: null, // set maximum height of editor
+                   focus: true // set focus to editable area after initializing summernote
+                });
+            });
+        </script>
+        <p>Publish on: <input type="datetime-local" th:field="*{publishedOn}" /></p>
+        <p><input type="submit" value="Submit" /></p>
+    </form>
+</main>
+<th:block layout:fragment="scripts"><script src="/summernote/summernote.min.js"></script></th:block>
+</body>
+</html>

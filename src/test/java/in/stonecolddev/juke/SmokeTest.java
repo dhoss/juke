@@ -1,6 +1,7 @@
 package in.stonecolddev.juke;
 
 import in.stonecolddev.juke.ui.HomeController;
+import in.stonecolddev.juke.ui.PageController;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,10 @@ public class SmokeTest {
 	@Autowired
 	private HomeController homeController;
 
+	@Autowired
+	private PageController pageController;
+
+	// TODO: this needs to go somewhere common somehow
 	@Container
 	private static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
 			.withUsername(username)
@@ -49,6 +54,7 @@ public class SmokeTest {
 	@Test
 	public void contextLoads() {
 		assertThat(homeController).isNotNull();
+		assertThat(pageController).isNotNull();
 	}
 
 }

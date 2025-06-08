@@ -1,0 +1,1 @@
+alter database juke set timezone to 'america/denver';

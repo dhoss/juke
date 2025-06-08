@@ -1,0 +1,145 @@
+<!DOCTYPE HTML>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout/default-admin-page}">
+<head>
+    <title layout:fragment="title">Juke - Admin Home</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<main layout:fragment="content">
+<h1>Admin</h1>
+    <div class="row row-cols-4 g-4">
+        <div class="col">
+            <div class="card border-0 h-100">
+                <a th:href="@{'/admin/pages'}">
+                    <img th:src="@{/img/pages.png}" height="48" width="48" alt="...">
+
+
+                <div class="card-body">
+                    <h5 class="card-title">Pages</h5>
+                </div>
+                </a>
+            </div>
+        </div>
+        <div class="col">
+            <a th:href="@{'/admin/config'}">
+            <div class="card border-0 h-100">
+                <img th:src="@{/img/config.png}" height="48" width="48" alt="...">
+
+                <div class="card-body">
+                    <h5 class="card-title">Config</h5>
+                </div>
+            </div>
+            </a>
+        </div>
+        <div class="col">
+            <a th:href="@{'/admin/metrics'}">
+            <div class="card border-0 h-100">
+
+                <img th:src="@{/img/metrics.png}" height="48" width="48" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">Metrics</h5>
+                </div>
+            </div>
+            </a>
+        </div>
+        <div class="col">
+            <a th:href="@{'/admin/news'}">
+            <div class="card border-0 h-100">
+
+                <img th:src="@{/img/news.png}" height="48" width="48" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">News</h5>
+                </div>
+            </div>
+            </a>
+        </div>
+    </div>
+
+        <div class="row row-cols-4 g-4">
+            <div class="col">
+                <div class="card border-0 h-100">
+                    <a th:href="@{'/admin/forums'}">
+
+                        <img th:src="@{/img/forums.png}" height="48" width="48" alt="...">
+                        <div class="card-body">
+                            <h5 class="card-title">Forums</h5>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col">
+                <a th:href="@{'/admin/assets'}">
+                    <img th:src="@{/img/assets.png}" height="48" width="48" alt="...">
+                    <div class="card border-0 h-100">
+
+                        <div class="card-body">
+                            <h5 class="card-title">Assets</h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col">
+                <a th:href="@{'/admin/motd'}">
+
+                    <img th:src="@{/img/motd.png}" height="48" width="48" alt="...">
+                    <div class="card border-0 h-100">
+
+                        <div class="card-body">
+                            <h5 class="card-title">MOTD</h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col">
+                <div class="card border-0 h-100">
+                    <img th:src="@{/img/layouts.png}" height="48" width="48" alt="...">
+                    <a th:href="@{'/admin/layouts'}">
+
+                        <div class="card-body">
+                            <h5 class="card-title">Layouts</h5>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col">
+                <a th:href="@{'/admin/polls'}">
+                    <img th:src="@{/img/polls.png}" height="48" width="48" alt="...">
+                    <div class="card border-0 h-100">
+
+                        <div class="card-body">
+                            <h5 class="card-title">Polls</h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <!--
+            <div class="col">
+                <a th:href="@{'/admin/motd'}">
+                    <div class="card border-0 h-100">
+
+                        <div class="card-body">
+                            <h5 class="card-title">MOTD</h5>
+                            <p class="card-text">Mange MOTD</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col">
+                <a th:href="@{'/admin/news'}">
+                    <div class="card border-0 h-100">
+
+                        <div class="card-body">
+                            <h5 class="card-title">News</h5>
+                            <p class="card-text">Manage News</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            -->
+        </div>
+
+</main>
+</body>
+</html>

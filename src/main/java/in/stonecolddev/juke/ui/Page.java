@@ -18,12 +18,10 @@ import java.util.Map;
 public class Page {
   private String title;
   private OffsetDateTime publishedOn;
+  private OffsetDateTime updatedOn;
+  private OffsetDateTime createdOn;
   private Author author;
   private List<SidebarMenu> sidebarMenus;
   private String slug;
   private String body;
-
-  public String slug() {
-    return this.slug + ".html";
-  }
 }

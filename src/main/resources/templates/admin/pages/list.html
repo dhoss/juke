@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout/default-admin-page}">
+<head>
+    <title layout:fragment="title">Juke - List Pages</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<main layout:fragment="content">
+    <h1>Pages</h1>
+    <div><a th:href="@{/admin/pages/new}">New Page</a></div>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Page Title</th>
+            <th scope="col">Published On</th>
+            <th scope="col">Last Updated</th>
+            <th scope="col">Edit</th>
+            <th scope="col">Publish</th>
+            <th scope="col">Delete</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="page : ${pages}">
+            <td><a th:text="${page.title}" th:target="_blank" th:href="@{/{slug}(slug=${page.slug + '.html'})}"></a></td>
+            <td th:text="${page.publishedOn}"></td>
+            <td th:text="${page.updatedOn}"></td>
+            <td><a th:href="@{/admin/pages/{slug}/edit(slug=${page.slug})}">Edit</a></td>
+            <td>Publish</td>
+            <td>Delete</td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

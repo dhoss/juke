@@ -47,48 +47,50 @@ public class DefaultPageHandler implements PageBuilder {
     this.mapper = mapper;
     this.configuration = configuration();
 
-    TypeMap<CreatePageForm, PageEntity> propertyMapper = this.mapper.createTypeMap(CreatePageForm.class, PageEntity.class);
+    TypeMap<CreateOrEditPageForm, PageEntity> propertyMapper = this.mapper.createTypeMap(CreateOrEditPageForm.class, PageEntity.class);
     propertyMapper.addMappings(
         m -> m.using(
             (Converter<LocalDateTime, OffsetDateTime>) l ->
                    l.getSource().atOffset(ZoneOffset.of(clock.getZone().getRules().getOffset(Instant.now()).getId())))
-            .map(CreatePageForm::getPublishedOn, PageEntity::setPublishedOn));
+            .map(CreateOrEditPageForm::getPublishedOn, PageEntity::setPublishedOn));
   }
 
-  // TODO: this should return an Optional<Page>
-  private Page findPage(String slug) {
+  public Optional<Page> findPage(String slug) {
 
-    // TODO: make an enum of counters we're tracking and use them instead of strings
     perRequestMetricsCollector.incrementPageQueryCounter();
 
-    return mapper.map(
-        namedParameterJdbcTemplate.query(
-            // TODO: pull common query pieces out and compose queries from them
-            """
-            select
-              sb.title as "sidebar_title"
-            , sb.id as "sidebar_id"
-            , sbi.id as "sidebar_item_id"
-            , sbi.sidebar_menus_id as "parent_sidebar_id"
-            , sbi.title as "sidebar_item_title"
-            , sbi.body as "sidebar_item_body"
-            , p.id as "page_id"
-            , p.published_on as "page_published_on"
-            , p.title as "page_title"
-            , p.body as "page_body"
-            , a.user_name as "page_author"
-            , a.id as "author_id"
-            from pages p
-            left join sidebar_menus sb on sb.layout_id = :layoutId
-            left join sidebar_menu_items sbi on sbi.sidebar_menus_id = sb.id
-            left join authors a on a.id = p.author_id
-            where p.slug = :slug
-            and p.is_deleted = false
-            """,
-            new MapSqlParameterSource()
-                .addValue("slug", slug)
-                .addValue("layoutId", Integer.parseInt(configuration.get("layoutId"))),
-        new PageEntityResultSetExtractor()), Page.class);
+    return Optional.ofNullable(
+        mapper.map(
+            namedParameterJdbcTemplate.query(
+              // TODO: pull common query pieces out and compose queries from them
+              """
+              select
+                sb.title as "sidebar_title"
+              , sb.id as "sidebar_id"
+              , sbi.id as "sidebar_item_id"
+              , sbi.sidebar_menus_id as "parent_sidebar_id"
+              , sbi.title as "sidebar_item_title"
+              , sbi.body as "sidebar_item_body"
+              , p.id as "page_id"
+              , p.published_on as "page_published_on"
+              , p.title as "page_title"
+              , p.body as "page_body"
+              , p.slug as "page_slug"
+              , a.user_name as "page_author"
+              , a.id as "author_id"
+              from pages p
+              left join sidebar_menus sb on sb.layout_id = :layoutId
+              left join sidebar_menu_items sbi on sbi.sidebar_menus_id = sb.id
+              left join authors a on a.id = p.author_id
+              where p.slug = :slug
+              and p.is_deleted = false
+              """,
+              new MapSqlParameterSource()
+                  .addValue("slug", slug)
+                  .addValue("layoutId", Integer.parseInt(configuration.get("layoutId"))),
+          new PageEntityResultSetExtractor()), Page.class
+        )
+    );
   }
 
 
@@ -108,6 +110,8 @@ public class DefaultPageHandler implements PageBuilder {
             , p.slug as "page_slug"
             , p.is_deleted as "page_is_deleted"
             , p.published_on as "page_published_on"
+            , p.updated_on as "page_updated_on"
+            , p.created_on as "page_created_on"
             , a.user_name as "page_author"
             , a.id as "author_id"
             from pages p
@@ -128,6 +132,8 @@ public class DefaultPageHandler implements PageBuilder {
                 pb.isDeleted(rs.getBoolean("page_is_deleted"));
                 pb.slug(rs.getString("page_slug"));
                 pb.publishedOn(rs.getObject("page_published_on", OffsetDateTime.class));
+                pb.updatedOn(rs.getObject("page_updated_on", OffsetDateTime.class));
+                pb.createdOn(rs.getObject("page_created_on", OffsetDateTime.class));
                 pageEntities.add(pb.build());
               }
               return pageEntities;
@@ -167,7 +173,6 @@ public class DefaultPageHandler implements PageBuilder {
   }
 
   private List<News> findNews(String type) {
-    // TODO: make an enum of counters we're tracking and use them instead of strings
     perRequestMetricsCollector.incrementPageQueryCounter();
 
     // for mapping to a List
@@ -215,10 +220,10 @@ public class DefaultPageHandler implements PageBuilder {
 
   }
 
-  public Map<String, Object> compileForView(String slug) {
+  public Map<String, Object> compileForView(String slug) throws PageNotFoundException {
     Map<String, Object> pageView = new HashMap<>();
 
-    Page page = findPage(slug);
+    Page page = findPage(slug).orElseThrow(() -> new PageNotFoundException("No such page with slug " + slug));
     String body = page.body();
     String renderedBody;
     if (Optional.ofNullable(body).isEmpty()) {
@@ -236,29 +241,34 @@ public class DefaultPageHandler implements PageBuilder {
     return pageView;
   }
 
-  public void createPage(CreatePageForm pageForm) {
+  // TODO: write tests to see if changing a page's slug affect's editing changes
+  public void save(CreateOrEditPageForm pageForm) {
 
-    PageEntity pageFromForm = mapper.map(pageForm, PageEntity.class);
+    namedParameterJdbcTemplate.update(
+        """
+            update pages
+            set title        = :title,
+                body         = :body,
+                published_on = :publishedOn,
+                updated_on   = now()
+            where slug       = :slug
+            """,
+        new MapSqlParameterSource().addValues(
+            Map.of("title", pageForm.getTitle(),
+                "body", pageForm.getBody(),
+                "publishedOn", pageForm.getPublishedOn(),
+                "slug", pageForm.getSlug())));
 
-    perRequestMetricsCollector.incrementPageQueryCounter();
-    // TODO: i would prefer to use a wither here
-    pageFromForm = pageFromForm.toBuilder().author(
-        namedParameterJdbcTemplate.getJdbcTemplate().query(
-            "select id, user_name, email from authors where email = 'devin.austin@gmail.com'",
-            rs -> {
-              var author = AuthorEntity.builder();
-              while (rs.next()) {
-                author
-                    .id(rs.getInt("id"))
-                    .userName(rs.getString("user_name"))
-                    .email(rs.getString("email"));
-              }
-              return author.build();
-        })).build();
+  }
+
+  // TODO: handle exceptions for unique keys already existing
+  public void create(CreateOrEditPageForm pageForm) {
+
+    PageEntity pageFromForm = mapPageWithAuthor(pageForm);
 
     Slugify slugGenerator = Slugify.builder().build();
     String pageSlug = slugGenerator.slugify(pageFromForm.title());
-    perRequestMetricsCollector.incrementPageQueryCounter();
+
     namedParameterJdbcTemplate.update(
         """
             insert into pages(title, body, author_id, slug, layout_id, published_on)
@@ -272,5 +282,30 @@ public class DefaultPageHandler implements PageBuilder {
                 "slug", pageSlug,
                 "publishedOn", pageFromForm.publishedOn())));
 
+  }
+
+  private PageEntity mapPageWithAuthor(CreateOrEditPageForm pageForm) {
+
+    PageEntity page = mapper.map(pageForm, PageEntity.class);
+
+    page.slug(pageForm.getSlug());
+
+    // TODO: page author needs to come from session information
+    page.author(
+        namedParameterJdbcTemplate.getJdbcTemplate().query(
+        "select id, user_name, email from authors where email = 'devin.austin@gmail.com'",
+        rs -> {
+          var author = AuthorEntity.builder();
+          while (rs.next()) {
+            author
+                .id(rs.getInt("id"))
+                .userName(rs.getString("user_name"))
+                .email(rs.getString("email"));
+          }
+          return author.build();
+        })
+    );
+
+    return page;
   }
 }

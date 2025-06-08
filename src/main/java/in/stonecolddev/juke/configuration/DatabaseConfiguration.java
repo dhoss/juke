@@ -20,7 +20,6 @@ import javax.sql.DataSource;
 @Profile({"local", "unit-test", "it-test", "dev", "prod"})
 public class DatabaseConfiguration {
 
-
   @Bean
   public NamedParameterJdbcTemplate namedParameterJdbcTemplate() {
     return new NamedParameterJdbcTemplate(dataSource());

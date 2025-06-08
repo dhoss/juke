@@ -1,0 +1,21 @@
+<div th:fragment="form">
+    <form action="#" th:action="@{${action}}" th:object="${page}" method="post">
+        <!--<div th:remove="tag" th:if="${page.slug.isPresent()}">-->
+            <input type="hidden" th:field="*{slug}" />
+        <!--</div>-->
+        <p>Title: <input type="text" th:field="*{title}" /></p>
+        <p>Body: <textarea th:field="*{body}" id="summernote"></textarea></p>
+        <script>
+            $(document).ready(function() {
+                $('#summernote').summernote({
+                   height: 300, // set editor height
+                   minHeight: null, // set minimum height of editor
+                   maxHeight: null, // set maximum height of editor
+                   focus: true // set focus to editable area after initializing summernote
+                });
+            });
+        </script>
+        <p>Publish on: <input type="datetime-local" name="publishedOn" th:value="*{publishedOn}" /></p>
+        <p><input type="submit" value="Save" /></p>
+    </form>
+</div>

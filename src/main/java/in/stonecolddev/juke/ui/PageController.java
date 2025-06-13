@@ -31,4 +31,31 @@ public class PageController {
     return mv;
   }
 
+
+  @GetMapping("/admin/pages/new")
+  public ModelAndView newPage() {
+    ModelAndView mv = new ModelAndView("admin/pages/new");
+
+    mv.addObject("page", new CreatePageForm());
+
+    return mv;
+  }
+
+  @PostMapping("/admin/pages/create")
+  public String createPage(@ModelAttribute CreatePageForm pageFormData) {
+
+    // TODO: validation/error handling
+    pageHandler.createPage(pageFormData);
+
+    return "redirect:/admin/pages";
+  }
+
+  @GetMapping("/admin/pages")
+  public ModelAndView listPages() {
+    ModelAndView mv = new ModelAndView("admin/pages/list");
+
+    mv.addObject("pages", pageHandler.listPages());
+
+    return mv;
+  }
 }

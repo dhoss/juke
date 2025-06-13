@@ -9,7 +9,7 @@
 <main layout:fragment="content">
     <div class="container">
 <h1>Admin</h1>
-    <div class="row g-4">
+    <div class="row row-cols-4 g-4">
         <div class="col">
             <div class="card h-100">
                 <a th:href="@{'/admin/pages'}">
@@ -60,7 +60,7 @@
         </div>
     </div>
 
-        <div class="row g-4">
+        <div class="row row-cols-4 g-4">
             <div class="col">
                 <div class="card h-100">
                     <a th:href="@{'/admin/forums'}">
@@ -109,6 +109,59 @@
                     </div>
                 </a>
             </div>
+        </div>
+
+        <div class="row row-cols-4 g-4">
+            <div class="col">
+                <div class="card h-100">
+                    <a th:href="@{'/admin/layouts'}">
+                        <svg class="bd-placeholder-img card-img-top" width="100%" height="140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Image cap" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"/><text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text></svg>
+
+                        <div class="card-body">
+                            <h5 class="card-title">Layouts</h5>
+                            <p class="card-text">Manage Layouts</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <div class="col">
+                <a th:href="@{'/admin/polls'}">
+                    <div class="card h-100">
+                        <svg class="bd-placeholder-img card-img-top" width="100%" height="140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Image cap" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"/><text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text></svg>
+
+                        <div class="card-body">
+                            <h5 class="card-title">Polls</h5>
+                            <p class="card-text">Manage Polls</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <!--
+            <div class="col">
+                <a th:href="@{'/admin/motd'}">
+                    <div class="card h-100">
+                        <svg class="bd-placeholder-img card-img-top" width="100%" height="140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Image cap" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"/><text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text></svg>
+
+                        <div class="card-body">
+                            <h5 class="card-title">MOTD</h5>
+                            <p class="card-text">Mange MOTD</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col">
+                <a th:href="@{'/admin/news'}">
+                    <div class="card h-100">
+                        <svg class="bd-placeholder-img card-img-top" width="100%" height="140" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Image cap" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"/><text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text></svg>
+
+                        <div class="card-body">
+                            <h5 class="card-title">News</h5>
+                            <p class="card-text">Manage News</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            -->
         </div>
     </div>
 

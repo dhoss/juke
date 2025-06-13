@@ -18,6 +18,7 @@ public class WebConfig implements WebMvcConfigurer {
   public void addInterceptors(InterceptorRegistry registry) {
     registry.addInterceptor(commonPagePropertiesInterceptor)
         .addPathPatterns("/")
-        .addPathPatterns("/*.html");
+        .addPathPatterns("/*.html")
+        .excludePathPatterns("/admin/*");
   }
 }

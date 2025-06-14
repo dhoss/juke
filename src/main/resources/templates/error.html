@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+
+    <link th:href="@{/css/styles.css}" rel="stylesheet" />
+    <link rel="SHORTCUT ICON" th:href="@{/img/cz.ico}">
+
+    <title th:text="${page.title}"></title>
+    <meta charset="UTF-8" />
+</head>
+<!-- TODO: refactor to use thymeleaf layout dialect https://www.thymeleaf.org/doc/articles/layouts.html -->
+<body topmargin="0" leftmargin="0" marginheight="0" marginwidth="0">
+<table border="0" width="100%" cellspacing="0" cellpadding="0">
+    <tr>
+        <td width="100%" valign="top" align="left">
+            <table border="0" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td width="100%">
+                        <table border="0" width="100%" cellspacing="0" cellpadding="0">
+                            <tr>
+                                <td colspan="2">
+                                    <table border="0" cellspacing="0" cellpadding="0" class="tableTop" width="100%">
+                                        <tr>
+                                            <td>
+                                                <div th:replace="~{fragments/header :: header}"></div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="100%" colspan="2">
+                                    <div th:replace="~{fragments/top-navbar :: top-navbar}"></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+                                <td width="100%" valign="top" align="left">
+                                    <!-- begin news section -->
+                                    <table border="0" width="100%" height="100%">
+                                        <tr>
+                                            <td valign="top">
+                                                <!-- begin news item section -->
+                                                <th:block th:replace="~{motd}" />
+                                                <!-- end news item section -->
+                                                <table border="0" width="100%" class="tableTop">
+                                                    <tr>
+                                                        <td class="tableHeader" width="100%">News</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <div th:text="${exception}"></div>
+                                                            <div th:text="${url}"></div>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <!-- end news section -->
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="100%" colspan="2">
+                                    <table border="0" cellspacing="0" cellpadding="0" class="tableTopNormal" width="100%" height="100%">
+                                        <tr>
+                                            <td>
+                                                <table border="0" cellspacing="0" cellpadding="0" class="tableTopNormal" width="100%" height="100%">
+                                                    <tr>
+                                                        <td align="center">Copyright</td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="100%" colspan="2">
+                                    <div align="center">
+                                        <center>
+                                            <table class="tableHeader" width="100%">
+                                                <tr>
+                                                    <td align="center" colspan="2"><font face="Arial" size="1">
+                                                        Copyright © <span id="copyright-year"></span> <a href="https://stonecolddev.in">stonecolddev.in</a>.
+                                                        <script>
+                                                        document.getElementById('copyright-year').textContent = new Date().getFullYear();
+                                                        </script>
+
+                                                    </font></td>
+                                                </tr>
+                                                <tr>
+                                                    <td align="center" colspan="2">
+                                                        <div>
+                                                        <font face="Arial" size="1">
+                                                        Juke <span th:text="${jukeAppVersion}"></span>
+                                                        </font>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td width="100%" align="center" colspan="2">
+                                                        <center>
+                                                            <font size="-2">Juke <span th:text="${jukeAppVersion}"></span> created this page in <span th:text="${pageConstructionTimer}"></span> seconds : <span th:text="${pageQueryCounter}"></span> queries executed</font>
+                                                        </center>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </center>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="100%" colspan="2"></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

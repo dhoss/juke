@@ -8,7 +8,7 @@
 <body>
 <main layout:fragment="content">
 <h1>Pages</h1>
-    <table class="table">
+    <table class="table table-striped">
         <thead>
         <tr>
             <th scope="col">Page Title</th>
@@ -19,7 +19,7 @@
         </thead>
         <tbody>
         <tr th:each="page : ${pages}">
-            <td><a th:text="${page.title}" th:target="_blank" th:href="@{/{slug}(slug=${page.slug})}"></a></td>
+            <td><a th:text="${page.title}" th:target="_blank" th:href="@{/{slug}(slug=${page.slug + '.html'})}"></a></td>
             <td><a th:href="@{/admin/pages/{slug}/edit(slug=${page.slug})}">Edit</a></td>
             <td>Publish</td>
             <td>Delete</td>

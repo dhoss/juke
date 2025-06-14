@@ -55,40 +55,41 @@ public class DefaultPageHandler implements PageBuilder {
             .map(CreatePageForm::getPublishedOn, PageEntity::setPublishedOn));
   }
 
-  // TODO: this should return an Optional<Page>
-  private Page findPage(String slug) {
+  public Optional<Page> findPage(String slug) {
 
-    // TODO: make an enum of counters we're tracking and use them instead of strings
     perRequestMetricsCollector.incrementPageQueryCounter();
 
-    return mapper.map(
-        namedParameterJdbcTemplate.query(
-            // TODO: pull common query pieces out and compose queries from them
-            """
-            select
-              sb.title as "sidebar_title"
-            , sb.id as "sidebar_id"
-            , sbi.id as "sidebar_item_id"
-            , sbi.sidebar_menus_id as "parent_sidebar_id"
-            , sbi.title as "sidebar_item_title"
-            , sbi.body as "sidebar_item_body"
-            , p.id as "page_id"
-            , p.published_on as "page_published_on"
-            , p.title as "page_title"
-            , p.body as "page_body"
-            , a.user_name as "page_author"
-            , a.id as "author_id"
-            from pages p
-            left join sidebar_menus sb on sb.layout_id = :layoutId
-            left join sidebar_menu_items sbi on sbi.sidebar_menus_id = sb.id
-            left join authors a on a.id = p.author_id
-            where p.slug = :slug
-            and p.is_deleted = false
-            """,
-            new MapSqlParameterSource()
-                .addValue("slug", slug)
-                .addValue("layoutId", Integer.parseInt(configuration.get("layoutId"))),
-        new PageEntityResultSetExtractor()), Page.class);
+    return Optional.ofNullable(
+        mapper.map(
+            namedParameterJdbcTemplate.query(
+              // TODO: pull common query pieces out and compose queries from them
+              """
+              select
+                sb.title as "sidebar_title"
+              , sb.id as "sidebar_id"
+              , sbi.id as "sidebar_item_id"
+              , sbi.sidebar_menus_id as "parent_sidebar_id"
+              , sbi.title as "sidebar_item_title"
+              , sbi.body as "sidebar_item_body"
+              , p.id as "page_id"
+              , p.published_on as "page_published_on"
+              , p.title as "page_title"
+              , p.body as "page_body"
+              , a.user_name as "page_author"
+              , a.id as "author_id"
+              from pages p
+              left join sidebar_menus sb on sb.layout_id = :layoutId
+              left join sidebar_menu_items sbi on sbi.sidebar_menus_id = sb.id
+              left join authors a on a.id = p.author_id
+              where p.slug = :slug
+              and p.is_deleted = false
+              """,
+              new MapSqlParameterSource()
+                  .addValue("slug", slug)
+                  .addValue("layoutId", Integer.parseInt(configuration.get("layoutId"))),
+          new PageEntityResultSetExtractor()), Page.class
+        )
+    );
   }
 
 
@@ -167,7 +168,6 @@ public class DefaultPageHandler implements PageBuilder {
   }
 
   private List<News> findNews(String type) {
-    // TODO: make an enum of counters we're tracking and use them instead of strings
     perRequestMetricsCollector.incrementPageQueryCounter();
 
     // for mapping to a List
@@ -215,10 +215,10 @@ public class DefaultPageHandler implements PageBuilder {
 
   }
 
-  public Map<String, Object> compileForView(String slug) {
+  public Map<String, Object> compileForView(String slug) throws PageNotFoundException {
     Map<String, Object> pageView = new HashMap<>();
 
-    Page page = findPage(slug);
+    Page page = findPage(slug).orElseThrow(() -> new PageNotFoundException("No such page with slug " + slug));
     String body = page.body();
     String renderedBody;
     if (Optional.ofNullable(body).isEmpty()) {

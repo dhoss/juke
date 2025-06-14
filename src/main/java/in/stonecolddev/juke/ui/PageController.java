@@ -4,11 +4,11 @@ package in.stonecolddev.juke.ui;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Controller
 public class PageController {
@@ -26,6 +26,7 @@ public class PageController {
   public ModelAndView findPage(@PathVariable("pageSlug") String pageSlug) {
     ModelAndView mv = new ModelAndView("pages/page");
 
+    // TODO: figure out why exceptions aren't being handled
     mv.addAllObjects(pageHandler.compileForView(pageSlug));
 
     return mv;
@@ -37,6 +38,25 @@ public class PageController {
     ModelAndView mv = new ModelAndView("admin/pages/new");
 
     mv.addObject("page", new CreatePageForm());
+
+    return mv;
+  }
+
+  @GetMapping("/admin/pages/{slug}/edit")
+  public ModelAndView editPage(@PathVariable("slug") String pageSlug) {
+    ModelAndView mv = new ModelAndView("admin/pages/edit");
+    Page page = pageHandler.findPage(pageSlug)
+        .orElseThrow(() -> new PageNotFoundException("Page not found with slug " + pageSlug));
+
+    CreatePageForm build = CreatePageForm.builder()
+        .title(page.title())
+        .body(page.body())
+        .publishedOn(page.publishedOn().toLocalDateTime())
+        .build();
+    log.debug("**** PUBLISHED ON {}", build.publishedOn());
+    mv.addObject("page",
+        build
+    );
 
     return mv;
   }

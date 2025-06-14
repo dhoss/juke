@@ -22,8 +22,4 @@ public class Page {
   private List<SidebarMenu> sidebarMenus;
   private String slug;
   private String body;
-
-  public String slug() {
-    return this.slug + ".html";
-  }
 }

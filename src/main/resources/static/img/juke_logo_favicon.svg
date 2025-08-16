@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="26.458332mm"
+   height="26.458332mm"
+   viewBox="0 0 26.458332 26.458332"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.2 (1:1.4.2+202505120737+ebf0e940d0)"
+   sodipodi:docname="juke_logo_favicon.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="1.0342803"
+     inkscape:cx="-262.9848"
+     inkscape:cy="238.32998"
+     inkscape:window-width="2560"
+     inkscape:window-height="1363"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1">
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath7">
+      <rect
+         style="fill:none"
+         id="rect8"
+         width="352"
+         height="111"
+         x="-304"
+         y="-301" />
+    </clipPath>
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath6">
+      <rect
+         style="fill:none;stroke-width:5.9752"
+         id="rect7"
+         width="2103.2722"
+         height="663.2478"
+         x="-368.67023"
+         y="-350.7446" />
+    </clipPath>
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-174.36043,-85.460426)">
+    <circle
+       r="50"
+       id="circle1"
+       cx="-242.29999"
+       cy="-242.29999"
+       style="stroke-width:0.171057"
+       clip-path="url(#clipPath7)"
+       transform="matrix(0.26458333,0,0,0.26458333,251.69813,162.79813)" />
+    <g
+       style="fill:#f1cd43"
+       transform="matrix(0.04428021,0,0,0.04428021,187.58959,98.689588)"
+       id="g3"
+       clip-path="url(#clipPath6)">
+      <circle
+         r="50"
+         id="circle2"
+         cx="0"
+         cy="0" />
+      <path
+         d="M 75,0 A 75,75 0 0 0 37.5,-64.951905 L 125,-216.50635 A 250,250 0 0 1 250,0 Z"
+         id="bld" />
+      <use
+         xlink:href="#bld"
+         transform="rotate(120)"
+         id="use2" />
+      <use
+         xlink:href="#bld"
+         transform="rotate(-120)"
+         id="use3" />
+    </g>
+  </g>
+</svg>

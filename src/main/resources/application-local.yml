@@ -29,6 +29,7 @@ logging:
     in.stonecolddev: DEBUG
     org.springframework.jdbc.core: TRACE
     org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+    org.springframework.security: DEBUG
 # TODO: figure out how to disable flyway migrations on build globally
 flyway:
   enabled: false

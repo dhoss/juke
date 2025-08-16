@@ -1,0 +1,9 @@
+<div th:fragment="form">
+    <form action="#" th:action="@{${action}}" th:object="${user}" method="post">
+        <p>user name <input type="text" th:field="*{userName}" /></p>
+        <p>password <input type="password" th:field="*{password}" /></p>
+        <p>confirm password <input type="password" th:field="*{passwordConfirm}" /></p>
+        <p>email (for password resets) <input type="text" th:field="*{email}" /></p>
+        <p><input type="submit" value="Sign Up" /></p>
+    </form>
+</div>

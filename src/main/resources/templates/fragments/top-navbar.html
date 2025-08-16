@@ -1,12 +1,25 @@
 <table border="0" cellspacing="0" cellpadding="0" class="tableTop" width="100%" th:fragment="top-navbar">
     <tr>
-        <td class="tableColumnHeader" align="center">Welcome Guest</td>
-        <td class="tableColumnHeader" align="center" onmouseover="changeColumn(this,'on');style.cursor='hand'" onmouseout="changeColumn(this,'off')" onclick="window.location='index.php?op=login'">
-            <a href="index.php?op=login">Login</a>
+        <td class="tableColumnHeader" align="center">
+            <span th:remove="tag" th:unless="${userSession.isPresent()}">
+                Welcome, Guest
+            </span>
+            <span th:remove="tag" th:if="${userSession.isPresent()}">
+                <!-- TODO: add user profile link here -->
+                <span th:remove="tag" th:text="${'Welcome, ' + userSession.get().user.userName}"></span>
+            </span>
         </td>
-        <td class="tableColumnHeader" align="center" onmouseover="changeColumn(this,'on');style.cursor='hand'" onmouseout="changeColumn(this,'off')" onclick="window.location='index.php?op=user_add'">
-            <a href="index.php?op=user_add">New Account</a>
+        <td th:if="${userSession.isPresent}" class="tableColumnHeader" align="center" onmouseover="changeColumn(this,'on');style.cursor='hand'" onmouseout="changeColumn(this,'off')">
+            <a href="/logout">Logout</a>
         </td>
-        <td class="tableColumnHeader" align="center" onmouseover="changeColumn(this,'on');style.cursor='hand'" onmouseout="changeColumn(this,'off')" onclick="window.location='mailto:cz_mw3_admin@czleagues.com'">Contact</td>
+        <td th:unless="${userSession.isPresent}" class="tableColumnHeader" align="center" onmouseover="changeColumn(this,'on');style.cursor='hand'" onmouseout="changeColumn(this,'off')">
+            <a href="/login">Login</a>
+        </td>
+        <td th:unless="${userSession.isPresent}"class="tableColumnHeader" align="center" onmouseover="changeColumn(this,'on');style.cursor='hand'" onmouseout="changeColumn(this,'off')">
+            <a href="/users/new">New Account</a>
+        </td>
+        <td class="tableColumnHeader" align="center" onmouseover="changeColumn(this,'on');style.cursor='hand'" onmouseout="changeColumn(this,'off')">
+            <a href="/contact">Contact</a>
+        </td>
     </tr>
 </table>

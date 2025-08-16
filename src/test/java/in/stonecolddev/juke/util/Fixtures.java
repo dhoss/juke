@@ -14,7 +14,6 @@ public class Fixtures {
     private static final String databaseName = "juke";
 
     // TODO: consider using try with resources for creating postgres instance in testcontainers tests
-    @Container
     public static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
         .withInitScript("init.sql")
         .withEnv("TZ", "America/Denver")
@@ -29,10 +28,6 @@ public class Fixtures {
       System.setProperty("spring.datasource.hikari.password", postgres.getPassword());
 
       initDb(postgres.getJdbcUrl());
-    }
-
-    public static void stopDatabase() {
-      postgres.stop();
     }
 
     private static void initDb(String jdbcUrl) {

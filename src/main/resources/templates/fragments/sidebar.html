@@ -5,7 +5,48 @@
         </tr>
         <tr>
             <td width="100%">
-                <div th:each="item : ${page.sidebarMenus}" th:insert="~{sidebar-item :: sidebar(${item})}"></div>
+                <div th:remove="tag" th:each="item : ${page.sidebarMenus}" th:insert="~{sidebar-item :: sidebar(${item})}"></div>
+            </td>
+        </tr>
+    </table>
+    <table border="0" cellspacing="0" cellpadding="0" class="tableTop" width="200">
+        <tr>
+            <td>
+                <table border="0" cellspacing="0" cellpadding="0" class="tableTop" width="100%">
+                    <tr>
+                        <td class="tableInput" align="center">
+                            <span th:remove="tag" th:text="${#temporals.format(#temporals.createNow(), 'MMMM dd, yyyy hh:mm a Z')}"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="tableColumnHeader" align="center" onmouseover="changeColumn(this,'on');style.cursor='hand'" onmouseout="changeColumn(this,'off')">
+                            <span th:text="|Users online: ${stats.usersOnline()}|"></span>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <table border="0" cellspacing="0" cellpadding="0" class="tableTop" width="200">
+        <tr>
+            <td class="tableHeader">Quick Stats</td>
+        </tr>
+        <tr>
+            <td>
+                <table border="0" cellspacing="0" cellpadding="0" class="tableTop" width="100%">
+                    <tr>
+                        <td class="tableLabel" align="left">Members</td>
+                        <td class="tableInput" align="left"><span th:remove="tag" th:text="${stats.members()}"></span></td>
+                    </tr>
+                    <tr>
+                        <td class="tableLabel" align="left">Pages</td>
+                        <td class="tableInput" align="left">27</td>
+                    </tr>
+                    <tr>
+                        <td class="tableLabel" align="left">Blog Posts</td>
+                        <td class="tableInput" align="left">254</td>
+                    </tr>
+                </table>
             </td>
         </tr>
     </table>

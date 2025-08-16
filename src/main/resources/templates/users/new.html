@@ -1,0 +1,15 @@
+<!DOCTYPE HTML>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout/default-admin-page}">
+<head>
+    <title>Juke - User Signup</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<main layout:fragment="content">
+    <!-- TODO: validation -->
+    <h1>Create new user</h1>
+    <div th:replace="~{users/fragments/user-form :: form}"></div>
+</main>
+</body>
+</html>

@@ -6,7 +6,7 @@ create table authors (
   updated_on timestamptz
 );
 
--- create initial user
+-- create initial author
 insert into authors(user_name, email) values('Devin', 'devin.austin@gmail.com');
 
 -- TODO: create posts table

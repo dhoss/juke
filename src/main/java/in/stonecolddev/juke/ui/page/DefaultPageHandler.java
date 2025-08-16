@@ -1,4 +1,4 @@
-package in.stonecolddev.juke.ui;
+package in.stonecolddev.juke.ui.page;
 
 import com.github.slugify.Slugify;
 import in.stonecolddev.juke.metrics.PerRequestMetricsCollector;

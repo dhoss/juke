@@ -1,8 +1,8 @@
 package in.stonecolddev.juke;
 
-import in.stonecolddev.juke.ui.AdminController;
+import in.stonecolddev.juke.ui.admin.AdminController;
 import in.stonecolddev.juke.ui.HomeController;
-import in.stonecolddev.juke.ui.PageController;
+import in.stonecolddev.juke.ui.page.PageController;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

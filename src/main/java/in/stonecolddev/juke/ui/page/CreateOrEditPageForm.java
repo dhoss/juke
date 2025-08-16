@@ -1,13 +1,10 @@
-package in.stonecolddev.juke.ui;
+package in.stonecolddev.juke.ui.page;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Data
 @AllArgsConstructor

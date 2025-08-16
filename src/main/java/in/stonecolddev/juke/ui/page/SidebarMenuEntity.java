@@ -1,4 +1,4 @@
-package in.stonecolddev.juke.ui;
+package in.stonecolddev.juke.ui.page;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,15 +10,17 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 @Data
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(fluent = true)
-public class SidebarMenuItemEntity {
+public class SidebarMenuEntity {
   private Integer id;
-  private Integer sidebarMenuId;
+  private Integer layoutId;
   private String title;
-  private String body;
+  private String slug;
+  private Boolean isEnabled;
+  private List<SidebarMenuItemEntity> sidebarMenuItems;
   private OffsetDateTime createdOn;
   private OffsetDateTime updatedOn;
 }

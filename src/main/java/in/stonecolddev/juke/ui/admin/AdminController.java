@@ -1,4 +1,4 @@
-package in.stonecolddev.juke.ui;
+package in.stonecolddev.juke.ui.admin;
 
 
 import org.slf4j.Logger;

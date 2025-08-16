@@ -1,5 +1,6 @@
 package in.stonecolddev.juke.ui;
 
+import in.stonecolddev.juke.ui.page.PageNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

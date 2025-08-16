@@ -1,4 +1,4 @@
-package in.stonecolddev.juke.ui;
+package in.stonecolddev.juke.ui.page;
 
 import in.stonecolddev.juke.util.AbstractDatabaseTest;
 import org.junit.jupiter.api.AfterAll;

@@ -1,4 +1,4 @@
-package in.stonecolddev.juke.ui;
+package in.stonecolddev.juke.ui.page;
 
 
 import lombok.AllArgsConstructor;
@@ -9,7 +9,6 @@ import lombok.experimental.Accessors;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Data
 @Builder(toBuilder = true)

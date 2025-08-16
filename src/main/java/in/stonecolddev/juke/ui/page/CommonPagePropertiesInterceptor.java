@@ -2,7 +2,7 @@ package in.stonecolddev.juke.ui.page;
 
 import in.stonecolddev.juke.configuration.JukeConfiguration;
 import in.stonecolddev.juke.metrics.PerRequestMetricsCollector;
-import in.stonecolddev.juke.user.Session;
+import in.stonecolddev.juke.ui.ConfigGlob;
 import in.stonecolddev.juke.user.SessionService;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -32,14 +32,17 @@ public class CommonPagePropertiesInterceptor implements HandlerInterceptor {
 
   private MeterRegistry registry;
 
+  private final ConfigGlob configGlob;
 
   public CommonPagePropertiesInterceptor(
       JukeConfiguration jukeConfiguration,
       PerRequestMetricsCollector perRequestMetricsCollector,
+      ConfigGlob configGlob,
       SessionService sessionService) {
+    this.sessionService = sessionService;
     this.jukeConfiguration = jukeConfiguration;
     this.perRequestMetricsCollector = perRequestMetricsCollector;
-    this.sessionService = sessionService;
+    this.configGlob = configGlob;
   }
 
   @Override
@@ -54,8 +57,11 @@ public class CommonPagePropertiesInterceptor implements HandlerInterceptor {
     log.info("Populating common page data");
     pageConstructionSample.stop(registry.timer("pageConstructionTimer"));
     assert mv != null;
+    String v1 = configGlob.configuration().layoutSlug();
+    log.debug("***** LAYOUT SLUG {}", v1);
     mv.addAllObjects(
         Map.of(
+            "layoutSlug", v1,
             "pageConstructionTimer", registry.timer("pageConstructionTimer").totalTime(TimeUnit.SECONDS),
             // TODO: figure out how to get pageQueryCounter updated with the query counts from below
             "pageQueryCounter", perRequestMetricsCollector.counterValue("pageQueryCounter"),

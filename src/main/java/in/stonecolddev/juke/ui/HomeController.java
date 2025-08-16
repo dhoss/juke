@@ -16,8 +16,7 @@ public class HomeController {
 
   private final DefaultPageHandler pageBuilder;
 
-  public HomeController(
-      DefaultPageHandler pageBuilder) {
+  public HomeController(DefaultPageHandler pageBuilder) {
     this.pageBuilder = pageBuilder;
   }
 

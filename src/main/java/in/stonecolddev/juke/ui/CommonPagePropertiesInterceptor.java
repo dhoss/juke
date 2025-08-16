@@ -28,12 +28,16 @@ public class CommonPagePropertiesInterceptor implements HandlerInterceptor {
 
   private MeterRegistry registry;
 
+  private final ConfigGlob configGlob;
+
   public CommonPagePropertiesInterceptor(
       JukeConfiguration jukeConfiguration,
-      PerRequestMetricsCollector perRequestMetricsCollector
+      PerRequestMetricsCollector perRequestMetricsCollector,
+      ConfigGlob configGlob
   ) {
     this.jukeConfiguration = jukeConfiguration;
     this.perRequestMetricsCollector = perRequestMetricsCollector;
+    this.configGlob = configGlob;
   }
 
   @Override
@@ -48,8 +52,11 @@ public class CommonPagePropertiesInterceptor implements HandlerInterceptor {
     log.info("Populating common page data");
     pageConstructionSample.stop(registry.timer("pageConstructionTimer"));
     assert mv != null;
+    String v1 = configGlob.configuration().layoutSlug();
+    log.debug("***** LAYOUT SLUG {}", v1);
     mv.addAllObjects(
         Map.of(
+            "layoutSlug", v1,
             "pageConstructionTimer", registry.timer("pageConstructionTimer").totalTime(TimeUnit.SECONDS),
             "pageQueryCounter", perRequestMetricsCollector.counterValue("pageQueryCounter"),
             "jukeAppVersion", jukeConfiguration.getVersion()));

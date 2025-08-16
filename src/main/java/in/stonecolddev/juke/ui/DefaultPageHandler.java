@@ -33,19 +33,21 @@ public class DefaultPageHandler implements PageBuilder {
 
   private final HtmlRenderer renderer = HtmlRenderer.builder().build();
 
-  private final Map<String, String> configuration;
+  private final ConfigGlob configuration;
+
 
   // TODO: make this a fluent api, fuck it why not
   public DefaultPageHandler(
       Clock clock,
       PerRequestMetricsCollector perRequestMetricsCollector,
       NamedParameterJdbcTemplate namedParameterJdbcTemplate,
-      ModelMapper mapper
+      ModelMapper mapper,
+      ConfigGlob configuration
   ) {
     this.perRequestMetricsCollector = perRequestMetricsCollector;
     this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     this.mapper = mapper;
-    this.configuration = configuration();
+    this.configuration = configuration;
 
     TypeMap<CreateOrEditPageForm, PageEntity> propertyMapper = this.mapper.createTypeMap(CreateOrEditPageForm.class, PageEntity.class);
     propertyMapper.addMappings(
@@ -87,7 +89,7 @@ public class DefaultPageHandler implements PageBuilder {
               """,
               new MapSqlParameterSource()
                   .addValue("slug", slug)
-                  .addValue("layoutId", Integer.parseInt(configuration.get("layoutId"))),
+                  .addValue("layoutId", configuration.configuration().layoutId()),
           new PageEntityResultSetExtractor()), Page.class
         )
     );
@@ -140,29 +142,6 @@ public class DefaultPageHandler implements PageBuilder {
             }),  new TypeToken<List<Page>>(){}.getType());
   }
 
-  // TODO: this should probably be a DTO
-  // TODO: move to a config class
-  // TODO: this may be better suited as a bean created on startup
-  private Map<String, String> configuration() {
-
-    return namedParameterJdbcTemplate.query(
-        """
-        select
-          c.layout_id
-        , t.tz_name
-        from configuration c
-        left join timezones t on t.id = c.timezone_id
-        """,
-        rs -> {
-          Map<String, String> kv = new HashMap<>();
-          while (rs.next()) {
-            kv.put("layoutId", rs.getString("layout_id"));
-            kv.put("timezone", rs.getString("tz_name"));
-          }
-          return kv;
-        }
-    );
-  }
 
   public News motd() {
     return findNews("motd").getFirst();

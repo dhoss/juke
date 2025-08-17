@@ -30,10 +30,6 @@ public class Fixtures {
       initDb(postgres.getJdbcUrl());
     }
 
-    public static void stopDatabase() {
-      postgres.stop();
-    }
-
     private static void initDb(String jdbcUrl) {
 
       Flyway flyway = Flyway.configure()

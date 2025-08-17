@@ -38,11 +38,6 @@ public class SmokeTest {
 		startDatabase();
 	}
 
-//	@AfterAll
-//	public static void afterAll() {
-//		stopDatabase();
-//	}
-
 	@Test
 	public void contextLoads() {
 		for (var controller : List.of(homeController, pageController, adminController)) {

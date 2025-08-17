@@ -34,11 +34,6 @@ public class DefaultPageHandlerTest extends AbstractDatabaseTest {
     startDatabase();
   }
 
-  @AfterAll
-  public static void afterAll() {
-    stopDatabase();
-  }
-
   @Test
   public void findPage() throws SQLException {
     // TODO: figure out timezone configuration, this is obnoxious

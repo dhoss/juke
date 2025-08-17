@@ -14,7 +14,6 @@ public class Fixtures {
     private static final String databaseName = "juke";
 
     // TODO: consider using try with resources for creating postgres instance in testcontainers tests
-    @Container
     public static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
         .withInitScript("init.sql")
         .withEnv("TZ", "America/Denver")

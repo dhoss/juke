@@ -17,7 +17,7 @@ public class BlogThreadTest {
   private final BlogThread blogThread = new BlogThread(persistence);
 
   private final Author author = Author.builder().userName("devin").build();
-  private final BlogPost expectedBlogPost =
+  private final BlogPost rootBlogPost =
       BlogPost.builder()
           .id(1)
           .approved(true)
@@ -31,7 +31,7 @@ public class BlogThreadTest {
       BlogPost.builder()
           .id(2)
           .approved(false)
-          .parent(Optional.of(expectedBlogPost))
+          .parent(Optional.of(rootBlogPost))
           .author(author)
           .createdOn(OffsetDateTime.now())
           .build();
@@ -40,23 +40,23 @@ public class BlogThreadTest {
       BlogPost.builder()
           .id(3)
           .approved(false)
-          .parent(Optional.of(expectedBlogPost))
+          .parent(Optional.of(rootBlogPost))
           .author(author)
           .createdOn(OffsetDateTime.now())
           .build();
 
-  private final BlogPost postWithReply = expectedBlogPost.withReplies(List.of(reply));
+  private final BlogPost postWithReply = rootBlogPost.withReplies(List.of(reply));
 
   @Test
   public void newParentThread() {
-    when(persistence.save(expectedBlogPost)).thenReturn(expectedBlogPost);
-    assertEquals(expectedBlogPost, blogThread.newThread(expectedBlogPost));
+    when(persistence.save(rootBlogPost)).thenReturn(rootBlogPost);
+    assertEquals(rootBlogPost, blogThread.newThread(rootBlogPost));
   }
 
   @Test
   public void addReply() {
     when(persistence.save(postWithReply)).thenReturn(postWithReply);
-    assertEquals(postWithReply, blogThread.addReply(expectedBlogPost, reply));
+    assertEquals(postWithReply, blogThread.addReply(rootBlogPost, reply));
   }
 
   @Test
@@ -64,28 +64,28 @@ public class BlogThreadTest {
     when(
         persistence.list(
             Pager.builder()
-                .forThread(Optional.of(expectedBlogPost))
+                .forThread(Optional.of(rootBlogPost))
                 .build()))
         .thenReturn(List.of(reply, reply2));
 
-    assertEquals(List.of(reply, reply2), blogThread.retrieveThread(expectedBlogPost));
+    assertEquals(List.of(reply, reply2), blogThread.retrieveThread(rootBlogPost));
   }
 
   @Test
   public void deletePost() {
-    blogThread.deletePost(expectedBlogPost);
-    verify(persistence, times(1)).delete(expectedBlogPost);
+    blogThread.deletePost(rootBlogPost);
+    verify(persistence, times(1)).delete(rootBlogPost);
   }
 
   @Test
   public void deleteThread() {
-    blogThread.deleteThread(expectedBlogPost);
-    verify(persistence, times(1)).bulkDelete(expectedBlogPost.replies());
+    blogThread.deleteThread(rootBlogPost);
+    verify(persistence, times(1)).bulkDelete(rootBlogPost.replies());
   }
 
   @Test
   public void approveReply() {
-    blogThread.approveReply(expectedBlogPost);
-    verify(persistence, times(1)).save(expectedBlogPost.approved(true));
+    blogThread.approveReply(rootBlogPost);
+    verify(persistence, times(1)).save(rootBlogPost.approved(true));
   }
 }

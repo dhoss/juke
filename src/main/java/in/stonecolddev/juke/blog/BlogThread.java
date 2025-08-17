@@ -21,7 +21,7 @@ public class BlogThread implements Thread<BlogPost> {
 
   @Override
   public BlogPost addReply(BlogPost parent, BlogPost reply) {
-    return databasePersistence.save(reply.parent(Optional.of(parent)));
+    return databasePersistence.save(parent.addReply(reply));
   }
 
   @Override

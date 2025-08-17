@@ -16,14 +16,14 @@ spring:
       additional-paths: file:src/main/resources/static/css/
   application:
     name: juke
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      jdbc-url: >
-        jdbc:postgresql://localhost:5432/juke
-      pool-name: juke-pool
-      username: juke
-      password: juke
+ # datasource:
+ #   driver-class-name: org.postgresql.Driver
+ #   hikari:
+ #     jdbc-url: >
+ #       jdbc:postgresql://localhost:5432/juke
+ #     pool-name: juke-pool
+ #     username: juke
+ #     password: juke
 logging:
   level:
     in.stonecolddev: DEBUG

@@ -28,7 +28,8 @@ public class BlogThread implements Thread<BlogPost> {
   public List<BlogPost> retrieveThread(BlogPost post) {
     return databasePersistence.list(
         Pager.builder()
-            .forThread(Optional.of(post)).build());
+            .forThread(Optional.of(post))
+            .build());
   }
 
   @Override

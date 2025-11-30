@@ -2,6 +2,7 @@ package in.stonecolddev.juke.ui.page;
 
 import com.github.slugify.Slugify;
 import in.stonecolddev.juke.metrics.PerRequestMetricsCollector;
+import in.stonecolddev.juke.ui.ConfigGlob;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.modelmapper.Converter;

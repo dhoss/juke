@@ -1,0 +1,5 @@
+    {% extends "fragments/layout" %}
+    {% block body %}
+    <h1>Editing user {{ user.userName }}</h1>
+    {%  include "users/fragments/user-form" %}
+    {% endblock %}

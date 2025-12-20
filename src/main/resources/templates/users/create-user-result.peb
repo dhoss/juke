@@ -1,0 +1,6 @@
+    {% extends "fragments/layout" %}
+    {% block body %}
+    <h1>User created</h1>
+    <div>User: {{user.userName}}</div>
+    <div>Email: {{user.email}}</div>
+    {% endblock %}

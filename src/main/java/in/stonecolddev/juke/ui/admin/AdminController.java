@@ -21,7 +21,7 @@ public class AdminController {
   @GetMapping
   public ModelAndView home() {
 
-    return new ModelAndView("admin/home.html");
+    return new ModelAndView("admin/home");
   }
 
 }

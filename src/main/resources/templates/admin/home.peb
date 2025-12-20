@@ -1,0 +1,135 @@
+    {% extends "fragments/admin/layout" %}
+    {% block body %}
+    <h1>Admin</h1>
+    <div class="row row-cols-4 g-4">
+        <div class="col">
+            <div class="card border-0 h-100">
+                <a href="{{ href('/admin/pages') }}">
+                    <img src="{{ href('/img/pages.png') }}" height="48" width="48" alt="...">
+
+
+                    <div class="card-body">
+                        <h5 class="card-title">Pages</h5>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="col">
+            <a href="{{ href('/admin/config') }}">
+                <div class="card border-0 h-100">
+                    <img src="{{ href('/img/config.png') }}" height="48" width="48" alt="...">
+
+                    <div class="card-body">
+                        <h5 class="card-title">Config</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col">
+            <a href="{{ href('/admin/metrics') }}">
+                <div class="card border-0 h-100">
+
+                    <img src="{{ href('/img/metrics.png') }}" height="48" width="48" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">Metrics</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col">
+            <a href="{{ href('/admin/news') }}">
+                <div class="card border-0 h-100">
+
+                    <img src="{{ href('/img/news.png')}}" height="48" width="48" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">News</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="row row-cols-4 g-4">
+        <div class="col">
+            <div class="card border-0 h-100">
+                <a href="{{ href('/admin/forums') }}">
+
+                    <img src="{{ href('/img/forums.png') }}" height="48" width="48" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">Forums</h5>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="col">
+            <a href="{{ href('/admin/assets') }}">
+                <img src="{{ href('/img/assets.png') }}" height="48" width="48" alt="...">
+                <div class="card border-0 h-100">
+
+                    <div class="card-body">
+                        <h5 class="card-title">Assets</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col">
+            <a href="{{ href('/admin/motd') }}">
+
+                <img src="{{ href('/img/motd.png') }}" height="48" width="48" alt="...">
+                <div class="card border-0 h-100">
+
+                    <div class="card-body">
+                        <h5 class="card-title">MOTD</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col">
+            <div class="card border-0 h-100">
+                <a href="{{ href('/admin/layouts') }}">
+                    <img src="{{ href('/img/layouts.png') }}" height="48" width="48" alt="...">
+
+                    <div class="card-body">
+                        <h5 class="card-title">Layouts</h5>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="col">
+            <a href="{{ href('/admin/polls') }}">
+                <img src="{{ href('/img/polls.png') }}" height="48" width="48" alt="...">
+                <div class="card border-0 h-100">
+
+                    <div class="card-body">
+                        <h5 class="card-title">Polls</h5>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <!--
+    <div class="col">
+        <a href="{{ href('/admin/motd') }}">
+            <div class="card border-0 h-100">
+
+                <div class="card-body">
+                    <h5 class="card-title">MOTD</h5>
+                    <p class="card-text">Mange MOTD</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col">
+        <a href="{{ href('/admin/news') }}">
+            <div class="card border-0 h-100">
+
+                <div class="card-body">
+                    <h5 class="card-title">News</h5>
+                    <p class="card-text">Manage News</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    -->
+    </div>
+    {% endblock %}

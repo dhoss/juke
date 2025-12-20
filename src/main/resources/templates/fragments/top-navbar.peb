@@ -1,0 +1,32 @@
+<table border="0" cellspacing="0" cellpadding="0" class="tableTop" width="100%">
+    <tr>
+        <td class="tableColumnHeader" align="center">
+                {% if userSession.isEmpty() %}
+                Welcome, Guest
+                {% else %}
+
+                <!-- TODO: add user profile link here -->
+                {{  userSession.get().user.userName }}
+                {%  endif %}
+        </td>
+        {% if userSession.isPresent() %}
+            <td class="tableColumnHeader" align="center"
+                onmouseover="changeColumn(this,'on');style.cursor='hand'" onmouseout="changeColumn(this,'off')">
+                <a href="/logout">Logout</a>
+            </td>
+            {%  else %}
+            <td class="tableColumnHeader" align="center"
+                onmouseover="changeColumn(this,'on');style.cursor='hand'" onmouseout="changeColumn(this,'off')">
+                <a href="/login">Login</a>
+            </td>
+            <td class="tableColumnHeader" align="center"
+                onmouseover="changeColumn(this,'on');style.cursor='hand'" onmouseout="changeColumn(this,'off')">
+                <a href="/users/new">New Account</a>
+            </td>
+        {% endif %}
+        <td class="tableColumnHeader" align="center" onmouseover="changeColumn(this,'on');style.cursor='hand'"
+            onmouseout="changeColumn(this,'off')">
+            <a href="/contact">Contact</a>
+        </td>
+    </tr>
+</table>

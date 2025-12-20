@@ -4,10 +4,14 @@ package in.stonecolddev.juke.ui.page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -19,9 +23,14 @@ public class PageController {
 
   private final DefaultPageHandler pageHandler;
 
+  private final Clock clock;
+
   public PageController(
-      DefaultPageHandler pageHandler) {
+      DefaultPageHandler pageHandler,
+      Clock clock
+  ) {
     this.pageHandler = pageHandler;
+    this.clock = clock;
   }
 
   // TODO: compileForView should populate sidebar with latest n page urls
@@ -56,6 +65,7 @@ public class PageController {
     Page page = pageHandler.findPage(pageSlug)
         .orElseThrow(() -> new PageNotFoundException("Page not found with slug " + pageSlug));
 
+
     CreateOrEditPageForm pageForm = new CreateOrEditPageForm();
     pageForm.setTitle(page.title());
     pageForm.setBody(page.body());
@@ -63,6 +73,7 @@ public class PageController {
     pageForm.setPublishedOn(
         LocalDateTime.parse(
             page.publishedOn()
+                .atZoneSameInstant(clock.getZone())
                 .toLocalDateTime()
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"))));
 

@@ -1,0 +1,5 @@
+{% extends "fragments/admin/layout" %}
+    {% block body %}
+    <h1>Create new page</h1>
+    {% include "admin/pages/fragments/page-form" %}
+    {% endblock %}

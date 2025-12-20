@@ -1,0 +1,19 @@
+    {% extends "fragments/layout" %}
+    {% block body %}
+    <h1>Please Log In</h1>
+    {% if request.getQueryString() equals "error" %}
+    Invalid username and password.</div>
+    {% endif %}
+    {% if request.getQueryString() equals "logout" %}
+    You have been logged out.
+    {% endif %}
+    <form action="/login" method="post">
+        <div>
+            <input type="text" name="username" placeholder="Username"/>
+        </div>
+        <div>
+            <input type="password" name="password" placeholder="Password"/>
+        </div>
+        <input type="submit" value="Log in"/>
+    </form>
+    {% endblock %}

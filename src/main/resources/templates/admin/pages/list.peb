@@ -1,0 +1,30 @@
+    {% extends "fragments/admin/layout" %}
+
+    {% block body %}
+    <h1>Pages</h1>
+    <div><a href="{{ href('/admin/pages/new') }}">New Page</a></div>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Page Title</th>
+            <th scope="col">Published On</th>
+            <th scope="col">Last Updated</th>
+            <th scope="col">Edit</th>
+            <th scope="col">Publish</th>
+            <th scope="col">Delete</th>
+        </tr>
+        </thead>
+        <tbody>
+                {% for page in pages %}
+            <tr>
+                <td><a target="_blank" href="{{ href("/#{page.slug}.html") }}">{{ page.title }}</a></td>
+                <td>{{ page.publishedOn }}</td>
+                <td>{{  page.updatedOn }}</td>
+                <td><a href="{{ href("/admin/pages/#{page.slug}/edit") }}">Edit</a></td>
+                <td>Publish</td>
+                <td>Delete</td>
+            </tr>
+                {% endfor %}
+        </tbody>
+    </table>
+    {% endblock %}

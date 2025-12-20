@@ -1,0 +1,9 @@
+<div>
+    <form action="{{action}}" method="post">
+        <p>user name <input type="text" value="{{userName}}"/></p>
+        <p>password <input type="password" value="{{password}}"/></p>
+        <p>confirm password <input type="password" value="{{passwordConfirm}}"/></p>
+        <p>email (for password resets) <input type="text" value="{{email}}"/></p>
+        <p><input type="submit" value="Sign Up"/></p>
+    </form>
+</div>

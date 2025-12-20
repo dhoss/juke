@@ -1,0 +1,5 @@
+    {% extends "fragments/layout" %}
+    {% block body %}
+    <h1>Create new user</h1>
+    {%  include "users/fragments/user-form" %}
+    {% endblock %}

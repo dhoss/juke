@@ -1,0 +1,7 @@
+{%  extends "fragments/admin/layout" %}
+    {% block body %}
+<h1>Page created</h1>
+<div>title: {{page.title}}</div>
+<div>body: {{page.body}}</div>
+<div>published on: {{page.publishedOn}}</div>
+    {% endblock %}

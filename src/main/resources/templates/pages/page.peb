@@ -1,0 +1,7 @@
+{% extends "fragments/layout" %}
+{% block body %}
+<!-- begin page body -->
+<div id="page-body">{{ page.body | raw }}</div>
+<!-- end page body -->
+{% endblock %}
+

@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
 
-    <link rel="stylehseet" href="{{ href('/css/styles.css') }}"/>
+    <link rel="stylesheet" href="{{ href('/css/styles.css') }}"/>
     <link rel="SHORTCUT ICON" href="{{ href('/img/juke_logo_favicon.svg') }}">
 
     <title>{{ page.title }}</title>
@@ -22,7 +22,6 @@
                                         <tr>
                                             <td>
                                                 {% include "fragments/header" %}
-                                                <!-- <div th:replace="~{fragments/header :: header}"></div> -->
                                             </td>
                                         </tr>
                                     </table>
@@ -31,12 +30,10 @@
                             <tr>
                                 <td width="100%" colspan="2">
                                     {% include "fragments/top-navbar" %}
-                                    <!-- <div th:replace="~{fragments/top-navbar :: top-navbar}"></div> -->
                                 </td>
                             </tr>
                             <tr>
                                 {% include "fragments/sidebar" %}
-                                <!--   <div th:remove="tag" th:replace="~{fragments/sidebar :: sidebar}"></div> -->
                                 <td width="100%" valign="top" align="left">
                                         {% block body %}{% endblock %}
                                 </td>

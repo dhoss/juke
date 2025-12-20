@@ -1,9 +1,9 @@
 <!-- start header -->
-<table border="0" cellspacing="0" cellpadding="0" class="tableHeader" width="100%" th:fragment="header">
+<table border="0" cellspacing="0" cellpadding="0" class="tableHeader" width="100%">
     <tr>
         <td valign="top" align="left" width="50%">
             <a href="/">
-                <img th:src="@{/img/juke_logo.svg}" width="410" height="100" alt="Juke CMS" />
+                <img src="{{ href('/img/juke_logo.svg') }}" width="410" height="100" alt="Juke CMS"/>
             </a>
         </td>
     </tr>

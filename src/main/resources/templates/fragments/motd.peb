@@ -1,26 +1,26 @@
 <table border="0" width="100%" class="tableTop">
     <tr>
         <td width="100%">
-                <table class="tableHeader" border="0" cellspacing="0" cellpadding="0" width="100%">
-                    <tr>
-                        <td class="tableHeaderText" colspan="2" width="100%">
-                            <span th:text="${motd.title}"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="tableHeaderText news-item-info">
-                            <!-- TODO: format dates -->
-                            <span th:text="${motd.author.userName}" /> on <span th:text="${motd.createdOn}"/>
-                        </td>
-                    </tr>
-                </table>
-                <table border="0" cellspacing="0" cellpadding="0" width="100%">
-                    <tr>
-                        <td class="tableTopNormal">
-                            <span th:text="${motd.body}" />
-                        </td>
-                    </tr>
-                </table>
+            <table class="tableHeader" border="0" cellspacing="0" cellpadding="0" width="100%">
+                <tr>
+                    <td class="tableHeaderText" colspan="2" width="100%">
+                            {{ motd.title }}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="tableHeaderText news-item-info">
+                        <!-- TODO: format dates -->
+                        {{ motd.author.userName }} on {{  motd.createdOn }}
+                    </td>
+                </tr>
+            </table>
+            <table border="0" cellspacing="0" cellpadding="0" width="100%">
+                <tr>
+                    <td class="tableTopNormal">
+                            {{ motd.body }}
+                    </td>
+                </tr>
+            </table>
         </td>
     </tr>
 </table>

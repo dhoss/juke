@@ -1,26 +1,26 @@
 {% for newsItem in news %}
 <tr>
     <td width="100%">
-    <table class="tableHeader" border="0" cellspacing="0" cellpadding="0" width="100%">
-        <tr>
-            <td class="tableHeaderText news-newsItem-title"colspan="2" width="100%">
-                <div  th:text="${newsItem.title}"></div>
-            </td>
-        </tr>
-        <tr>
-            <td class="tableHeaderText news-newsItem-info">
-                <span th:text="${newsItem.author.userName}"></span> on
-                <span th:text="${newsItem.publishedOn}"></span>
-            </td>
-        </tr>
-    </table>
-    <table border="0" cellspacing="0" cellpadding="0" width="100%">
-        <tr>
-            <td class="tableTopNormal news-newsItem-body">
-                <div th:text="${newsItem.body}"></div>
-            </td>
-        </tr>
-    </table>
+        <table class="tableHeader" border="0" cellspacing="0" cellpadding="0" width="100%">
+            <tr>
+                <td class="tableHeaderText news-item-title" colspan="2" width="100%">
+                        {{ newsItem.title }}
+                </td>
+            </tr>
+            <tr>
+                <td class="tableHeaderText news-item-info">
+                    {{ newsItem.author.userName }} on
+                    {{ newsItem.publishedOn }}
+                </td>
+            </tr>
+        </table>
+        <table border="0" cellspacing="0" cellpadding="0" width="100%">
+            <tr>
+                <td class="tableTopNormal news-item-body">
+                        {{ newsItem.body }}
+                </td>
+            </tr>
+        </table>
     </td>
 </tr>
 {% endfor %}

@@ -5,7 +5,7 @@
         </tr>
         <tr>
             <td width="100%">
-                {% for item in page.sidebarMenus %}
+                    {% for item in page.sidebarMenus %}
                     <div class="sidebar-item">
                         <table width="100%" border="0" cellpadding="0" cellspacing="0">
                             <tr>
@@ -13,19 +13,14 @@
                             </tr>
                         </table>
                         <div class="menuHeader">
-                            <div class="menuItem">
-                                    {% for i in item.menuItems %}
+                                {% for i in item.menuItems %}
+                                <div class="menuItem">
                                     <a href="{{ i.body }}">{{ i.title }}</a>
-                                    {%  endfor %}
-                            </div>
+                                </div>
+                                {%  endfor %}
                         </div>
                     </div>
-                {% endfor %}
-
-                <!--
-                <div th:remove="tag" th:each="item : ${page.sidebarMenus}"
-                     th:insert="~{sidebar-item :: sidebar(${item})}"></div>
-                     -->
+                    {% endfor %}
             </td>
         </tr>
     </table>

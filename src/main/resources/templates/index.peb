@@ -7,15 +7,13 @@
             <td valign="top">
                 <!-- begin news item section -->
                 {% include "fragments/motd" %}
-                <!-- <th:block th:replace="~{motd}" />-->
                 <!-- end news item section -->
                 <table border="0" width="100%" class="tableTop">
                     <tr>
                         <td class="tableHeader" width="100%">News</td>
                     </tr>
                     <tr>
-                        {% include "fragments/news" %}
-                        <!-- <td th:each="item : ${news}" th:insert="~{news-item :: news(${item})}"></td> -->
+                            {% include "fragments/news" %}
                     </tr>
                 </table>
             </td>

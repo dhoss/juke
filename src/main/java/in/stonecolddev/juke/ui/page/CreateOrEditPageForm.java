@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+
+// TODO: refactor to builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

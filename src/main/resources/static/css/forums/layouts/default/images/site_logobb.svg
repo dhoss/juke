@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" viewBox="-300 -300 468 100" xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <clipPath id="clipPath6">
+            <rect x="-368.67" y="-350.74" width="2103.3" height="663.25" fill="none" stroke-width="5.9752"/>
+        </clipPath>
+        <clipPath id="clipPath7">
+            <rect x="-304" y="-301" width="352" height="111" fill="none"/>
+        </clipPath>
+    </defs>
+    <circle transform="translate(-7.7 -7.7)" cx="-242.3" cy="-242.3" r="50" clip-path="url(#clipPath7)"
+            stroke-width=".17106"/>
+    <g transform="matrix(.16736 0 0 .16736 -250 -250)" clip-path="url(#clipPath6)" fill="#f1cd43">
+        <circle r="50"/>
+        <path id="bld" d="m75 0a75 75 0 0 0-37.5-64.952l87.5-151.55a250 250 0 0 1 125 216.51z"/>
+        <use transform="rotate(120)" xlink:href="#bld"/>
+        <use transform="rotate(240)" xlink:href="#bld"/>
+    </g>
+    <text x="-207" y="-209" fill="#000000" font-family="'Handel Gothic Italic'" font-size="96px" xml:space="preserve"><tspan x="-207" y="-209">JukeBB</tspan></text>
+</svg>

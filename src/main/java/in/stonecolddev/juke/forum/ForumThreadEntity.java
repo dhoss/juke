@@ -19,6 +19,9 @@ public class ForumThreadEntity implements ForumDatabaseRecord {
   private final Integer id;
 
   @NonNull
+  private final ForumEntity forum;
+
+  @NonNull
   private final JukeUser createdBy;
 
   private final JukeUser updatedBy;

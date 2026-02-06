@@ -2,7 +2,7 @@ package in.stonecolddev.juke.forum;
 
 import in.stonecolddev.juke.forum.resreq.*;
 
-public interface ForumStorage {
+public interface ForumThreadStorage {
 
   ListForumResponse listForums(ListForumResquest listForumResquest);
 

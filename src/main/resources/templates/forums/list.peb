@@ -10,7 +10,8 @@
     <div id="page-body" class="page-body" role="main">
 
 
-        <p class="right responsive-center time">It is currently Mon Jan 19, 2026 11:56 pm</p>
+        <p class="right responsive-center time">It is
+            currently {{ now | date("LLL dd, yyyy HH:mm:ss", timeZone="UTC")  }}</p>
 
 
         <div class="forabg">

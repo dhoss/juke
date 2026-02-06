@@ -5,8 +5,10 @@ import org.springframework.stereotype.Component;
 
 @Accessors(fluent = true)
 @Component
-public class DatabaseConfiguration {
+public class ForumDatabaseConfiguration {
 
 
+  public ForumDatabaseConfiguration() {
+  }
 
 }

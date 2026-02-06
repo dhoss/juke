@@ -7,10 +7,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class ForumDependencies {
 
-  private final DatabaseConfiguration databaseConfiguration;
+  private final ForumDatabaseConfiguration databaseConfiguration;
 
   public ForumDependencies(
-      DatabaseConfiguration databaseConfiguration
+      ForumDatabaseConfiguration databaseConfiguration
   ) {
     this.databaseConfiguration = databaseConfiguration;
 

@@ -7,9 +7,11 @@
 
     <title>Your first forum - yourdomain.com</title>
 
+    <script src="https://kit.fontawesome.com/61f78c38d6.js" crossorigin="anonymous"></script>
 
+    <!--
     <link rel="canonical" href="http://www.try-phpbb.com/33x/viewforum.php?f=2">
-
+-->
     <!--
         phpBB style name: prosilver
         Based on style:   prosilver (this is the default phpBB3 style)
@@ -18,7 +20,6 @@
     -->
 
     <!-- TODO: move these base paths to config -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" rel="stylesheet">
     <link href="{{ href('/css/forums/layouts/default/stylesheet.css') }}" rel="stylesheet">
 
 
@@ -60,11 +61,12 @@
                                    title="Search for keywords" class="inputbox search tiny" size="20" value=""
                                    placeholder="Search…"/>
                             <button class="button button-search" type="submit" title="Search">
-                                <i class="icon fa-search fa-fw" aria-hidden="true"></i><span
+                                <i class="fas fa-search fa-fw" aria-hidden="true"></i><span
                                     class="sr-only">Search</span>
                             </button>
                             <a href="./search.php" class="button button-search-end" title="Advanced search">
-                                <i class="icon fa-cog fa-fw" aria-hidden="true"></i><span class="sr-only">Advanced search</span>
+                                <i class="fas fa-cog fa-fw" aria-hidden="true"></i><span
+                                    class="sr-only">Advanced search</span>
                             </a>
 
                         </fieldset>

@@ -1,4 +1,4 @@
-package in.stonecolddev.juke.forum;
+package in.stonecolddev.juke.forum.schema;
 
 import in.stonecolddev.juke.user.JukeUser;
 

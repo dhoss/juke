@@ -1,5 +1,6 @@
-package in.stonecolddev.juke.forum;
+package in.stonecolddev.juke.forum.ui;
 
+import in.stonecolddev.juke.forum.configuration.ForumDependencies;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

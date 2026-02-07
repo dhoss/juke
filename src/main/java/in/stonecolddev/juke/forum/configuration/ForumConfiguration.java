@@ -1,14 +1,14 @@
-package in.stonecolddev.juke.forum;
+package in.stonecolddev.juke.forum.configuration;
 
 import lombok.experimental.Accessors;
 import org.springframework.stereotype.Component;
 
 @Accessors(fluent = true)
 @Component
-public class ForumDatabaseConfiguration {
+public class ForumConfiguration {
 
 
-  public ForumDatabaseConfiguration() {
+  public ForumConfiguration() {
   }
 
 }

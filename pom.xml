@@ -30,6 +30,7 @@
         <java.version>23</java.version>
         <aspectj.version>1.9.24</aspectj.version>
         <flyway.version>11.9.0</flyway.version>
+        <record.builder.version>53</record.builder.version>
     </properties>
 
     <dependencyManagement>
@@ -44,6 +45,17 @@
         </dependencies>
     </dependencyManagement>
     <dependencies>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>ST4</artifactId>
+            <version>4.3.4</version>
+        </dependency>
+        <dependency>
+            <groupId>io.soabase.record-builder</groupId>
+            <artifactId>record-builder-core</artifactId>
+            <version>${record.builder.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>io.pebbletemplates</groupId>
             <artifactId>pebble-spring-boot-starter</artifactId>
@@ -203,6 +215,11 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
+                        </path>
+                        <path>
+                            <groupId>io.soabase.record-builder</groupId>
+                            <artifactId>record-builder-processor</artifactId>
+                            <version>${record.builder.version}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>

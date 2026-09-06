@@ -18,6 +18,6 @@ values (1, (select id from users limit 1), 'test root page', 'test-root-page', '
         '2026-09-06 16:14:20.231 -0600',
         '2026-09-06 16:14:20.231 -0600'),
        (2, (select id from users limit 1), 'test root page first child page', 'test-root-page-first-child-page',
-        'test root page first child page body', (select id from page_trees where slug = 'test-root-page'), true,
+        'test root page first child page body', 1, true,
         '2026-09-06 16:14:20.231 -0600',
         '2026-09-06 16:14:20.231 -0600');

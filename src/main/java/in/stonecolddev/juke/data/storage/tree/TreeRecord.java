@@ -1,35 +1,55 @@
 package in.stonecolddev.juke.data.storage.tree;
 
-import io.soabase.recordbuilder.core.RecordBuilder;
-
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
-@RecordBuilder
-public record TreeRecord<T>(
-    T root,
-    List<T> children,
-    Optional<T> parent,
-    List<T> siblings,
-    List<T> ancestors
-) implements TreeRecordBuilder.With<T> {
+public interface TreeRecord {
+  List<Integer> path();
 
-  public TreeRecord {
+  default String pathAsString() {
 
-    children = maybeField(children);
-    siblings = maybeField(siblings);
-    ancestors = maybeField(ancestors);
-
+    return String.join(
+        ".",
+        path().stream()
+            .map(String::valueOf)
+            .collect(Collectors.joining(".")));
   }
-
-  private List<T> maybeField(List<T> fieldElements) {
-    return Optional.ofNullable(fieldElements).orElseGet(List::of);
-  }
-
-  public void addChild(T child) {
-  }
-
-  public void reparent(T newParent) {
-  }
-
 }
+
+//@RecordBuilder
+//public record TreeRecord<T>(
+//    T root,
+//    List<Integer> path,
+//    List<T> children,
+//    Optional<T> parent,
+//    List<T> siblings,
+//    List<T> ancestors
+//) implements TreeRecordBuilder.With<T> {
+//
+//  public TreeRecord {
+//
+//    children = maybeField(children);
+//    siblings = maybeField(siblings);
+//    ancestors = maybeField(ancestors);
+//
+//  }
+//
+//  private List<T> maybeField(List<T> fieldElements) {
+//    return Optional.ofNullable(fieldElements).orElseGet(List::of);
+//  }
+//
+//  public void addChild(T child) {
+//  }
+//
+//  public void reparent(T newParent) {
+//  }
+//
+//  public String pathAsString() {
+//    return String.join(
+//        ".",
+//        path().stream()
+//            .map(String::valueOf)
+//            .collect(Collectors.joining(".")));
+//  }
+//
+//}

@@ -12,9 +12,12 @@ create table page_trees
     updated_on   timestamptz
 );
 
-insert into page_trees(author, title, slug, body, parent, approved, created_on, published_on)
-values ((select id from users limit 1), 'test root page', 'test-root-page', 'test root page body', null, true, now(),
-        now()),
-       ((select id from users limit 1), 'test root page first child page', 'test-root-page-first-child-page',
-        'test root page first child page body', (select id from page_trees where slug = 'test-root-page'), true, now(),
-        now());
+insert into page_trees(id, author, title, slug, body, parent, approved, created_on, published_on)
+    overriding system value
+values (1, (select id from users limit 1), 'test root page', 'test-root-page', 'test root page body', null, true,
+        '2026-09-06 16:14:20.231 -0600',
+        '2026-09-06 16:14:20.231 -0600'),
+       (2, (select id from users limit 1), 'test root page first child page', 'test-root-page-first-child-page',
+        'test root page first child page body', (select id from page_trees where slug = 'test-root-page'), true,
+        '2026-09-06 16:14:20.231 -0600',
+        '2026-09-06 16:14:20.231 -0600');

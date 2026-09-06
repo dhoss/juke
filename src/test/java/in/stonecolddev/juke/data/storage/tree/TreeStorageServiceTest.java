@@ -13,10 +13,13 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import static in.stonecolddev.juke.util.Fixtures.Database.startDatabase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -24,6 +27,7 @@ import static in.stonecolddev.juke.util.Fixtures.Database.startDatabase;
 @Tag("it-test")
 public class TreeStorageServiceTest extends AbstractDatabaseTest {
 
+  private final OffsetDateTime now = OffsetDateTime.parse("2026-09-06 16:14:20.231 -0600", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS Z")).atZoneSameInstant(ZoneId.of("UTC")).toOffsetDateTime();
 
   @Autowired
   private NamedParameterJdbcTemplate jdbcTemplate;
@@ -37,15 +41,49 @@ public class TreeStorageServiceTest extends AbstractDatabaseTest {
       .idColumn("id")
       .treeTableAlias("p")
       .queryParameters(Map.of("author", "devin"))
-      .anchorQueryColumnList(List.of("author", "title"))
+      .anchorQueryColumnSet(Set.of("author", "title", "body", "approved", "created_on", "published_on", "parent"))
       .treeTable("page_trees")
 //      .remainingAnchorQuery("left join table2 t2 on t2.id=b.other_id")
 //      .recursiveQueryColumnList(List.of("column1", "column2"))
       .parentColumn("parent")
 //      .remainingRecursiveQuery("left join other_table o on o.id=b.other_id")
-      .remainingCteQueryColumnsList(List.of("author_id", "email"))
+      .remainingCteQueryColumnsSet(Set.of("author_id", "email"))
       .whereColumn("slug")
       .build();
+
+
+  PageRecord root = PageRecordBuilder.builder()
+      .id(1)
+      .author(1)
+      .title("test root page")
+      .slug("test-root-page")
+      .body("test root page body")
+      .path(List.of(1))
+      .depth(1)
+      .approved(true)
+      .createdOn(now)
+      .publishedOn(now)
+      .build();
+
+  List<PageRecord> expectedNodes = new ArrayList<>(
+      List.of(
+          root
+          ,
+          PageRecordBuilder.builder()
+              .id(2)
+              .author(1)
+              .title("test root page first child page")
+              .slug("test-root-page-first-child-page")
+              .body("test root page first child page body")
+              .path(List.of(1, 1))
+              .depth(2)
+              .parent(Optional.of(root))
+              .approved(true)
+              .createdOn(now)
+              .publishedOn(now)
+              .build()
+      )
+  );
 
   @Test
   public void find() {
@@ -68,7 +106,7 @@ public class TreeStorageServiceTest extends AbstractDatabaseTest {
         }
     );
 
-    ts.find("test");
+    assertEquals(Optional.of(DatabaseTree.create(expectedNodes)), ts.find("test-root-page"));
 
   }
 
@@ -86,6 +124,9 @@ public class TreeStorageServiceTest extends AbstractDatabaseTest {
                     .getArray())));
     pageRecord.depth(rs.getInt("depth"));
     pageRecord.approved(rs.getBoolean("approved"));
+    pageRecord.createdOn(
+        rs.getObject("created_on", OffsetDateTime.class)
+            .truncatedTo(ChronoUnit.SECONDS));
     pageRecord.publishedOn(
         rs.getObject("published_on", OffsetDateTime.class)
             .truncatedTo(ChronoUnit.SECONDS));

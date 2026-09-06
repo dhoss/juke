@@ -2,10 +2,10 @@ package in.stonecolddev.juke.data.storage.tree;
 
 import io.soabase.recordbuilder.core.RecordBuilder;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 @RecordBuilder
@@ -13,38 +13,49 @@ public record DatabaseTreeConfiguration(
     String idColumn,
     String treeTableAlias,
     Map<String, String> queryParameters,
-    List<String> anchorQueryColumnList,
+    Set<String> anchorQueryColumnSet,
     String treeTable,
     String remainingAnchorQuery,
-    List<String> recursiveQueryColumnList,
+    Set<String> recursiveQueryColumnSet,
     String parentColumn,
     String remainingRecursiveQuery,
-    List<String> remainingCteQueryColumnsList,
+    Set<String> remainingCteQueryColumnsSet,
     String whereColumn
 ) implements DatabaseTreeConfigurationBuilder.With {
 
   public DatabaseTreeConfiguration {
 
-    treeTableAlias = Optional.ofNullable(treeTableAlias).orElseGet(() -> "tree");
+    treeTableAlias = maybeField(treeTableAlias, "tree");
+    whereColumn = maybeField(whereColumn, "slug");
     queryParameters = maybeField(queryParameters);
-    anchorQueryColumnList = maybeField(anchorQueryColumnList);
-    recursiveQueryColumnList = maybeField(recursiveQueryColumnList);
-    remainingCteQueryColumnsList = maybeField(remainingCteQueryColumnsList);
+    anchorQueryColumnSet = maybeField(anchorQueryColumnSet, Set.of(whereColumn));
+    recursiveQueryColumnSet = maybeField(recursiveQueryColumnSet);
+    remainingCteQueryColumnsSet = maybeField(remainingCteQueryColumnsSet);
 
   }
 
-  public List<String> recursiveQueryColumnList() {
-    return defaultQueryColumnList(recursiveQueryColumnList);
+  public Set<String> anchorQueryColumnSet() {
+    Set<String> columnSet = new HashSet<>(anchorQueryColumnSet);
+    columnSet.add(whereColumn);
+    return columnSet;
   }
 
-  public List<String> remainingCteQueryColumnsList() {
-    return defaultQueryColumnList(recursiveQueryColumnList);
+  public Set<String> recursiveQueryColumnSet() {
+    return defaultQueryColumnSet(recursiveQueryColumnSet);
   }
 
-  private List<String> defaultQueryColumnList(List<String> queryColumnList) {
-    if (queryColumnList.isEmpty() && !anchorQueryColumnList.isEmpty())
-      return anchorQueryColumnList;
-    return queryColumnList;
+  public Set<String> remainingCteQueryColumnsSet() {
+    return defaultQueryColumnSet(recursiveQueryColumnSet);
+  }
+
+  private String maybeField(String fieldName, String defaultFieldName) {
+    return Optional.ofNullable(fieldName).orElseGet(() -> defaultFieldName);
+  }
+
+  private Set<String> defaultQueryColumnSet(Set<String> queryColumnSet) {
+    if (queryColumnSet.isEmpty() && !anchorQueryColumnSet.isEmpty())
+      return anchorQueryColumnSet;
+    return queryColumnSet;
   }
 
   public static DatabaseTreeConfiguration newWithDefaults() {
@@ -60,12 +71,17 @@ public record DatabaseTreeConfiguration(
     return Optional.ofNullable(fieldElements).orElseGet(Map::of);
   }
 
-  private <T> List<T> maybeField(List<T> fieldElements) {
-    return (List<T>) maybeField(fieldElements, List::of);
+  private <T> Set<T> maybeField(Set<T> fieldElements) {
+    return (Set<T>) maybeField(fieldElements, Set::of);
   }
 
-  private <T> Collection<T> maybeField(Collection<T> fieldElements, Supplier<Collection<T>> supplier) {
+  private <T> Set<T> maybeField(Set<T> fieldElements, Supplier<Set<T>> supplier) {
     return Optional.ofNullable(fieldElements).orElseGet(supplier);
   }
 
+  private <T> Set<T> maybeField(Set<T> fieldElements, Set<T> extraElements) {
+    Set<T> currentFieldElements = new HashSet<>(fieldElements);
+    currentFieldElements.addAll(extraElements);
+    return currentFieldElements;
+  }
 }

@@ -8,11 +8,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
+// TODO: consider renaming DatabaseTreeConfiguration to DatabaseTreeQueryBuilder
 @RecordBuilder
 public record DatabaseTreeConfiguration(
     String idColumn,
     String treeTableAlias,
     Map<String, String> queryParameters,
+    // TODO: I really don't know if we need anything other than anchorQueryColumnSet
     Set<String> anchorQueryColumnSet,
     String treeTable,
     String remainingAnchorQuery,
@@ -72,7 +74,7 @@ public record DatabaseTreeConfiguration(
   }
 
   private <T> Set<T> maybeField(Set<T> fieldElements) {
-    return (Set<T>) maybeField(fieldElements, Set::of);
+    return maybeField(fieldElements, Set::of);
   }
 
   private <T> Set<T> maybeField(Set<T> fieldElements, Supplier<Set<T>> supplier) {

@@ -13,10 +13,11 @@ record PageRecord(
     String title,
     String slug,
     String body,
-    Optional<PageRecord> parent,
+    Optional<Integer> parent,
     List<Integer> path,
     Integer depth,
     Boolean approved,
     OffsetDateTime createdOn,
-    OffsetDateTime publishedOn) implements TreeRecord {
+    OffsetDateTime publishedOn) implements TreeRecord, PageRecordBuilder.With {
+
 }

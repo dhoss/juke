@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Tag("it-test")
 public class TreeStorageServiceTest extends AbstractDatabaseTest {
 
-  private final OffsetDateTime now = OffsetDateTime.parse("2026-09-06 16:14:20.231 -0600", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS Z")).atZoneSameInstant(ZoneId.of("UTC")).toOffsetDateTime();
+  private final OffsetDateTime now = OffsetDateTime.parse("2026-09-06 16:14:20 -0600", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss Z")).atZoneSameInstant(ZoneId.of("UTC")).toOffsetDateTime();
 
   @Autowired
   private NamedParameterJdbcTemplate jdbcTemplate;
@@ -65,25 +65,44 @@ public class TreeStorageServiceTest extends AbstractDatabaseTest {
       .publishedOn(now)
       .build();
 
+  PageRecord firstChild = PageRecordBuilder.builder()
+      .id(2)
+      .author(1)
+      .title("test root page first child page")
+      .slug("test-root-page-first-child-page")
+      .body("test root page first child page body")
+      .path(List.of(1, 2))
+      .depth(2)
+      .parent(Optional.of(root.id()))
+      .approved(true)
+      .createdOn(now)
+      .publishedOn(now)
+      .build();
+
+  PageRecord firstChildFirstChild = PageRecordBuilder.builder()
+      .id(3)
+      .author(1)
+      .title("test root page first child page first child")
+      .slug("test-root-page-first-child-page-first-child")
+      .body("test root page first child page body first child")
+      .path(List.of(1, 2, 3))
+      .depth(3)
+      .parent(Optional.of(firstChild.id()))
+      .approved(true)
+      .createdOn(now)
+      .publishedOn(now)
+      .build();
+
   List<PageRecord> expectedNodes = new ArrayList<>(
       List.of(
           root
           ,
-          PageRecordBuilder.builder()
-              .id(2)
-              .author(1)
-              .title("test root page first child page")
-              .slug("test-root-page-first-child-page")
-              .body("test root page first child page body")
-              .path(List.of(1, 1))
-              .depth(2)
-              .parent(Optional.of(root))
-              .approved(true)
-              .createdOn(now)
-              .publishedOn(now)
-              .build()
+          firstChild
+          ,
+          firstChildFirstChild
       )
   );
+
 
   @Test
   public void find() {
@@ -110,6 +129,7 @@ public class TreeStorageServiceTest extends AbstractDatabaseTest {
 
   }
 
+  // TODO: move this to PageRecord
   private PageRecord buildPageRecord(ResultSet rs) throws SQLException {
     PageRecordBuilder pageRecord = PageRecordBuilder.builder();
     pageRecord.id(rs.getInt(databaseTreeConfig.idColumn()));
@@ -132,11 +152,10 @@ public class TreeStorageServiceTest extends AbstractDatabaseTest {
             .truncatedTo(ChronoUnit.SECONDS));
 
     // rs.getInt(...) will return 0 if the column value is null so we have to do this
-    (rs.getInt("parent") == 0 ?
-        Optional.empty() :
-        Optional.of(rs.getInt("parent"))).ifPresent(
-        pid -> pageRecord.parent(
-            Optional.of(PageRecordBuilder.builder().id((Integer) pid).build())));
+    int parentId = rs.getInt("parent");
+    if (parentId != 0) {
+      pageRecord.parent(Optional.of(parentId));
+    }
 
     return pageRecord.build();
   }

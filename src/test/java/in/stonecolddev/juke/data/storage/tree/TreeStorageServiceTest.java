@@ -15,7 +15,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import static in.stonecolddev.juke.data.storage.tree.PageRecord.fromResultSet;
+import static in.stonecolddev.juke.data.storage.tree.PageRecord.resultSetExtractor;
 import static in.stonecolddev.juke.util.Fixtures.Database.startDatabase;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -117,20 +117,7 @@ public class TreeStorageServiceTest extends AbstractDatabaseTest {
     TreeStorageService<PageRecord> ts = new TreeStorageService<>(
         databaseTreeConfig,
         jdbcTemplate,
-        rs -> {
-          // TODO: could this be generalized?
-          List<PageRecord> posts = new ArrayList<>();
-
-          while (rs.next()) {
-            posts.add(fromResultSet(rs, databaseTreeConfig));
-          }
-
-          if (posts.isEmpty()) {
-            return Optional.empty();
-          }
-
-          return Optional.of(DatabaseTree.create(posts));
-        }
+        resultSetExtractor(databaseTreeConfig)
     );
 
     assertEquals(

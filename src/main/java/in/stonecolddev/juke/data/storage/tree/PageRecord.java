@@ -1,6 +1,7 @@
 package in.stonecolddev.juke.data.storage.tree;
 
 import io.soabase.recordbuilder.core.RecordBuilder;
+import org.springframework.jdbc.core.ResultSetExtractor;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,15 +26,14 @@ record PageRecord(
     OffsetDateTime createdOn,
     OffsetDateTime publishedOn) implements TreeRecord, PageRecordBuilder.With {
 
-  public static PageRecord fromResultSet(
+  private static PageRecord fromResultSet(
       ResultSet rs, DatabaseTreeConfiguration databaseTreeConfig) throws SQLException {
     PageRecordBuilder pageRecord = PageRecordBuilder.builder();
     pageRecord.id(rs.getInt(databaseTreeConfig.idColumn()));
     pageRecord.slug(rs.getString(databaseTreeConfig.whereColumn()));
     pageRecord.title(rs.getString("title"));
     pageRecord.body(rs.getString("body"));
-    // TODO: FIX ME
-    pageRecord.author(1);
+    pageRecord.author(rs.getInt("author"));
     pageRecord.path(
         new ArrayList<>(
             Arrays.asList(
@@ -56,4 +56,24 @@ record PageRecord(
 
     return pageRecord.build();
   }
+
+  // TODO: it would be cool to figure out a way to get this into the interface
+  //       so that every TreeRecord type was required to implement it
+  public static ResultSetExtractor<Optional<DatabaseTree<PageRecord>>> resultSetExtractor(DatabaseTreeConfiguration databaseTreeConfig) {
+    return rs -> {
+      // TODO: could this be generalized?
+      List<PageRecord> posts = new ArrayList<>();
+
+      while (rs.next()) {
+        posts.add(fromResultSet(rs, databaseTreeConfig));
+      }
+
+      if (posts.isEmpty()) {
+        return Optional.empty();
+      }
+
+      return Optional.of(DatabaseTree.create(posts));
+    };
+  }
+
 }

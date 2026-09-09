@@ -17,7 +17,7 @@ import java.util.TreeMap;
 public class DatabaseTree<T extends TreeRecord> {
 
   // TODO: implement this
-  // if you change the root, it will re-parent the post
+  //       if you change the root, it will re-parent the post
   @JsonProperty("root")
   private final T root;
 

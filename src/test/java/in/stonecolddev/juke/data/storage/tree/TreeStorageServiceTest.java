@@ -118,10 +118,8 @@ public class TreeStorageServiceTest extends AbstractDatabaseTest {
 
     TreeStorageService<PageRecord> ts = new TreeStorageService<>(
         databaseTreeConfig,
-        jdbcTemplate
-        ,
+        jdbcTemplate,
         PageTreeResultSetBuilder.builder().configuration(databaseTreeConfig).build()
-        // resultSetExtractor(databaseTreeConfig)
     );
 
     assertEquals(

@@ -13,31 +13,25 @@ import java.util.stream.Collectors;
 
 @Component
 public class TreeStorageService<T extends TreeRecord> {
-  //public class TreeStorageService<T extends TreeRecord> {
 
   private final NamedParameterJdbcTemplate jdbcTemplate;
 
   private final DatabaseTreeConfiguration configuration;
 
-  //private final ResultSetExtractor<Optional<DatabaseTree<T>>> resultSetExtractor;
   private final TreeResultSet<T> treeResultSet;
 
   public TreeStorageService(
       DatabaseTreeConfiguration configuration,
-      NamedParameterJdbcTemplate jdbcTemplate
-      ,
+      NamedParameterJdbcTemplate jdbcTemplate,
       TreeResultSet<T> treeResultSet
-      //ResultSetExtractor<Optional<DatabaseTree<T>>> resultSetExtractor
   ) {
     this.configuration = configuration;
     this.jdbcTemplate = jdbcTemplate;
     this.treeResultSet = treeResultSet;
-    // this.resultSetExtractor = resultSetExtractor;
   }
 
 
   public Optional<DatabaseTree<T>> find(String slug) {
-    //public Optional<DatabaseTree<T>> find(String slug) {
 
     ST queryTemplate = new ST(
         """

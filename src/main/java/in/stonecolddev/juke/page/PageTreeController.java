@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Optional;
-
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
@@ -27,8 +25,8 @@ public class PageTreeController {
 
   @GetMapping(value = "/{pageSlug}", produces = APPLICATION_JSON_VALUE)
   public ResponseEntity<DatabaseTree<PageRecord>> find(@PathVariable String pageSlug) {
-    Optional<DatabaseTree<PageRecord>> pageTree = pageTreeService.find(pageSlug);
-    return pageTree.map(ResponseEntity::ok)
+    return pageTreeService.find(pageSlug)
+        .map(ResponseEntity::ok)
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
 

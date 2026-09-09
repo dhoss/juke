@@ -23,6 +23,8 @@ public class PageTreeController {
     this.pageTreeService = pageTreeService;
   }
 
+  // TODO: we should be able to pass a full tree path and drill down into the subpages here
+  //       e.g: /root/child/subchild/subsubchild etc
   @GetMapping(value = "/{pageSlug}", produces = APPLICATION_JSON_VALUE)
   public ResponseEntity<DatabaseTree<PageRecord>> find(@PathVariable String pageSlug) {
     return pageTreeService.find(pageSlug)

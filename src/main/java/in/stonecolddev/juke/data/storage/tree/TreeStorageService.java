@@ -1,8 +1,8 @@
 package in.stonecolddev.juke.data.storage.tree;
 
-import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Component;
 import org.stringtemplate.v4.ST;
 
 import java.util.HashMap;
@@ -11,26 +11,33 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Component
 public class TreeStorageService<T extends TreeRecord> {
+  //public class TreeStorageService<T extends TreeRecord> {
 
   private final NamedParameterJdbcTemplate jdbcTemplate;
 
   private final DatabaseTreeConfiguration configuration;
 
-  private final ResultSetExtractor<Optional<DatabaseTree<T>>> resultSetExtractor;
+  //private final ResultSetExtractor<Optional<DatabaseTree<T>>> resultSetExtractor;
+  private final TreeResultSet<T> treeResultSet;
 
   public TreeStorageService(
       DatabaseTreeConfiguration configuration,
-      NamedParameterJdbcTemplate jdbcTemplate,
-      ResultSetExtractor<Optional<DatabaseTree<T>>> resultSetExtractor
+      NamedParameterJdbcTemplate jdbcTemplate
+      ,
+      TreeResultSet<T> treeResultSet
+      //ResultSetExtractor<Optional<DatabaseTree<T>>> resultSetExtractor
   ) {
     this.configuration = configuration;
     this.jdbcTemplate = jdbcTemplate;
-    this.resultSetExtractor = resultSetExtractor;
+    this.treeResultSet = treeResultSet;
+    // this.resultSetExtractor = resultSetExtractor;
   }
 
 
   public Optional<DatabaseTree<T>> find(String slug) {
+    //public Optional<DatabaseTree<T>> find(String slug) {
 
     ST queryTemplate = new ST(
         """
@@ -88,7 +95,7 @@ public class TreeStorageService<T extends TreeRecord> {
     return jdbcTemplate.query(
         queryTemplate.render(),
         new MapSqlParameterSource().addValues(queryParameters),
-        resultSetExtractor
+        treeResultSet.resultSetExtractor()
     );
   }
 

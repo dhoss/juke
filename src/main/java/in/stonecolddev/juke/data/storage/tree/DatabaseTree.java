@@ -1,5 +1,6 @@
 package in.stonecolddev.juke.data.storage.tree;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.Accessors;
 
@@ -11,14 +12,16 @@ import java.util.TreeMap;
 @Builder(toBuilder = true)
 @Accessors(fluent = true)
 @With
+@AllArgsConstructor
+@EqualsAndHashCode
 public class DatabaseTree<T extends TreeRecord> {
-
-  private Integer author;
 
   // TODO: implement this
   // if you change the root, it will re-parent the post
+  @JsonProperty("root")
   private final T root;
 
+  @JsonProperty("children")
   private final List<T> children;
 
   @Builder.Default

@@ -26,7 +26,7 @@ public interface TreeResultSet<T extends TreeRecord> {
         return Optional.empty();
       }
 
-      return Optional.of(DatabaseTree.create(nodes));
+      return Optional.of(DatabaseTree.createTree(nodes));
     };
   }
 

@@ -1,7 +1,7 @@
 package in.stonecolddev.juke.page;
 
-import in.stonecolddev.juke.data.storage.tree.TreeRecord2;
-import in.stonecolddev.juke.data.storage.tree.TreeStorageService2;
+import in.stonecolddev.juke.data.storage.tree.TreeRecord;
+import in.stonecolddev.juke.data.storage.tree.TreeStorageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,10 +15,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class PageTreeController {
 
   // TODO: implement PageTreeService that converts PageRecord -> PageDTO or something
-  private final TreeStorageService2<PageRecord2> pageTreeService;
+  private final TreeStorageService<PageRecord> pageTreeService;
 
   public PageTreeController(
-      TreeStorageService2<PageRecord2> pageTreeService
+      TreeStorageService<PageRecord> pageTreeService
   ) {
     this.pageTreeService = pageTreeService;
   }
@@ -26,7 +26,7 @@ public class PageTreeController {
   // TODO: we should be able to pass a full tree path and drill down into the subpages here
   //       e.g: /root/child/subchild/subsubchild etc
   @GetMapping(value = "/{pageSlug}", produces = APPLICATION_JSON_VALUE)
-  public ResponseEntity<TreeRecord2> find(@PathVariable String pageSlug) {
+  public ResponseEntity<TreeRecord> find(@PathVariable String pageSlug) {
     return pageTreeService.find(pageSlug)
         .map(ResponseEntity::ok)
         .orElseGet(() -> ResponseEntity.notFound().build());

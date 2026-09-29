@@ -14,9 +14,9 @@ public interface TreeResultSet<T extends TreeRecord> {
 
   T fromResultSet(ResultSet rs) throws SQLException;
 
-  default ResultSetExtractor<Optional<DatabaseTree<T>>> resultSetExtractor() {
+  default ResultSetExtractor<Optional<TreeRecord>> resultSetExtractor() {
     return rs -> {
-      List<T> nodes = new ArrayList<>();
+      List<TreeRecord> nodes = new ArrayList<>();
 
       while (rs.next()) {
         nodes.add(fromResultSet(rs));

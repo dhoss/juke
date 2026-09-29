@@ -1,8 +1,6 @@
 package in.stonecolddev.juke.data.storage.tree;
 
 import in.stonecolddev.juke.page.PageRecord;
-import in.stonecolddev.juke.page.PageRecord2;
-import in.stonecolddev.juke.page.PageRecord2Builder;
 import in.stonecolddev.juke.page.PageRecordBuilder;
 import in.stonecolddev.juke.util.AbstractDatabaseTest;
 import org.junit.jupiter.api.BeforeAll;
@@ -67,60 +65,10 @@ public class TreeStorageServiceTest extends AbstractDatabaseTest {
           .build();
 
 
-  private final PageRecord root = PageRecordBuilder.builder()
-      .id(1)
-      .author(1)
-      .title("test root page")
-      .slug("test-root-page")
-      .body("test root page body")
-      .path(List.of(1))
-      .depth(1)
-      .approved(true)
-      .createdOn(now)
-      .publishedOn(now)
-      .build();
-
-  private final PageRecord firstChild = PageRecordBuilder.builder()
-      .id(2)
-      .author(1)
-      .title("test root page first child page")
-      .slug("test-root-page-first-child-page")
-      .body("test root page first child page body")
-      .path(List.of(1, 2))
-      .depth(2)
-      .parent(Optional.of(root.id()))
-      .approved(true)
-      .createdOn(now)
-      .publishedOn(now)
-      .build();
-
-  private final PageRecord firstChildFirstChild = PageRecordBuilder.builder()
-      .id(3)
-      .author(1)
-      .title("test root page first child page first child")
-      .slug("test-root-page-first-child-page-first-child")
-      .body("test root page first child page body first child")
-      .path(List.of(1, 2, 3))
-      .depth(3)
-      .parent(Optional.of(firstChild.id()))
-      .approved(true)
-      .createdOn(now)
-      .publishedOn(now)
-      .build();
-
-
-  DatabaseTree<PageRecord> expectedNodes =
-      DatabaseTree.createNode(root, true)
-          .addChild(
-              DatabaseTree.createNode(firstChild, root)
-                  .addChild(
-                      DatabaseTree.createNode(firstChildFirstChild, firstChild)));
-
-
   @Test
   public void find() {
 
-    final PageRecord2 root = PageRecord2Builder.builder()
+    final PageRecord root = PageRecordBuilder.builder()
         .id(1)
         .author(1)
         .title("test root page")
@@ -133,7 +81,7 @@ public class TreeStorageServiceTest extends AbstractDatabaseTest {
         .publishedOn(now)
         .build();
 
-    final PageRecord2 firstChild = PageRecord2Builder.builder()
+    final PageRecord firstChild = PageRecordBuilder.builder()
         .id(2)
         .author(1)
         .title("test root page first child page")
@@ -147,7 +95,7 @@ public class TreeStorageServiceTest extends AbstractDatabaseTest {
         .publishedOn(now)
         .build();
 
-    final PageRecord2 firstChildFirstChild = PageRecord2Builder.builder()
+    final PageRecord firstChildFirstChild = PageRecordBuilder.builder()
         .id(3)
         .author(1)
         .title("test root page first child page first child")
@@ -161,7 +109,7 @@ public class TreeStorageServiceTest extends AbstractDatabaseTest {
         .publishedOn(now)
         .build();
 
-    final PageRecord2 firstChildSecondChild = PageRecord2Builder.builder()
+    final PageRecord firstChildSecondChild = PageRecordBuilder.builder()
         .id(4)
         .author(1)
         .title("test root page first child page second child")
@@ -184,28 +132,28 @@ public class TreeStorageServiceTest extends AbstractDatabaseTest {
     //       Optional.of(expectedNodes),
     //       ts.find("test-root-page"));
 
-    assertEquals(root.withChildren(Set.of(firstChild)), DatabaseTree2.createTree(List.of(root, firstChild, firstChildFirstChild, firstChildSecondChild)));
+    assertEquals(root.withChildren(Set.of(firstChild)), DatabaseTree.createTree(List.of(root, firstChild, firstChildFirstChild, firstChildSecondChild)));
     System.out.println("**** FULL TREE ");
     System.out.println("ROOT : " + root.id());
-    for (TreeRecord2 node : root.children()) {
+    for (TreeRecord node : root.children()) {
       System.out.println("NODE: " + node.id() + " PARENT : " + node.parent());
-      for (TreeRecord2 subNode : node.children()) {
+      for (TreeRecord subNode : node.children()) {
         System.out.println("SUBNODE " + subNode.id() + " SUBNODE PARENT " + subNode.parent());
       }
     }
 
   }
 
-  private PageRecord2 createTree(List<PageRecord2> nodes) {
-    PageRecord2 root = nodes.stream().filter(node -> node.parent().isEmpty()).findFirst().orElseThrow(() -> new RuntimeException("No root node defined in tree"));
+  private PageRecord createTree(List<PageRecord> nodes) {
+    PageRecord root = nodes.stream().filter(node -> node.parent().isEmpty()).findFirst().orElseThrow(() -> new RuntimeException("No root node defined in tree"));
 
-    for (PageRecord2 node : nodes) {
+    for (PageRecord node : nodes) {
       System.out.println("**** CURRENT NODE " + node.title() + " " + node.id());
       System.out.println("**** CURRENT NODE PARENT " + node.parent());
       System.out.println("**** CURRENT NODE CHILDREN " + node.children());
 
       if (node.parent().isPresent()) {
-        PageRecord2 parent = nodes.stream().filter(parentNode -> parentNode.id().equals(node.parent().get())).findFirst().orElseThrow(() -> new RuntimeException("No such parent for node"));
+        PageRecord parent = nodes.stream().filter(parentNode -> parentNode.id().equals(node.parent().get())).findFirst().orElseThrow(() -> new RuntimeException("No such parent for node"));
         parent.addChild(node);
       }
       System.out.println("**** ROOT AFTER UPDATE " + root.children().stream().map(child -> child.id()).toList());

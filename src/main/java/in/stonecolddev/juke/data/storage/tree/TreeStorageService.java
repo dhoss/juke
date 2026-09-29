@@ -30,8 +30,7 @@ public class TreeStorageService<T extends TreeRecord> {
     this.treeResultSet = treeResultSet;
   }
 
-
-  public Optional<DatabaseTree<T>> find(String slug) {
+  public Optional<TreeRecord> find(String slug) {
 
     ST queryTemplate = new ST(
         """
@@ -110,5 +109,6 @@ public class TreeStorageService<T extends TreeRecord> {
   public T save(T tree) {
     return null;
   }
+
 
 }

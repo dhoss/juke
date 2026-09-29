@@ -17,18 +17,18 @@ public record PageRecord2(
     String slug,
     String body,
     Optional<Integer> parent,
-    Set<PageRecord2> children,
+    Set<TreeRecord2> children,
     List<Integer> path,
     Integer depth,
     Boolean approved,
     OffsetDateTime createdOn,
-    OffsetDateTime publishedOn) implements TreeRecord2<PageRecord2>, PageRecord2Builder.With {
+    OffsetDateTime publishedOn) implements TreeRecord2, PageRecord2Builder.With {
 
   public PageRecord2 {
     children = Optional.ofNullable(children).orElseGet(HashSet::new);
   }
 
-  public void addChild(PageRecord2 child) {
+  public void addChild(TreeRecord2 child) {
     this.children.add(child);
   }
 

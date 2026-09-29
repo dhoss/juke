@@ -184,12 +184,12 @@ public class TreeStorageServiceTest extends AbstractDatabaseTest {
     //       Optional.of(expectedNodes),
     //       ts.find("test-root-page"));
 
-    assertEquals(root.withChildren(Set.of(firstChild)), createTree(List.of(root, firstChild, firstChildFirstChild, firstChildSecondChild)));
+    assertEquals(root.withChildren(Set.of(firstChild)), DatabaseTree2.createTree(List.of(root, firstChild, firstChildFirstChild, firstChildSecondChild)));
     System.out.println("**** FULL TREE ");
     System.out.println("ROOT : " + root.id());
-    for (PageRecord2 node : root.children()) {
+    for (TreeRecord2 node : root.children()) {
       System.out.println("NODE: " + node.id() + " PARENT : " + node.parent());
-      for (PageRecord2 subNode : node.children()) {
+      for (TreeRecord2 subNode : node.children()) {
         System.out.println("SUBNODE " + subNode.id() + " SUBNODE PARENT " + subNode.parent());
       }
     }

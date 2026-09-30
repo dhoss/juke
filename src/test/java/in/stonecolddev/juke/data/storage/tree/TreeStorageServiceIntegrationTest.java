@@ -20,10 +20,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 @ActiveProfiles("it-test")
 @Tag("it-test")
-public class TreeStorageServiceTest extends AbstractDatabaseTest {
+public class TreeStorageServiceIntegrationTest extends AbstractDatabaseTest {
 
   @Autowired
-  private TreeStorageService<PageRecord> ts;
+  private TreeStorageService<PageRecord> treeStorageService;
 
   @BeforeAll
   public static void beforeAll() {
@@ -33,7 +33,7 @@ public class TreeStorageServiceTest extends AbstractDatabaseTest {
   @Test
   public void find() {
 
-    assertEquals(Optional.of(fullTree), ts.find("test-root-page"));
+    assertEquals(Optional.of(fullTree), treeStorageService.find("test-root-page"));
 
   }
 

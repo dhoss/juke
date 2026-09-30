@@ -14,7 +14,7 @@ import java.util.Set;
 public class PageTreeConfiguration {
 
   @Bean
-  public DatabaseTreeConfiguration configuration() {
+  public DatabaseTreeConfiguration pageTree() {
     return DatabaseTreeConfigurationBuilder.builder()
         .idColumn("id")
         .treeTableAlias("p")

@@ -11,12 +11,13 @@ public class DatabaseTreeTest {
 
   @Test
   public void createTree() {
-    assertEquals(fullTree, DatabaseTree.createTree(
-        List.of(
-            root,
-            firstChild,
-            firstChildFirstChild,
-            firstChildSecondChild)));
+    assertEquals(
+        fullTree,
+        DatabaseTree.createTree(
+            List.of(
+                root,
+                firstChild,
+                firstChildFirstChild,
+                firstChildSecondChild)));
   }
-
 }

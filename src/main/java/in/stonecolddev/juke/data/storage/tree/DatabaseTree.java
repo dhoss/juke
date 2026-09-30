@@ -5,7 +5,6 @@ import java.util.List;
 public class DatabaseTree {
 
   public static TreeRecord createTree(List<TreeRecord> nodes) {
-    // TODO: consider caching these functional searches in a HashMap
     TreeRecord root =
         nodes.stream()
             .filter(node -> node.parent().isEmpty())
@@ -16,7 +15,10 @@ public class DatabaseTree {
 
       if (node.parent().isPresent()) {
         nodes.stream()
-            .filter(parentNode -> parentNode.id().equals(node.parent().get()))
+            .filter(
+                parentNode -> parentNode.id().equals(
+                    node.parent().orElseThrow(
+                        () -> new RuntimeException("Parent of node doesn't exist but we really shouldn't get here"))))
             .findFirst()
             .orElseThrow(() -> new RuntimeException("No such parent for node"))
             .addChild(node);

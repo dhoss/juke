@@ -8,6 +8,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public class TreeFixtures {
 
@@ -64,12 +65,21 @@ public class TreeFixtures {
       .author(1)
       .title("test root page first child page second child")
       .slug("test-root-page-first-child-page-second-child")
-      .body("test root page second child page body first child")
-      .path(List.of(1, 2, 3))
+      .body("test root page first child page body second child")
+      .path(List.of(1, 2, 4))
       .depth(3)
       .parent(Optional.of(firstChild.id()))
       .approved(true)
       .createdOn(now)
       .publishedOn(now)
       .build();
+
+  public static final PageRecord fullTree =
+      root.withChildren(
+          Set.of(
+              firstChild.withChildren(
+                  Set.of(
+                      firstChildFirstChild,
+                      firstChildSecondChild))));
+
 }

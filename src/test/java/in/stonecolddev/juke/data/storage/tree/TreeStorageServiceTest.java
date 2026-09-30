@@ -1,5 +1,7 @@
 package in.stonecolddev.juke.data.storage.tree;
 
+import in.stonecolddev.juke.page.PageRecord;
+import in.stonecolddev.juke.page.PageTreeResultSet;
 import in.stonecolddev.juke.util.AbstractDatabaseTest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
@@ -11,9 +13,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
+import static in.stonecolddev.juke.data.storage.tree.TreeFixtures.fullTree;
 import static in.stonecolddev.juke.util.Fixtures.Database.startDatabase;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -24,6 +29,9 @@ public class TreeStorageServiceTest extends AbstractDatabaseTest {
 
   @Autowired
   private NamedParameterJdbcTemplate jdbcTemplate;
+
+  @Autowired
+  private PageTreeResultSet pageTreeResultSet;
 
   @BeforeAll
   public static void beforeAll() {
@@ -50,10 +58,13 @@ public class TreeStorageServiceTest extends AbstractDatabaseTest {
           .whereColumn("slug")
           .build();
 
+  private final TreeStorageService<PageRecord> ts =
+      new TreeStorageService<>(databaseTreeConfig, jdbcTemplate, pageTreeResultSet);
 
   @Test
   public void find() {
 
+    assertEquals(Optional.of(fullTree), ts.find("test-root-page"));
 
   }
 

@@ -25,5 +25,10 @@ values (1, (select id from users limit 1), 'test root page', 'test-root-page', '
         'test-root-page-first-child-page-first-child',
         'test root page first child page body first child', 2, true,
         '2026-09-06 16:14:20.231 -0600',
+        '2026-09-06 16:14:20.231 -0600'),
+       (4, (select id from users limit 1), 'test root page first child page second child',
+        'test-root-page-first-child-page-second-child',
+        'test root page first child page body second child', 2, true,
+        '2026-09-06 16:14:20.231 -0600',
         '2026-09-06 16:14:20.231 -0600')
 ;

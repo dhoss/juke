@@ -106,7 +106,7 @@ public class TreeStorageService<T extends TreeRecord> {
         .collect(Collectors.joining());
   }
 
-  public T save(T tree) {
+  public TreeRecord save(TreeRecord tree) {
     return null;
   }
 

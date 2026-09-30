@@ -30,14 +30,15 @@ public class TreeStorageServiceTest extends AbstractDatabaseTest {
   @Autowired
   private NamedParameterJdbcTemplate jdbcTemplate;
 
-  @Autowired
-  private PageTreeResultSet pageTreeResultSet;
 
   @BeforeAll
   public static void beforeAll() {
     startDatabase();
   }
 
+  // TODO: each tree type should have its own DatabaseTreeConfiguration
+  //       bean instance/type, otherwise different tree types are probably going to have issues
+  //       on instantiation
   private final DatabaseTreeConfiguration databaseTreeConfig =
       DatabaseTreeConfigurationBuilder.builder()
           .idColumn("id")
@@ -58,12 +59,15 @@ public class TreeStorageServiceTest extends AbstractDatabaseTest {
           .whereColumn("slug")
           .build();
 
-  private final TreeStorageService<PageRecord> ts =
-      new TreeStorageService<>(databaseTreeConfig, jdbcTemplate, pageTreeResultSet);
+  //@Autowired
+  // TODO: I don't like having to pass in DatabaseTreeConfig to both PageTreeResultSet and TreeStorageService
+  private final PageTreeResultSet pageTreeResultSet = new PageTreeResultSet(databaseTreeConfig);
 
   @Test
   public void find() {
 
+    final TreeStorageService<PageRecord> ts =
+        new TreeStorageService<>(databaseTreeConfig, jdbcTemplate, pageTreeResultSet);
     assertEquals(Optional.of(fullTree), ts.find("test-root-page"));
 
   }

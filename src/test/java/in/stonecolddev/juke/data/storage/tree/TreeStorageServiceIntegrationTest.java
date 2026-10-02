@@ -13,6 +13,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.util.Optional;
 
 import static in.stonecolddev.juke.data.storage.tree.TreeFixtures.fullTree;
+import static in.stonecolddev.juke.data.storage.tree.TreeFixtures.newTreeRoot;
 import static in.stonecolddev.juke.util.Fixtures.Database.startDatabase;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -33,8 +34,16 @@ public class TreeStorageServiceIntegrationTest extends AbstractDatabaseTest {
   @Test
   public void find() {
 
-    assertEquals(Optional.of(fullTree), treeStorageService.find("test-root-page"));
+    // TODO: unhappy path tests
+    assertEquals(
+        Optional.of(fullTree), treeStorageService.find("test-root-page"));
 
+  }
+
+  @Test
+  public void create() {
+    PageRecord newTree = newTreeRoot();
+    assertEquals(newTree, treeStorageService.create(newTree));
   }
 
 }

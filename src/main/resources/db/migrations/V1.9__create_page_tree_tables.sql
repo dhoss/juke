@@ -32,3 +32,9 @@ values (1, (select id from users limit 1), 'test root page', 'test-root-page', '
         '2026-09-06 16:14:20.231 -0600',
         '2026-09-06 16:14:20.231 -0600')
 ;
+
+SELECT setval(
+               pg_get_serial_sequence('page_trees', 'id'),
+               COALESCE((SELECT MAX(id) FROM page_trees), 1),
+               (SELECT MAX(id) IS NOT NULL FROM page_trees)
+       );

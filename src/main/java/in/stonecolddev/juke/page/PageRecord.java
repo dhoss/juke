@@ -1,13 +1,11 @@
 package in.stonecolddev.juke.page;
 
+import com.github.slugify.Slugify;
 import in.stonecolddev.juke.data.storage.tree.TreeRecord;
 import io.soabase.recordbuilder.core.RecordBuilder;
 
 import java.time.OffsetDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @RecordBuilder
 public record PageRecord(
@@ -30,6 +28,41 @@ public record PageRecord(
 
   public void addChild(TreeRecord child) {
     this.children.add(child);
+  }
+
+  public String slug() {
+    Slugify slug = Slugify.builder().build();
+    return slug.slugify(title);
+  }
+
+  public String tableName() {
+    return "page_trees";
+  }
+
+  public Optional<String> tableAlias() {
+    return Optional.of("pt");
+  }
+
+  public Set<String> columnList() {
+    return Set.of("id", "author", "title", "slug", "body", "parent", "path", "depth", "approved", "created_on", "published_on");
+  }
+
+  public String whereClause() {
+    return "where p.slug = :slug";
+  }
+
+  public Map<String, ?> valueMap() {
+    Map<String, Object> valueMap = new HashMap<>(Map.of(
+        "author", author,
+        "title", title,
+        "slug", slug(),
+        "body", body,
+        "approved", approved,
+        "published_on", publishedOn,
+        "created_on", Optional.ofNullable(createdOn).orElseGet(OffsetDateTime::now)
+    ));
+    parent.ifPresent(integer -> valueMap.put("parent", integer));
+    return valueMap;
   }
 
 }

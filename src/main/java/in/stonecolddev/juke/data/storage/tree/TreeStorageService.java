@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 @Component
 public class TreeStorageService<T extends TreeRecord> {
 
+  // TODO: do we want table information defined here or in the TreeRecord implementation?
+
   private final NamedParameterJdbcTemplate jdbcTemplate;
 
   private final DatabaseTreeConfiguration configuration;
@@ -92,6 +94,36 @@ public class TreeStorageService<T extends TreeRecord> {
     );
   }
 
+  public TreeRecord create(TreeRecord tree) {
+    // TODO: this should go in its own class
+    ST queryTemplate = new ST(
+        """
+            insert into <treeTable> (<valueSet>)
+            values (<valueMap>);
+            """
+    );
+
+    queryTemplate.add("treeTable", tree.tableName());
+    Set<String> valueSet = tree.valueMap().keySet();
+    queryTemplate.add("valueSet", String.join(",", valueSet));
+    queryTemplate.add("valueMap",
+        valueSet
+            .stream()
+            .map(k -> ":" + k)
+            .map(String::valueOf)
+            .collect(Collectors.joining(",")));
+
+    jdbcTemplate.update(
+        queryTemplate.render(),
+        new MapSqlParameterSource().addValues(tree.valueMap())
+    );
+
+    return find(tree.slug())
+        .orElseThrow(
+            () -> new RuntimeException(
+                "Can't find record we just inserted with slug " + tree.slug()));
+  }
+
   private String joinColumnListToString(Set<?> toString, String joinWith) {
     return joinColumnListToString(toString, joinWith, true);
   }
@@ -104,10 +136,6 @@ public class TreeStorageService<T extends TreeRecord> {
           return joinWith + ts;
         })
         .collect(Collectors.joining());
-  }
-
-  public TreeRecord save(TreeRecord tree) {
-    return null;
   }
 
 

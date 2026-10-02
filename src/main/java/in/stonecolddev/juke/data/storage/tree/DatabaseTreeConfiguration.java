@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
+// TODO: we might be able to derive this from TreeRecord
 // TODO: consider renaming DatabaseTreeConfiguration to DatabaseTreeQueryBuilder
 @RecordBuilder
 public record DatabaseTreeConfiguration(
@@ -58,15 +59,6 @@ public record DatabaseTreeConfiguration(
     if (queryColumnSet.isEmpty() && !anchorQueryColumnSet.isEmpty())
       return anchorQueryColumnSet;
     return queryColumnSet;
-  }
-
-  public static DatabaseTreeConfiguration newWithDefaults() {
-    return DatabaseTreeConfigurationBuilder.builder()
-        .idColumn("id")
-        .treeTableAlias("tree")
-        .parentColumn("parent_id")
-        .whereColumn("slug")
-        .build();
   }
 
   private <T> Map<T, T> maybeField(Map<T, T> fieldElements) {

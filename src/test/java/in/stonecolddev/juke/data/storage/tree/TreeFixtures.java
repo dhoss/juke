@@ -82,4 +82,13 @@ public class TreeFixtures {
                       firstChildFirstChild,
                       firstChildSecondChild))));
 
+  public static PageRecord newTreeRoot() {
+    OffsetDateTime localNow = OffsetDateTime.now();
+    return root.withId(5)
+        .withPath(List.of(5))
+        .withBody(root.body() + localNow)
+        .withTitle(root.title() + localNow)
+        .withBody(root.body() + localNow);
+  }
+
 }

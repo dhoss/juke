@@ -127,14 +127,14 @@ public class TreeStorageService<T extends TreeRecord> {
     //                  return null;
     //              });
     //          }
-    log.info("***** CHILD COUNT FOR NODE {}: {}", tree.slug(), tree.children().size());
-    log.info("***** INSERTING {}", tree.slug());
+    log.info("child count for node {}: {}", tree.slug(), tree.children().size());
+    log.info("inserting node {}", tree.slug());
     jdbcTemplate.update(
         queryTemplate.render(),
         new MapSqlParameterSource().addValues(tree.valueMap())
     );
 
-    log.info("**** LOOPING OVER CHILDREN AND ADDING THEM");
+    log.info("adding child nodes if they exist");
     for (TreeRecord child : tree.children()) {
 
       addChild(tree, child);
@@ -148,22 +148,11 @@ public class TreeStorageService<T extends TreeRecord> {
   }
 
   public TreeRecord addChild(TreeRecord parent, TreeRecord child) {
-    log.info("**** ADDING CHILD {} TO PARENT {}", child.slug(), parent.slug());
+    log.info("adding child {} to parent {}", child.slug(), parent.slug());
     create(child.reparent(parent));
     return find(parent.slug()).orElseThrow(
         () -> new RuntimeException("Can't find parent of child we just created for some reason"));
   }
-
-  // public TreeRecord update(TreeRecord tree) {
-  //   // TODO: this should go in its own class
-  //   ST queryTemplate = new ST(
-  //       """
-  //           update <treeTable>
-  //           set <valueMap>
-  //           <whereClause>
-  //           """
-  //   );
-  // }
 
   private String joinColumnListToString(Set<?> toString, String joinWith) {
     return joinColumnListToString(toString, joinWith, true);
@@ -178,6 +167,4 @@ public class TreeStorageService<T extends TreeRecord> {
         })
         .collect(Collectors.joining());
   }
-
-
 }

@@ -24,6 +24,8 @@ public interface TreeRecord {
 
   Optional<Integer> parent();
 
+  TreeRecord reparent(TreeRecord parent);
+
   Set<TreeRecord> children();
 
   List<Integer> path();

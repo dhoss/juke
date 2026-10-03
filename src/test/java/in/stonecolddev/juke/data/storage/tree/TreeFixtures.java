@@ -6,9 +6,7 @@ import in.stonecolddev.juke.page.PageRecordBuilder;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class TreeFixtures {
 
@@ -88,7 +86,28 @@ public class TreeFixtures {
         .withPath(List.of(5))
         .withBody(root.body() + localNow)
         .withTitle(root.title() + localNow)
+        .withChildren(new HashSet<>())
         .withBody(root.body() + localNow);
+  }
+
+  public static PageRecord newChild(PageRecord root) {
+    Integer parentId = root.id();
+    Integer id = root.children().stream()
+        .max(Comparator.comparing(TreeRecord::id))
+        .map(TreeRecord::id)
+        .orElseGet(() -> parentId + 1);
+
+    List<Integer> path = new ArrayList<>(root.path());
+    path.add(id);
+
+    int depth = root.depth() + 1;
+
+    return root.withId(id)
+        .withParent(Optional.of(parentId))
+        .withPath(path)
+        .withDepth(depth)
+        .withTitle(root.title() + " child " + depth)
+        .withBody(root.body() + " child " + depth);
   }
 
 }

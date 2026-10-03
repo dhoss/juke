@@ -1,5 +1,6 @@
 package in.stonecolddev.juke.data.storage.tree;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -11,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 public class TreeStorageService<T extends TreeRecord> {
 
@@ -113,16 +115,55 @@ public class TreeStorageService<T extends TreeRecord> {
             .map(String::valueOf)
             .collect(Collectors.joining(",")));
 
+    // TODO: make this a transaction
+    //          @Autowired
+    //          private NamedParameterJdbcTemplate jdbcTemplate;
+    //          @Autowired
+    //          private TransactionTemplate transactionTemplate;
+    //          public void executionWithManualControl() {
+    //              transactionTemplate.execute(status -> {
+    //                  // This block executes inside a managed transaction
+    //                  jdbcTemplate.update("UPDATE users...", params1);
+    //                  return null;
+    //              });
+    //          }
+    log.info("***** CHILD COUNT FOR NODE {}: {}", tree.slug(), tree.children().size());
+    log.info("***** INSERTING {}", tree.slug());
     jdbcTemplate.update(
         queryTemplate.render(),
         new MapSqlParameterSource().addValues(tree.valueMap())
     );
 
+    log.info("**** LOOPING OVER CHILDREN AND ADDING THEM");
+    for (TreeRecord child : tree.children()) {
+
+      addChild(tree, child);
+
+    }
+
     return find(tree.slug())
         .orElseThrow(
             () -> new RuntimeException(
-                "Can't find record we just inserted with slug " + tree.slug()));
+                "Can't find tree we just inserted with slug " + tree.slug()));
   }
+
+  public TreeRecord addChild(TreeRecord parent, TreeRecord child) {
+    log.info("**** ADDING CHILD {} TO PARENT {}", child.slug(), parent.slug());
+    create(child.reparent(parent));
+    return find(parent.slug()).orElseThrow(
+        () -> new RuntimeException("Can't find parent of child we just created for some reason"));
+  }
+
+  // public TreeRecord update(TreeRecord tree) {
+  //   // TODO: this should go in its own class
+  //   ST queryTemplate = new ST(
+  //       """
+  //           update <treeTable>
+  //           set <valueMap>
+  //           <whereClause>
+  //           """
+  //   );
+  // }
 
   private String joinColumnListToString(Set<?> toString, String joinWith) {
     return joinColumnListToString(toString, joinWith, true);

@@ -30,6 +30,10 @@ public record PageRecord(
     this.children.add(child);
   }
 
+  public PageRecord reparent(TreeRecord parent) {
+    return this.withParent(Optional.of(parent.id()));
+  }
+
   public String slug() {
     Slugify slug = Slugify.builder().build();
     return slug.slugify(title);

@@ -3,6 +3,7 @@ package in.stonecolddev.juke.data.storage.tree;
 import in.stonecolddev.juke.page.PageRecord;
 import in.stonecolddev.juke.util.AbstractDatabaseTest;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +11,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
-import static in.stonecolddev.juke.data.storage.tree.TreeFixtures.fullTree;
-import static in.stonecolddev.juke.data.storage.tree.TreeFixtures.newTreeRoot;
+import static in.stonecolddev.juke.data.storage.tree.TreeFixtures.*;
 import static in.stonecolddev.juke.util.Fixtures.Database.startDatabase;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -31,6 +33,11 @@ public class TreeStorageServiceIntegrationTest extends AbstractDatabaseTest {
     startDatabase();
   }
 
+  @BeforeEach
+  public void cleanup() {
+
+  }
+
   @Test
   public void find() {
 
@@ -44,6 +51,17 @@ public class TreeStorageServiceIntegrationTest extends AbstractDatabaseTest {
   public void create() {
     PageRecord newTree = newTreeRoot();
     assertEquals(newTree, treeStorageService.create(newTree));
+  }
+
+  @Test
+  public void addChild() {
+    PageRecord newTree = newTreeRoot();
+    newTree = (PageRecord) treeStorageService.create(newTree);
+    System.out.println("***** ROOT CHILD COUNT " + newTree.children().size());
+    PageRecord childNode = newChild(newTree);
+    System.out.println("***** CHILD CHILD COUNT " + childNode);
+    // TODO: add test in create() to create tree with children
+    assertEquals(newTree.withChildren(new HashSet<>(Set.of(childNode))), treeStorageService.addChild(newTree, childNode));
   }
 
 }

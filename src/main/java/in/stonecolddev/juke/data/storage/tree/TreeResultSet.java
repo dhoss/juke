@@ -22,6 +22,7 @@ public interface TreeResultSet<T extends TreeRecord> {
       Map<Integer, Set<TreeRecord>> treeListPartitions = new HashMap<>();
       Map<Integer, Optional<Integer>> nodeToParentMap = new HashMap<>();
 
+      // TODO: pull this out into a common method
       while (rs.next()) {
         nodes.add(fromResultSet(rs));
       }
@@ -34,10 +35,8 @@ public interface TreeResultSet<T extends TreeRecord> {
         nodeToParentMap.put(node.id(), node.parent());
       }
 
-      // TODO: find roots, add children, add subchildren where findRootId == root id
       Integer currentRoot = 0;
       for (TreeRecord node : nodes) {
-        System.out.println("**** ROOT ID FOR NODE: " + node.id() + " -> " + findRootId(node.id(), nodeToParentMap));
         if (node.parent().isEmpty()) {
           currentRoot = node.id();
           treeListPartitions.put(currentRoot, new HashSet<>(Set.of(node)));
@@ -50,7 +49,6 @@ public interface TreeResultSet<T extends TreeRecord> {
         }
 
       }
-      System.out.println("**** TREELISTPARTITIONS " + treeListPartitions);
 
       for (Map.Entry<Integer, Set<TreeRecord>> partition : treeListPartitions.entrySet()) {
         trees.add(createTree(partition.getValue()));

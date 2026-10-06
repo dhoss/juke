@@ -37,9 +37,10 @@ public class TreeStorageService<T extends TreeRecord> {
         """
             with recursive tree as (
                   select
-                      <treeTableAlias>.<idColumn>
+                    <treeTableAlias>.<idColumn>
                     <anchorQueryColumnList>
                     , array[<idColumn>] as "path"
+                    , array[slug]::varchar[] as "route_path"
                     , 1 as "depth"
                   from <treeTable> <treeTableAlias>
                   <remainingAnchorQuery>
@@ -51,6 +52,7 @@ public class TreeStorageService<T extends TreeRecord> {
                       <treeTableAlias>.<idColumn>
                     <recursiveQueryColumnList>
                     , tree."path"  || <treeTableAlias>.<idColumn>
+                    , tree."route_path" || <treeTableAlias>.slug
                     , tree.depth + 1 as depth
                   from <treeTable> <treeTableAlias>
                   join tree on <treeTableAlias>.<parentColumn> = tree.<idColumn>
@@ -59,6 +61,7 @@ public class TreeStorageService<T extends TreeRecord> {
                 select
                     <idColumn>
                   , path
+                  , route_path
                   , depth
                   <remainingCteQueryColumnsList>
                 from tree
@@ -103,6 +106,7 @@ public class TreeStorageService<T extends TreeRecord> {
                       <treeTableAlias>.<idColumn>
                     <anchorQueryColumnList>
                     , array[<idColumn>] as "path"
+                    , array[slug]::varchar[] as "route_path"
                     , 1 as "depth"
                   from <treeTable> <treeTableAlias>
                   <remainingAnchorQuery>
@@ -114,6 +118,7 @@ public class TreeStorageService<T extends TreeRecord> {
                       <treeTableAlias>.<idColumn>
                     <recursiveQueryColumnList>
                     , tree."path"  || <treeTableAlias>.<idColumn>
+                    , tree."route_path" || <treeTableAlias>.slug
                     , tree.depth + 1 as depth
                   from <treeTable> <treeTableAlias>
                   join tree on <treeTableAlias>.<parentColumn> = tree.<idColumn>
@@ -122,6 +127,7 @@ public class TreeStorageService<T extends TreeRecord> {
                 select
                     <idColumn>
                   , path
+                  , route_path
                   , depth
                   <remainingCteQueryColumnsList>
                 from tree

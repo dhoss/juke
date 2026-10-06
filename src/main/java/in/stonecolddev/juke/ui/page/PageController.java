@@ -37,7 +37,6 @@ public class PageController {
     this.clock = clock;
   }
 
-  // TODO: it would be cool if we could use the root url and not have static asset path issues
   @GetMapping("/pages/{pageSlug}.html")
   public ModelAndView findPage(@PathVariable("pageSlug") String pageSlug) {
     ModelAndView mv = new ModelAndView("pages/page");

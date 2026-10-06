@@ -1,0 +1,18 @@
+    {% extends 'fragments/layout' %}
+        {% macro renderTree(pages) %}
+
+        <ul>
+                {% for page in pages %}
+                <li>
+                    {{ page.title }}
+                    {% if page.children is not empty %}
+                {{ renderTree(page.children) }}
+                {% endif %}
+                </li>
+                {% endfor %}
+        </ul>
+        {% endmacro %}
+    {% block body %}
+    <h1>Pages</h1>
+    {{ renderTree(pages) }}
+    {% endblock %}

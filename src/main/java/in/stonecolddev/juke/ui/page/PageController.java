@@ -1,8 +1,9 @@
 package in.stonecolddev.juke.ui.page;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import in.stonecolddev.juke.data.storage.tree.TreeStorageService;
+import in.stonecolddev.juke.page.PageRecord;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -16,19 +17,22 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
+@Slf4j
 @Controller
 public class PageController {
 
-  private final Logger log = LoggerFactory.getLogger(PageController.class);
+  private final TreeStorageService<PageRecord> treeStorageService;
 
   private final DefaultPageHandler pageHandler;
 
   private final Clock clock;
 
   public PageController(
+      TreeStorageService<PageRecord> treeStorageService,
       DefaultPageHandler pageHandler,
       Clock clock
   ) {
+    this.treeStorageService = treeStorageService;
     this.pageHandler = pageHandler;
     this.clock = clock;
   }
@@ -40,6 +44,15 @@ public class PageController {
 
     // TODO: figure out why exceptions aren't being handled
     mv.addAllObjects(pageHandler.compileForView(pageSlug));
+
+    return mv;
+  }
+
+  // TODO: pagination
+  @GetMapping("/tree-pages")
+  public ModelAndView listTreePages() {
+    ModelAndView mv = new ModelAndView("pages/list-pages");
+    mv.addAllObjects(Map.of("pages", treeStorageService.listTrees()));
 
     return mv;
   }

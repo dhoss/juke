@@ -6,10 +6,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.stringtemplate.v4.ST;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,7 +35,7 @@ public class TreeStorageService<T extends TreeRecord> {
 
     ST queryTemplate = new ST(
         """
-            with recursive cte as (
+            with recursive tree as (
                   select
                       <treeTableAlias>.<idColumn>
                     <anchorQueryColumnList>
@@ -53,10 +50,10 @@ public class TreeStorageService<T extends TreeRecord> {
                   select
                       <treeTableAlias>.<idColumn>
                     <recursiveQueryColumnList>
-                    , cte."path"  || <treeTableAlias>.<idColumn>
-                    , cte.depth + 1 as depth
+                    , tree."path"  || <treeTableAlias>.<idColumn>
+                    , tree.depth + 1 as depth
                   from <treeTable> <treeTableAlias>
-                  join cte on <treeTableAlias>.<parentColumn> = cte.<idColumn>
+                  join tree on <treeTableAlias>.<parentColumn> = tree.<idColumn>
                   <remainingRecursiveQuery>
                 )
                 select
@@ -64,7 +61,7 @@ public class TreeStorageService<T extends TreeRecord> {
                   , path
                   , depth
                   <remainingCteQueryColumnsList>
-                from cte
+                from tree
                 order by path;
             """
     );
@@ -93,6 +90,68 @@ public class TreeStorageService<T extends TreeRecord> {
         queryTemplate.render(),
         new MapSqlParameterSource().addValues(queryParameters),
         treeResultSet.resultSetExtractor()
+    );
+  }
+
+  // TODO: pagination
+  public List<TreeRecord> listTrees() {
+
+    ST queryTemplate = new ST(
+        """
+            with recursive tree as (
+                  select
+                      <treeTableAlias>.<idColumn>
+                    <anchorQueryColumnList>
+                    , array[<idColumn>] as "path"
+                    , 1 as "depth"
+                  from <treeTable> <treeTableAlias>
+                  <remainingAnchorQuery>
+                  where <treeTableAlias>.parent is null
+            
+                  union all
+            
+                  select
+                      <treeTableAlias>.<idColumn>
+                    <recursiveQueryColumnList>
+                    , tree."path"  || <treeTableAlias>.<idColumn>
+                    , tree.depth + 1 as depth
+                  from <treeTable> <treeTableAlias>
+                  join tree on <treeTableAlias>.<parentColumn> = tree.<idColumn>
+                  <remainingRecursiveQuery>
+                )
+                select
+                    <idColumn>
+                  , path
+                  , depth
+                  <remainingCteQueryColumnsList>
+                from tree
+                order by path;
+            """
+    );
+
+    queryTemplate.add("idColumn", configuration.idColumn());
+    queryTemplate.add("treeTableAlias", configuration.treeTableAlias());
+    queryTemplate.add("anchorQueryColumnList",
+        joinColumnListToString(configuration.anchorQueryColumnSet(), ", "));
+    queryTemplate.add("treeTable", configuration.treeTable());
+    queryTemplate.add("remainingAnchorQuery", configuration.remainingAnchorQuery());
+    queryTemplate.add("recursiveQueryColumnList",
+        joinColumnListToString(
+            configuration.recursiveQueryColumnSet(), ", "));
+    queryTemplate.add("parentColumn", configuration.parentColumn());
+    queryTemplate.add("remainingRecursiveQuery", configuration.remainingAnchorQuery());
+    queryTemplate.add("remainingCteQueryColumnsList",
+        joinColumnListToString(
+            configuration.remainingCteQueryColumnsSet(), ", ", false));
+    queryTemplate.add("whereColumn", configuration.whereColumn());
+
+    Map<String, String> queryParameters = new HashMap<>(configuration.queryParameters());
+
+    // TODO: need a resultsetextractor that returns a list of nested full trees
+    return jdbcTemplate.query(
+        queryTemplate.render(),
+        new MapSqlParameterSource().addValues(queryParameters),
+        treeResultSet.resultSetExtractorList()
     );
   }
 

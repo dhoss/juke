@@ -1,11 +1,34 @@
 package in.stonecolddev.juke.data.storage.tree;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class DatabaseTree {
 
+  public static Integer findRootId(Integer nodeId, Map<Integer, Optional<Integer>> nodeToParentMap) {
+    Optional<Integer> maybeNodeParentId = nodeToParentMap.get(nodeId);
+    if (maybeNodeParentId.isEmpty())
+      return nodeId;
+
+    Integer lastCheckedId = maybeNodeParentId.get();
+    while (true) {
+      if (maybeNodeParentId.isPresent()) {
+        lastCheckedId = maybeNodeParentId.get();
+        maybeNodeParentId = nodeToParentMap.get(lastCheckedId);
+      } else {
+        return lastCheckedId;
+      }
+    }
+  }
+
+  public static TreeRecord createTree(Set<TreeRecord> nodes) {
+    return createTree(nodes.stream().toList());
+  }
+
+  // TODO: clean this up
+  // TODO: this should take a Set
   public static TreeRecord createTree(List<TreeRecord> nodes) {
+    // find root (parent is undef)
+    // if no node's parent is undef, find the lowest id and make it parent
     TreeRecord root =
         nodes.stream()
             .filter(node -> node.parent().isEmpty())
@@ -13,9 +36,6 @@ public class DatabaseTree {
             .orElseGet(
                 () ->
                     nodes.stream()
-                        .peek((c -> {
-                          System.out.println("**** TREE RECORD ID IN CREATETREE " + c.id() + ", PARENT " + c.parent());
-                        }))
                         .min(Comparator.comparing(TreeRecord::id))
                         .orElseThrow(() -> new RuntimeException("No tree root in createTree")));
 

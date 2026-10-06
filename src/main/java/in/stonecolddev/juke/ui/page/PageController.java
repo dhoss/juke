@@ -37,13 +37,17 @@ public class PageController {
     this.clock = clock;
   }
 
-  // TODO: compileForView should populate sidebar with latest n page urls
-  @GetMapping("/{pageSlug}.html")
+  // TODO: it would be cool if we could use the root url and not have static asset path issues
+  @GetMapping("/pages/{pageSlug}.html")
   public ModelAndView findPage(@PathVariable("pageSlug") String pageSlug) {
     ModelAndView mv = new ModelAndView("pages/page");
 
-    // TODO: figure out why exceptions aren't being handled
-    mv.addAllObjects(pageHandler.compileForView(pageSlug));
+    mv.addAllObjects(
+        Map.of(
+            "page",
+            treeStorageService.find(pageSlug)
+                .orElseThrow(
+                    () -> new RuntimeException("No such page: " + pageSlug))));
 
     return mv;
   }

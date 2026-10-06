@@ -49,7 +49,7 @@ public class PageController {
   }
 
   // TODO: pagination
-  @GetMapping("/tree-pages")
+  @GetMapping("/pages")
   public ModelAndView listTreePages() {
     ModelAndView mv = new ModelAndView("pages/list-pages");
     mv.addAllObjects(Map.of("pages", treeStorageService.listTrees()));

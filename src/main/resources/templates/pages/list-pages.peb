@@ -4,10 +4,11 @@
         <ul>
                 {% for page in pages %}
                 <li>
-                    {{ page.title }}
+                    {# TODO: create a macro for generating proper urls #}
+                    <a href="/{{ page.slug }}.html">{{ page.title }}</a>
                     {% if page.children is not empty %}
-                {{ renderTree(page.children) }}
-                {% endif %}
+                    {{ renderTree(page.children) }}
+                    {% endif %}
                 </li>
                 {% endfor %}
         </ul>

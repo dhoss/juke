@@ -40,37 +40,6 @@ public record PageRecord(
     return Slugify.builder().build().slugify(title);
   }
 
-  public String tableName() {
-    return "page_trees";
-  }
-
-  public Optional<String> tableAlias() {
-    return Optional.of("pt");
-  }
-
-  public String primaryKey() {
-    return "id";
-  }
-
-  public Set<String> columnList() {
-    return Set.of(
-        "author",
-        "title",
-        "slug",
-        "body",
-        "parent",
-        "path",
-        "depth",
-        "approved",
-        "created_on",
-        "published_on"
-    );
-  }
-
-  public String whereClause() {
-    return "where p.slug = :slug";
-  }
-
   public Map<String, ?> valueMap() {
     Map<String, Object> valueMap = new HashMap<>(Map.of(
         "author", author,

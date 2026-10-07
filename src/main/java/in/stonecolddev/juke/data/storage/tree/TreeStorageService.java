@@ -1,5 +1,6 @@
 package in.stonecolddev.juke.data.storage.tree;
 
+import in.stonecolddev.juke.page.Query;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -14,7 +15,6 @@ import java.util.stream.Collectors;
 // TODO: rename this
 public class TreeStorageService<T extends TreeRecord> {
 
-  // TODO: do we want table information defined here or in the TreeRecord implementation?
 
   private final NamedParameterJdbcTemplate jdbcTemplate;
 
@@ -35,6 +35,39 @@ public class TreeStorageService<T extends TreeRecord> {
   // TODO: get rid of all of the query template stuff, I hate it
   public Optional<TreeRecord> find(String slug) {
 
+    log.info("****** QUERY BUILDER QUERY {}",
+        Query.builder().withRecursive(
+                "tree",
+                Query.builder()
+                    .select("""
+                                t.id
+                              --  , t.parent, t.approved, t.created_on, t.author, t.published_on, t.title, t.body, t.slug
+                                , array[id] as "path"
+                                , 1 as "depth"
+                        """)
+                    .from("page_trees t")
+                    .where("t.parent is null"),
+                Query.builder()
+                    .select("""
+                                          t.id
+                                        , tree."path"  || t.id
+                                        , tree.depth + 1 as depth
+                        """)
+                    .from("page_trees t")
+                    .join("tree on t.parent = tree.id"),
+                Query.builder()
+                    .select(
+                        """
+                                    id
+                                  , path
+                                  , depth
+                              --    , parent, approved, created_on, author, published_on, title, body, slug
+                            """
+                    )
+                    .from("tree")
+                    .orderBy("path"))
+            .compiled()
+    );
     ST queryTemplate = new ST(
         """
             with recursive tree as (
@@ -69,70 +102,13 @@ public class TreeStorageService<T extends TreeRecord> {
     );
 
     queryTemplate.add("primaryKey", configuration.idColumn());
-    //queryTemplate.add("treeTableAlias", configuration.treeTableAlias());
     queryTemplate.add("anchorQueryColumnList",
         joinColumnListToString(configuration.anchorQueryColumnSet(), ", "));
     queryTemplate.add("treeTable", configuration.treeTable());
-    // queryTemplate.add("remainingAnchorQuery", configuration.remainingAnchorQuery());
-    // queryTemplate.add("recursiveQueryColumnList",
-    //     joinColumnListToString(
-    //         configuration.recursiveQueryColumnSet(), ", "));
-    // queryTemplate.add("parentColumn", configuration.parentColumn());
-    // queryTemplate.add("remainingRecursiveQuery", configuration.remainingAnchorQuery());
     queryTemplate.add("remainingCteQueryColumnsList",
         joinColumnListToString(
             configuration.anchorQueryColumnSet(), ", ", false));
     queryTemplate.add("whereColumn", configuration.whereColumn());
-
-    // Map<String, String> queryParameters = new HashMap<>(configuration.queryParameters());
-    // ST queryTemplate = new ST(
-    //     """
-    //         with recursive tree as (
-    //               select
-    //                 <treeTableAlias>.<idColumn>
-    //                 <anchorQueryColumnList>
-    //                 , array[<idColumn>] as "path"
-    //                 , 1 as "depth"
-    //               from <treeTable> <treeTableAlias>
-    //               <remainingAnchorQuery>
-    //               where <treeTableAlias>.<whereColumn> = :slug
-    //
-    //               union all
-    //
-    //               select
-    //                   <treeTableAlias>.<idColumn>
-    //                 <recursiveQueryColumnList>
-    //                 , tree."path"  || <treeTableAlias>.<idColumn>
-    //                 , tree.depth + 1 as depth
-    //               from <treeTable> <treeTableAlias>
-    //               join tree on <treeTableAlias>.<parentColumn> = tree.<idColumn>
-    //               <remainingRecursiveQuery>
-    //             )
-    //             select
-    //                 <idColumn>
-    //               , path
-    //               , depth
-    //               <remainingCteQueryColumnsList>
-    //             from tree
-    //             order by path;
-    //         """
-    // );
-
-    // queryTemplate.add("idColumn", configuration.idColumn());
-    // queryTemplate.add("treeTableAlias", configuration.treeTableAlias());
-    // queryTemplate.add("anchorQueryColumnList",
-    //     joinColumnListToString(configuration.anchorQueryColumnSet(), ", "));
-    // queryTemplate.add("treeTable", configuration.treeTable());
-    // queryTemplate.add("remainingAnchorQuery", configuration.remainingAnchorQuery());
-    // queryTemplate.add("recursiveQueryColumnList",
-    //     joinColumnListToString(
-    //         configuration.recursiveQueryColumnSet(), ", "));
-    // queryTemplate.add("parentColumn", configuration.parentColumn());
-    // queryTemplate.add("remainingRecursiveQuery", configuration.remainingAnchorQuery());
-    // queryTemplate.add("remainingCteQueryColumnsList",
-    //     joinColumnListToString(
-    //         configuration.remainingCteQueryColumnsSet(), ", ", false));//
-    //  queryTemplate.add("whereColumn", configuration.whereColumn());
 
     Map<String, String> queryParameters =
         new HashMap<>(Map.of(configuration.whereColumn(), slug));
@@ -182,16 +158,9 @@ public class TreeStorageService<T extends TreeRecord> {
     );
 
     queryTemplate.add("primaryKey", configuration.idColumn());
-    //queryTemplate.add("treeTableAlias", configuration.treeTableAlias());
     queryTemplate.add("anchorQueryColumnList",
         joinColumnListToString(configuration.anchorQueryColumnSet(), ", "));
     queryTemplate.add("treeTable", configuration.treeTable());
-    // queryTemplate.add("remainingAnchorQuery", configuration.remainingAnchorQuery());
-    // queryTemplate.add("recursiveQueryColumnList",
-    //     joinColumnListToString(
-    //         configuration.recursiveQueryColumnSet(), ", "));
-    // queryTemplate.add("parentColumn", configuration.parentColumn());
-    // queryTemplate.add("remainingRecursiveQuery", configuration.remainingAnchorQuery());
     queryTemplate.add("remainingCteQueryColumnsList",
         joinColumnListToString(
             configuration.anchorQueryColumnSet(), ", ", false));

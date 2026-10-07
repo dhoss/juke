@@ -11,7 +11,7 @@ import static in.stonecolddev.juke.data.storage.tree.DatabaseTree.findRootId;
 
 public interface TreeResultSet<T extends TreeRecord> {
 
-  DatabaseTreeConfiguration configuration();
+  String primaryKeyColumn();
 
   T fromResultSet(ResultSet rs) throws SQLException;
 
@@ -30,6 +30,7 @@ public interface TreeResultSet<T extends TreeRecord> {
       if (nodes.isEmpty()) {
         return List.of();
       }
+      ////////////////////////////////////////////
 
       for (TreeRecord node : nodes) {
         nodeToParentMap.put(node.id(), node.parent());

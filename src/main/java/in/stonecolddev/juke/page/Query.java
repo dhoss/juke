@@ -1,0 +1,103 @@
+package in.stonecolddev.juke.page;
+
+
+import lombok.*;
+import lombok.experimental.Accessors;
+
+import java.util.Optional;
+
+@Data
+@Builder
+@Accessors(fluent = true)
+@With
+public class Query {
+
+  // Query query =
+  //     QueryBuilder
+  //       .withRecursive(
+  //          "tree",
+  //          QueryBuilder.select("t.id, t.author...")
+  //                      .from("page_trees t")
+  //                      .where("t.slug = :slug"),
+  //          QueryBuilder.select("t.id, t.author...")
+  //                      .from("page_trees t")
+  //                      .join("tree on t.parent = tree.id"),
+  //          QueryBuilder.select("id, path, depth")
+  //                       .from("tree")
+  //                       .orderBy("path")
+  //
+  //       );
+  //     .
+
+  private final String select;
+  private final String from;
+  private final String join;
+  private final String where;
+  private final String orderBy;
+
+  @Setter(AccessLevel.NONE)
+  private final String compiled;
+
+  public static class QueryBuilder {
+
+    // public QueryBuilder select(String select) {
+    //   this.select = select;
+    //   return this;
+    // }
+
+    // public QueryBuilder from(String from) {
+    //   this.from = from;
+    //   return this;
+    // }
+
+    // public QueryBuilder where(String where) {
+    //   this.where = where;
+    //   return this;
+    // }
+
+    public Query withRecursive(String cteName, QueryBuilder anchor, QueryBuilder recursive, QueryBuilder aggregate) {
+      this.compiled = "with recursive" +
+          " \n " +
+          cteName +
+          " " +
+          "as (" +
+          " " +
+          constructSelectQueryPart(anchor) +
+          " " +
+          "union all" +
+          " \n " +
+          " " +
+          constructSelectQueryPart(recursive) +
+          ")" +
+          " \n " +
+          constructSelectQueryPart(aggregate);
+
+
+      return this.build();
+    }
+
+    public String compileQuery() {
+      return this.build().compiled();
+    }
+
+    private String constructSelectQueryPart(QueryBuilder qb) {
+      return "select" +
+          " \n " +
+          qb.select +
+          " \n " +
+          "from" +
+          "  " +
+          qb.from +
+          " \n " +
+          Optional.ofNullable(qb.where).map(w -> "where " + w + "\n ").orElseGet(() -> "") +
+          Optional.ofNullable(qb.join).map(j -> "join " + j + "\n ").orElseGet(() -> "") +
+          Optional.ofNullable(qb.orderBy).map(o -> "order by " + o + "\n ").orElseGet(() -> "");
+      // " " +
+      // qb.where;
+    }
+
+
+  }
+
+
+}

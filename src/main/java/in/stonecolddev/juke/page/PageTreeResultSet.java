@@ -1,8 +1,6 @@
 package in.stonecolddev.juke.page;
 
-import in.stonecolddev.juke.data.storage.tree.DatabaseTreeConfiguration;
 import in.stonecolddev.juke.data.storage.tree.TreeResultSet;
-import io.soabase.recordbuilder.core.RecordBuilder;
 import org.springframework.stereotype.Component;
 
 import java.sql.ResultSet;
@@ -14,15 +12,16 @@ import java.util.Arrays;
 import java.util.Optional;
 
 @Component
-@RecordBuilder
-public record PageTreeResultSet(
-    DatabaseTreeConfiguration configuration
-) implements TreeResultSet<PageRecord> {
+public record PageTreeResultSet() implements TreeResultSet<PageRecord> {
+
+  public String primaryKeyColumn() {
+    return "id";
+  }
 
   public PageRecord fromResultSet(ResultSet rs) throws SQLException {
     PageRecordBuilder pageRecord = PageRecordBuilder.builder();
-    pageRecord.id(rs.getInt(configuration.idColumn()));
-    pageRecord.slug(rs.getString("slug")); // TODO: get rid of this: configuration.whereColumn()));
+    pageRecord.id(rs.getInt(primaryKeyColumn()));
+    pageRecord.slug(rs.getString("slug"));
     pageRecord.title(rs.getString("title"));
     pageRecord.body(rs.getString("body"));
     pageRecord.author(rs.getInt("author"));
@@ -39,6 +38,8 @@ public record PageTreeResultSet(
     pageRecord.publishedOn(
         rs.getObject("published_on", OffsetDateTime.class)
             .truncatedTo(ChronoUnit.SECONDS));
+
+    // TODO: populate ancestor ids
 
     // rs.getInt(...) will return 0 if the column value is null so we have to do this
     int parentId = rs.getInt("parent");

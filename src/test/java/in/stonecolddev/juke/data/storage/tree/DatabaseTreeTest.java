@@ -20,4 +20,10 @@ public class DatabaseTreeTest {
                 firstChildFirstChild,
                 firstChildSecondChild)));
   }
+
+  // TODO: implement findRootId test
+  @Test
+  public void findRootId() {
+
+  }
 }

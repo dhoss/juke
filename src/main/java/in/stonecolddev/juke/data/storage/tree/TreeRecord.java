@@ -8,22 +8,9 @@ import java.util.stream.Collectors;
 
 public interface TreeRecord {
 
-  // TODO: everything not directly related to a tree
-  //       tableName, tableAlias, etc
-  //       should be migrated to a more generic Record interface
-  String tableName();
-
-  Optional<String> tableAlias();
-
-  Set<String> columnList();
-
-  String whereClause();
-
   // TODO: rename this to something more clear
   //       it's for holding k/v pairs to pass in to MapSqlParameterSource
   Map<String, ?> valueMap();
-
-  String primaryKey();
 
   Integer id();
 

@@ -4,7 +4,8 @@ import java.util.*;
 
 public class DatabaseTree {
 
-  public static Integer findRootId(Integer nodeId, Map<Integer, Optional<Integer>> nodeToParentMap) {
+  public static Integer findRootId(
+      Integer nodeId, Map<Integer, Optional<Integer>> nodeToParentMap) {
     Optional<Integer> maybeNodeParentId = nodeToParentMap.get(nodeId);
     if (maybeNodeParentId.isEmpty())
       return nodeId;
@@ -29,6 +30,7 @@ public class DatabaseTree {
   public static TreeRecord createTree(List<TreeRecord> nodes) {
     // find root (parent is undef)
     // if no node's parent is undef, find the lowest id and make it parent
+    // not sure if that's ideal
     TreeRecord root =
         nodes.stream()
             .filter(node -> node.parent().isEmpty())

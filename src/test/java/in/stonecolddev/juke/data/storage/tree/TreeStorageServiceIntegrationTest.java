@@ -47,6 +47,11 @@ public class TreeStorageServiceIntegrationTest extends AbstractDatabaseTest {
 
   }
 
+  // TODO: implement test for listTrees
+  @Test
+  public void listTrees() {
+  }
+
   @Test
   public void create() {
     PageRecord newTree = newTreeRoot();

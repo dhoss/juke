@@ -8,6 +8,9 @@ import java.util.stream.Collectors;
 
 public interface TreeRecord {
 
+  // TODO: everything not directly related to a tree
+  //       tableName, tableAlias, etc
+  //       should be migrated to a more generic Record interface
   String tableName();
 
   Optional<String> tableAlias();
@@ -16,7 +19,11 @@ public interface TreeRecord {
 
   String whereClause();
 
+  // TODO: rename this to something more clear
+  //       it's for holding k/v pairs to pass in to MapSqlParameterSource
   Map<String, ?> valueMap();
+
+  String primaryKey();
 
   Integer id();
 
@@ -27,6 +34,8 @@ public interface TreeRecord {
   TreeRecord reparent(TreeRecord parent);
 
   Set<TreeRecord> children();
+
+  Set<Integer> ancestors();
 
   List<Integer> path();
 

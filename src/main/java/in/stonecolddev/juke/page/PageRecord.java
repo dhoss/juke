@@ -16,6 +16,7 @@ public record PageRecord(
     String body,
     Optional<Integer> parent,
     Set<TreeRecord> children,
+    Set<Integer> ancestors,
     List<Integer> path,
     Integer depth,
     Boolean approved,
@@ -36,8 +37,7 @@ public record PageRecord(
 
   // TODO: slug needs to be constructed from a PageRecord's ancestors
   public String slug() {
-    Slugify slug = Slugify.builder().build();
-    return slug.slugify(title);
+    return Slugify.builder().build().slugify(title);
   }
 
   public String tableName() {
@@ -48,8 +48,23 @@ public record PageRecord(
     return Optional.of("pt");
   }
 
+  public String primaryKey() {
+    return "id";
+  }
+
   public Set<String> columnList() {
-    return Set.of("id", "author", "title", "slug", "body", "parent", "path", "depth", "approved", "created_on", "published_on");
+    return Set.of(
+        "author",
+        "title",
+        "slug",
+        "body",
+        "parent",
+        "path",
+        "depth",
+        "approved",
+        "created_on",
+        "published_on"
+    );
   }
 
   public String whereClause() {

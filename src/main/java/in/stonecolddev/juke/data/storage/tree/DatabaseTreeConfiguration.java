@@ -8,13 +8,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
-// TODO: we might be able to derive this from TreeRecord
+@Deprecated
 @RecordBuilder
 public record DatabaseTreeConfiguration(
     String idColumn,
     String treeTableAlias,
     Map<String, String> queryParameters,
-    // TODO: I really don't know if we need anything other than anchorQueryColumnSet
     Set<String> anchorQueryColumnSet,
     String treeTable,
     String remainingAnchorQuery,
@@ -22,7 +21,7 @@ public record DatabaseTreeConfiguration(
     String parentColumn,
     String remainingRecursiveQuery,
     Set<String> remainingCteQueryColumnsSet,
-    String whereColumn // TODO: this is pretty unnecessary since slug is used everywhere
+    String whereColumn
 ) implements DatabaseTreeConfigurationBuilder.With {
 
   public DatabaseTreeConfiguration {

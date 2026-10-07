@@ -34,6 +34,7 @@ public record PageRecord(
     return this.withParent(Optional.of(parent.id()));
   }
 
+  // TODO: slug needs to be constructed from a PageRecord's ancestors
   public String slug() {
     Slugify slug = Slugify.builder().build();
     return slug.slugify(title);

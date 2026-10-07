@@ -22,7 +22,7 @@ public record PageTreeResultSet(
   public PageRecord fromResultSet(ResultSet rs) throws SQLException {
     PageRecordBuilder pageRecord = PageRecordBuilder.builder();
     pageRecord.id(rs.getInt(configuration.idColumn()));
-    pageRecord.slug(rs.getString(configuration.whereColumn()));
+    pageRecord.slug(rs.getString("slug")); // TODO: get rid of this: configuration.whereColumn()));
     pageRecord.title(rs.getString("title"));
     pageRecord.body(rs.getString("body"));
     pageRecord.author(rs.getInt("author"));

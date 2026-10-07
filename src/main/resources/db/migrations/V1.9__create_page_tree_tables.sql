@@ -33,8 +33,10 @@ values (1, (select id from users limit 1), 'test root page', 'test-root-page', '
         '2026-09-06 16:14:20.231 -0600')
 ;
 
-SELECT setval(
+
+-- reset the id sequence after inserting using 'overriding system value'
+select setval(
                pg_get_serial_sequence('page_trees', 'id'),
-               COALESCE((SELECT MAX(id) FROM page_trees), 1),
-               (SELECT MAX(id) IS NOT NULL FROM page_trees)
+               coalesce((select max(id) from page_trees), 1),
+               (select max(id) is not null from page_trees)
        );

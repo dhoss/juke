@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 // TODO: we might be able to derive this from TreeRecord
-// TODO: consider renaming DatabaseTreeConfiguration to DatabaseTreeQueryBuilder
 @RecordBuilder
 public record DatabaseTreeConfiguration(
     String idColumn,
@@ -23,7 +22,7 @@ public record DatabaseTreeConfiguration(
     String parentColumn,
     String remainingRecursiveQuery,
     Set<String> remainingCteQueryColumnsSet,
-    String whereColumn
+    String whereColumn // TODO: this is pretty unnecessary since slug is used everywhere
 ) implements DatabaseTreeConfigurationBuilder.With {
 
   public DatabaseTreeConfiguration {

@@ -7,7 +7,10 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.stringtemplate.v4.ST;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -55,12 +58,6 @@ public class TreeStorageService<T extends TreeRecord> {
                             "1 as depth"
                         )
                     )
-                    // """
-                    //          t.id
-                    //        , t.parent, t.approved, t.created_on, t.author, t.published_on, t.title, t.body, t.slug
-                    //        , array[id] as "path"
-                    //        , 1 as "depth"
-                    //     """)
                     .from("page_trees t")
                     .where("t.slug = :slug"),
                 Query.builder()
@@ -79,12 +76,6 @@ public class TreeStorageService<T extends TreeRecord> {
                             "tree.depth +1 as depth"
                         )
                     )
-                    // """
-                    //          t.id
-                    //        , t.parent, t.approved, t.created_on, t.author, t.published_on, t.title, t.body, t.slug
-                    //        , tree."path"  || t.id
-                    //        , tree.depth + 1 as depth
-                    //     """)
                     .from("page_trees t")
                     .join("tree on t.parent = tree.id"),
                 Query.builder()
@@ -102,18 +93,11 @@ public class TreeStorageService<T extends TreeRecord> {
                             "path",
                             "depth"
                         )
-                        // """
-                        //          id
-                        //        , path
-                        //        , depth
-                        //        , parent, approved, created_on, author, published_on, title, body, slug
-                        //     """
                     )
                     .from("tree")
                     .orderBy("path"))
             .compiled(),
-        //queryTemplate.render(),
-        new MapSqlParameterSource().addValues(Map.of("slug", slug)), //queryParameters),
+        new MapSqlParameterSource().addValues(Map.of("slug", slug)),
         treeResultSet.resultSetExtractor()
     );
   }
@@ -121,54 +105,65 @@ public class TreeStorageService<T extends TreeRecord> {
   // TODO: pagination
   public List<TreeRecord> listTrees() {
 
-    ST queryTemplate = new ST(
-        """
-            with recursive tree as (
-                  select
-                    t.<primaryKey>
-                    <anchorQueryColumnList>
-                    , array[<primaryKey>] as "path"
-                    , 1 as "depth"
-                  from <treeTable> t
-                  <remainingAnchorQuery>
-                  where t.parent is null
-            
-                  union all
-            
-                  select
-                      t.<primaryKey>
-                      <anchorQueryColumnList>
-                    , tree."path"  || t.<primaryKey>
-                    , tree.depth + 1 as depth
-                  from <treeTable> t
-                  join tree on t.parent = tree.<primaryKey>
-                  <remainingAnchorQuery>
-                )
-                select
-                    <primaryKey>
-                  , path
-                  , depth
-                  <remainingCteQueryColumnsList>
-                from tree
-                order by path;
-            """
-    );
-
-    queryTemplate.add("primaryKey", configuration.idColumn());
-    queryTemplate.add("anchorQueryColumnList",
-        joinColumnListToString(configuration.anchorQueryColumnSet(), ", "));
-    queryTemplate.add("treeTable", configuration.treeTable());
-    queryTemplate.add("remainingCteQueryColumnsList",
-        joinColumnListToString(
-            configuration.anchorQueryColumnSet(), ", ", false));
-    queryTemplate.add("whereColumn", configuration.whereColumn());
-
-    Map<String, String> queryParameters = new HashMap<>(configuration.queryParameters());
-
-    // TODO: need a resultsetextractor that returns a list of nested full trees
     return jdbcTemplate.query(
-        queryTemplate.render(),
-        new MapSqlParameterSource().addValues(queryParameters),
+        Query.builder()
+            .withRecursive(
+                "tree",
+                Query.builder()
+                    .select(
+                        List.of(
+                            "t.id",
+                            "t.parent",
+                            "t.approved",
+                            "t.created_on",
+                            "t.author",
+                            "t.published_on",
+                            "t.title",
+                            "t.body",
+                            "t.slug",
+                            "array[id] as path",
+                            "1 as depth"
+                        )
+                    )
+                    .from("page_trees t")
+                    .where("t.parent is null"),
+                Query.builder()
+                    .select(
+                        List.of(
+                            "t.id",
+                            "t.parent",
+                            "t.approved",
+                            "t.created_on",
+                            "t.author",
+                            "t.published_on",
+                            "t.title",
+                            "t.body",
+                            "t.slug",
+                            "tree.path || t.id",
+                            "tree.depth +1 as depth"
+                        )
+                    )
+                    .from("page_trees t")
+                    .join("tree on t.parent = tree.id"),
+                Query.builder()
+                    .select(
+                        List.of(
+                            "id",
+                            "parent",
+                            "approved",
+                            "created_on",
+                            "author",
+                            "published_on",
+                            "title",
+                            "body",
+                            "slug",
+                            "path",
+                            "depth"
+                        )
+                    )
+                    .from("tree")
+                    .orderBy("path"))
+            .compiled(),
         treeResultSet.resultSetExtractorList()
     );
   }
@@ -237,18 +232,4 @@ public class TreeStorageService<T extends TreeRecord> {
         () -> new RuntimeException("Can't find parent of child we just created for some reason"));
   }
 
-  private String joinColumnListToString(Set<?> toString, String joinWith) {
-    return joinColumnListToString(toString, joinWith, true);
-  }
-
-  private String joinColumnListToString(Set<?> toString, String joinWith, Boolean useAlias) {
-    return toString.stream()
-        .map(ts -> {
-          if (useAlias)
-            return joinWith + "t." + ts;
-          //return joinWith + configuration.treeTableAlias() + "." + ts;
-          return joinWith + ts;
-        })
-        .collect(Collectors.joining());
-  }
 }

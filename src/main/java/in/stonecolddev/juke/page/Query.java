@@ -30,6 +30,7 @@ public class Query {
   //       );
   //     .
 
+  // this must be a List, Set sorts things automatically and can screw up column order
   private final List<String> select;
   private final String from;
   private final String join;
@@ -40,21 +41,6 @@ public class Query {
   private final String compiled;
 
   public static class QueryBuilder {
-
-    // public QueryBuilder select(String select) {
-    //   this.select = select;
-    //   return this;
-    // }
-
-    // public QueryBuilder from(String from) {
-    //   this.from = from;
-    //   return this;
-    // }
-
-    // public QueryBuilder where(String where) {
-    //   this.where = where;
-    //   return this;
-    // }
 
     // TODO: clean this up
     public Query withRecursive(
@@ -97,8 +83,6 @@ public class Query {
           Optional.ofNullable(qb.where).map(w -> "where " + w + "\n ").orElseGet(() -> "") +
           Optional.ofNullable(qb.join).map(j -> "join " + j + "\n ").orElseGet(() -> "") +
           Optional.ofNullable(qb.orderBy).map(o -> "order by " + o + "\n ").orElseGet(() -> "");
-      // " " +
-      // qb.where;
     }
 
 

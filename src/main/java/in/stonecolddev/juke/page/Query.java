@@ -44,14 +44,17 @@ public class Query {
 
   public static class QueryBuilder {
 
+    // TODO: I would like this to be a fluent api at some point
+    //       e.g.
     private final String NEW_LINE = " \n ";
     private final String SPACE = " ";
-    private final String AS = "as";
     private final String OPEN_PAREN = "(";
     private final String CLOSE_PAREN = ")";
-    private final String SELECT = "select" + SPACE;
-    private final String UNION_ALL = "union all" + SPACE;
-    private final String FROM = "from" + SPACE;
+    private final String AS = "as" + OPEN_PAREN;
+    private final String WITH_RECURSIVE = "with recursive" + SPACE + NEW_LINE;
+    private final String SELECT = "select" + SPACE + NEW_LINE;
+    private final String UNION_ALL = "union all" + SPACE + NEW_LINE;
+    private final String FROM = "from" + SPACE + NEW_LINE;
     private final String JOIN = "join" + SPACE;
     private final String WHERE = "where" + SPACE;
     private final String ORDER_BY = "order by" + SPACE;
@@ -62,21 +65,17 @@ public class Query {
         QueryBuilder recursive,
         QueryBuilder aggregate) {
 
-      this.compiled = "with recursive" +
-          NEW_LINE +
-          cteName +
-          SPACE +
-          AS + OPEN_PAREN +
-          SPACE +
-          constructSelectQueryPart(anchor) +
-          SPACE +
-          UNION_ALL +
-          NEW_LINE +
-          SPACE +
-          constructSelectQueryPart(recursive) +
-          CLOSE_PAREN +
-          NEW_LINE +
-          constructSelectQueryPart(aggregate);
+      cteName = cteName + SPACE;
+      this.compiled =
+          WITH_RECURSIVE +
+              cteName +
+              AS +
+              constructSelectQueryPart(anchor) +
+              UNION_ALL +
+              constructSelectQueryPart(recursive) +
+              CLOSE_PAREN +
+              NEW_LINE +
+              constructSelectQueryPart(aggregate);
 
       return this.build();
     }
@@ -84,7 +83,6 @@ public class Query {
     private String constructSelectQueryPart(QueryBuilder qb) {
       return
           SELECT +
-              NEW_LINE +
               Optional.ofNullable(qb.select)
                   .map(s -> String.join(",", s))
                   .orElseThrow(() -> new RuntimeException("no column names provided to select")) +
@@ -101,7 +99,7 @@ public class Query {
       return Optional.ofNullable(clause)
           .map(mapper)
           .map(e -> e + NEW_LINE + SPACE)
-          .orElseGet(() -> "");
+          .orElseGet(() -> SPACE);
     }
   }
 }

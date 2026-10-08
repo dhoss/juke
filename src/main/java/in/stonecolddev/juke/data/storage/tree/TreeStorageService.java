@@ -35,10 +35,10 @@ public class TreeStorageService<T extends TreeRecord> {
     this.treeResultSet = treeResultSet;
   }
 
-  // TODO: get rid of all of the query template stuff, I hate it
   public Optional<TreeRecord> find(String slug) {
 
     return jdbcTemplate.query(
+        // TODO: make this a general query that can be customized with additional fields and joins etc
         Query.builder()
             .withRecursive(
                 "tree",

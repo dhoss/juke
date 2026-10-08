@@ -6,6 +6,7 @@ import lombok.experimental.Accessors;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 @Data
 @Builder
@@ -13,6 +14,7 @@ import java.util.Optional;
 @With
 public class Query {
 
+  // Usage:
   // Query query =
   //     QueryBuilder
   //       .withRecursive(
@@ -42,47 +44,69 @@ public class Query {
 
   public static class QueryBuilder {
 
+    private final String NEW_LINE = " \n ";
+    private final String SPACE = " ";
+    private final String AS = "as";
+    private final String OPEN_PAREN = "(";
+    private final String CLOSE_PAREN = ")";
+    private final String SELECT = "select" + SPACE;
+    private final String UNION_ALL = "union all" + SPACE;
+    private final String FROM = "from" + SPACE;
+    private final String JOIN = "join" + SPACE;
+    private final String WHERE = "where" + SPACE;
+    private final String ORDER_BY = "order by" + SPACE;
+
     // TODO: clean this up
     public Query withRecursive(
         String cteName,
         QueryBuilder anchor,
         QueryBuilder recursive,
         QueryBuilder aggregate) {
-      this.compiled = "with recursive" +
-          " \n " +
-          cteName +
-          " " +
-          "as (" +
-          " " +
-          constructSelectQueryPart(anchor) +
-          " " +
-          "union all" +
-          " \n " +
-          " " +
-          constructSelectQueryPart(recursive) +
-          ")" +
-          " \n " +
-          constructSelectQueryPart(aggregate);
 
+      this.compiled = "with recursive" +
+          NEW_LINE +
+          cteName +
+          SPACE +
+          AS + OPEN_PAREN +
+          SPACE +
+          constructSelectQueryPart(anchor) +
+          SPACE +
+          UNION_ALL +
+          NEW_LINE +
+          SPACE +
+          constructSelectQueryPart(recursive) +
+          CLOSE_PAREN +
+          NEW_LINE +
+          constructSelectQueryPart(aggregate);
 
       return this.build();
     }
 
     // TODO: clean this up
     private String constructSelectQueryPart(QueryBuilder qb) {
-      return "select" +
-          " \n " +
-          Optional.ofNullable(qb.select)
-              .map(s -> String.join(",", s))
-              .orElseThrow(() -> new RuntimeException("no column names provided to select")) +
-          " \n " +
-          "from" +
-          "  " +
-          qb.from +
-          " \n " +
-          Optional.ofNullable(qb.where).map(w -> "where " + w + "\n ").orElseGet(() -> "") +
-          Optional.ofNullable(qb.join).map(j -> "join " + j + "\n ").orElseGet(() -> "") +
-          Optional.ofNullable(qb.orderBy).map(o -> "order by " + o + "\n ").orElseGet(() -> "");
+      return
+          SELECT +
+              NEW_LINE +
+              Optional.ofNullable(qb.select)
+                  .map(s -> String.join(",", s))
+                  .orElseThrow(() -> new RuntimeException("no column names provided to select")) +
+              NEW_LINE +
+              FROM +
+              qb.from +
+              NEW_LINE +
+              createClause(qb.where, (w) -> WHERE + w) +
+              createClause(qb.join, (j) -> JOIN + j) +
+              createClause(qb.orderBy, (o) -> ORDER_BY + o);
+      // Optional.ofNullable(qb.where).map(w -> WHERE + SPACE + w + NEW_LINE + SPACE).orElseGet(() -> "") +
+      // Optional.ofNullable(qb.join).map(j -> JOIN + SPACE + j + NEW_LINE + SPACE).orElseGet(() -> "") +
+      // Optional.ofNullable(qb.orderBy).map(o -> ORDER_BY + SPACE + o + NEW_LINE + SPACE).orElseGet(() -> "");
+    }
+
+    private String createClause(String clause, Function<String, String> mapper) {
+      return Optional.ofNullable(clause)
+          .map(mapper)
+          .map(e -> e + NEW_LINE + SPACE)
+          .orElseGet(() -> "");
     }
 
 

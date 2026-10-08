@@ -56,7 +56,6 @@ public class Query {
     private final String WHERE = "where" + SPACE;
     private final String ORDER_BY = "order by" + SPACE;
 
-    // TODO: clean this up
     public Query withRecursive(
         String cteName,
         QueryBuilder anchor,
@@ -82,7 +81,6 @@ public class Query {
       return this.build();
     }
 
-    // TODO: clean this up
     private String constructSelectQueryPart(QueryBuilder qb) {
       return
           SELECT +
@@ -97,9 +95,6 @@ public class Query {
               createClause(qb.where, (w) -> WHERE + w) +
               createClause(qb.join, (j) -> JOIN + j) +
               createClause(qb.orderBy, (o) -> ORDER_BY + o);
-      // Optional.ofNullable(qb.where).map(w -> WHERE + SPACE + w + NEW_LINE + SPACE).orElseGet(() -> "") +
-      // Optional.ofNullable(qb.join).map(j -> JOIN + SPACE + j + NEW_LINE + SPACE).orElseGet(() -> "") +
-      // Optional.ofNullable(qb.orderBy).map(o -> ORDER_BY + SPACE + o + NEW_LINE + SPACE).orElseGet(() -> "");
     }
 
     private String createClause(String clause, Function<String, String> mapper) {
@@ -108,9 +103,5 @@ public class Query {
           .map(e -> e + NEW_LINE + SPACE)
           .orElseGet(() -> "");
     }
-
-
   }
-
-
 }

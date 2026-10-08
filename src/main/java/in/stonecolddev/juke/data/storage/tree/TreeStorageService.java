@@ -35,43 +35,6 @@ public class TreeStorageService<T extends TreeRecord> {
   // TODO: get rid of all of the query template stuff, I hate it
   public Optional<TreeRecord> find(String slug) {
 
-    log.info("****** QUERY BUILDER QUERY {}",
-        Query.builder()
-            .withRecursive(
-                "tree",
-                Query.builder()
-                    .select(
-                        """
-                                 t.id
-                               , t.parent, t.approved, t.created_on, t.author, t.published_on, t.title, t.body, t.slug
-                               , array[id] as "path"
-                               , 1 as "depth"
-                            """)
-                    .from("page_trees t")
-                    .where("t.parent is null"),
-                Query.builder()
-                    .select(
-                        """
-                                 t.id
-                               , t.parent, t.approved, t.created_on, t.author, t.published_on, t.title, t.body, t.slug
-                               , tree."path"  || t.id
-                               , tree.depth + 1 as depth
-                            """)
-                    .from("page_trees t")
-                    .join("tree on t.parent = tree.id"),
-                Query.builder()
-                    .select(
-                        """
-                                 id
-                               , path
-                               , depth
-                               , parent, approved, created_on, author, published_on, title, body, slug
-                            """
-                    )
-                    .from("tree")
-                    .orderBy("path"))
-            .compiled()
-    );
     //  ST queryTemplate = new ST(
     //      """
     //          with recursive tree as (
@@ -131,7 +94,7 @@ public class TreeStorageService<T extends TreeRecord> {
                                , 1 as "depth"
                             """)
                     .from("page_trees t")
-                    .where("t.parent is null"),
+                    .where("t.slug = :slug"),
                 Query.builder()
                     .select(
                         """

@@ -55,6 +55,7 @@ public class Query {
     //   return this;
     // }
 
+    // TODO: clean this up
     public Query withRecursive(String cteName, QueryBuilder anchor, QueryBuilder recursive, QueryBuilder aggregate) {
       this.compiled = "with recursive" +
           " \n " +
@@ -76,10 +77,7 @@ public class Query {
       return this.build();
     }
 
-    public String compileQuery() {
-      return this.build().compiled();
-    }
-
+    // TODO: clean this up
     private String constructSelectQueryPart(QueryBuilder qb) {
       return "select" +
           " \n " +

@@ -36,87 +36,126 @@ public class TreeStorageService<T extends TreeRecord> {
   public Optional<TreeRecord> find(String slug) {
 
     log.info("****** QUERY BUILDER QUERY {}",
-        Query.builder().withRecursive(
+        Query.builder()
+            .withRecursive(
                 "tree",
                 Query.builder()
-                    .select("""
-                                t.id
-                              --  , t.parent, t.approved, t.created_on, t.author, t.published_on, t.title, t.body, t.slug
-                                , array[id] as "path"
-                                , 1 as "depth"
-                        """)
+                    .select(
+                        """
+                                 t.id
+                               , t.parent, t.approved, t.created_on, t.author, t.published_on, t.title, t.body, t.slug
+                               , array[id] as "path"
+                               , 1 as "depth"
+                            """)
                     .from("page_trees t")
                     .where("t.parent is null"),
                 Query.builder()
-                    .select("""
-                                          t.id
-                                        , tree."path"  || t.id
-                                        , tree.depth + 1 as depth
-                        """)
+                    .select(
+                        """
+                                 t.id
+                               , t.parent, t.approved, t.created_on, t.author, t.published_on, t.title, t.body, t.slug
+                               , tree."path"  || t.id
+                               , tree.depth + 1 as depth
+                            """)
                     .from("page_trees t")
                     .join("tree on t.parent = tree.id"),
                 Query.builder()
                     .select(
                         """
-                                    id
-                                  , path
-                                  , depth
-                              --    , parent, approved, created_on, author, published_on, title, body, slug
+                                 id
+                               , path
+                               , depth
+                               , parent, approved, created_on, author, published_on, title, body, slug
                             """
                     )
                     .from("tree")
                     .orderBy("path"))
             .compiled()
     );
-    ST queryTemplate = new ST(
-        """
-            with recursive tree as (
-                  select
-                    t.<primaryKey>
-                    <anchorQueryColumnList>
-                    , array[<primaryKey>] as "path"
-                    , 1 as "depth"
-                  from <treeTable> t
-                  <remainingAnchorQuery>
-                  where t.<whereColumn> = :slug
-            
-                  union all
-            
-                  select
-                      t.<primaryKey>
-                      <anchorQueryColumnList>
-                    , tree."path"  || t.<primaryKey>
-                    , tree.depth + 1 as depth
-                  from <treeTable> t
-                  join tree on t.parent = tree.<primaryKey>
-                  <remainingAnchorQuery>
-                )
-                select
-                    <primaryKey>
-                  , path
-                  , depth
-                  <remainingCteQueryColumnsList>
-                from tree
-                order by path;
-            """
-    );
+    //  ST queryTemplate = new ST(
+    //      """
+    //          with recursive tree as (
+    //                select
+    //                  t.<primaryKey>
+    //                  <anchorQueryColumnList>
+    //                  , array[<primaryKey>] as "path"
+    //                  , 1 as "depth"
+    //                from <treeTable> t
+    //                <remainingAnchorQuery>
+    //                where t.<whereColumn> = :slug
+    //
+    //                union all
+    //
+    //                select
+    //                    t.<primaryKey>
+    //                    <anchorQueryColumnList>
+    //                  , tree."path"  || t.<primaryKey>
+    //                  , tree.depth + 1 as depth
+    //                from <treeTable> t
+    //                join tree on t.parent = tree.<primaryKey>
+    //                <remainingAnchorQuery>
+    //              )
+    //              select
+    //                  <primaryKey>
+    //                , path
+    //                , depth
+    //                <remainingCteQueryColumnsList>
+    //              from tree
+    //              order by path;
+    //          """
+    //  );
 
-    queryTemplate.add("primaryKey", configuration.idColumn());
-    queryTemplate.add("anchorQueryColumnList",
-        joinColumnListToString(configuration.anchorQueryColumnSet(), ", "));
-    queryTemplate.add("treeTable", configuration.treeTable());
-    queryTemplate.add("remainingCteQueryColumnsList",
-        joinColumnListToString(
-            configuration.anchorQueryColumnSet(), ", ", false));
-    queryTemplate.add("whereColumn", configuration.whereColumn());
+    //  queryTemplate.add("primaryKey", configuration.idColumn());
+    //  queryTemplate.add("anchorQueryColumnList",
+    //      joinColumnListToString(configuration.anchorQueryColumnSet(), ", "));
+    //  queryTemplate.add("treeTable", configuration.treeTable());
+    //  queryTemplate.add("remainingCteQueryColumnsList",
+    //      joinColumnListToString(
+    //          configuration.anchorQueryColumnSet(), ", ", false));
+    //  queryTemplate.add("whereColumn", configuration.whereColumn());
 
-    Map<String, String> queryParameters =
-        new HashMap<>(Map.of(configuration.whereColumn(), slug));
-    queryParameters.putAll(configuration.queryParameters());
+    //  Map<String, String> queryParameters =
+    //      new HashMap<>(Map.of(configuration.whereColumn(), slug));
+    //  queryParameters.putAll(configuration.queryParameters());
 
     return jdbcTemplate.query(
-        queryTemplate.render(),
-        new MapSqlParameterSource().addValues(queryParameters),
+        Query.builder()
+            .withRecursive(
+                "tree",
+                Query.builder()
+                    .select(
+                        """
+                                 t.id
+                               , t.parent, t.approved, t.created_on, t.author, t.published_on, t.title, t.body, t.slug
+                               , array[id] as "path"
+                               , 1 as "depth"
+                            """)
+                    .from("page_trees t")
+                    .where("t.parent is null"),
+                Query.builder()
+                    .select(
+                        """
+                                 t.id
+                               , t.parent, t.approved, t.created_on, t.author, t.published_on, t.title, t.body, t.slug
+                               , tree."path"  || t.id
+                               , tree.depth + 1 as depth
+                            """)
+                    .from("page_trees t")
+                    .join("tree on t.parent = tree.id"),
+                Query.builder()
+                    .select(
+                        """
+                                 id
+                               , path
+                               , depth
+                               , parent, approved, created_on, author, published_on, title, body, slug
+                            """
+                    )
+                    .from("tree")
+                    .orderBy("path"))
+            .compiled(),
+        //queryTemplate.render(),
+        new MapSqlParameterSource().addValues(Map.of("slug", slug)), //queryParameters),
         treeResultSet.resultSetExtractor()
     );
   }

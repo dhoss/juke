@@ -4,6 +4,7 @@ package in.stonecolddev.juke.page;
 import lombok.*;
 import lombok.experimental.Accessors;
 
+import java.util.List;
 import java.util.Optional;
 
 @Data
@@ -29,7 +30,7 @@ public class Query {
   //       );
   //     .
 
-  private final String select;
+  private final List<String> select;
   private final String from;
   private final String join;
   private final String where;
@@ -56,7 +57,11 @@ public class Query {
     // }
 
     // TODO: clean this up
-    public Query withRecursive(String cteName, QueryBuilder anchor, QueryBuilder recursive, QueryBuilder aggregate) {
+    public Query withRecursive(
+        String cteName,
+        QueryBuilder anchor,
+        QueryBuilder recursive,
+        QueryBuilder aggregate) {
       this.compiled = "with recursive" +
           " \n " +
           cteName +
@@ -81,7 +86,9 @@ public class Query {
     private String constructSelectQueryPart(QueryBuilder qb) {
       return "select" +
           " \n " +
-          qb.select +
+          Optional.ofNullable(qb.select)
+              .map(s -> String.join(",", s))
+              .orElseThrow(() -> new RuntimeException("no column names provided to select")) +
           " \n " +
           "from" +
           "  " +

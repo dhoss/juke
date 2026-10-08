@@ -35,84 +35,79 @@ public class TreeStorageService<T extends TreeRecord> {
   // TODO: get rid of all of the query template stuff, I hate it
   public Optional<TreeRecord> find(String slug) {
 
-    //  ST queryTemplate = new ST(
-    //      """
-    //          with recursive tree as (
-    //                select
-    //                  t.<primaryKey>
-    //                  <anchorQueryColumnList>
-    //                  , array[<primaryKey>] as "path"
-    //                  , 1 as "depth"
-    //                from <treeTable> t
-    //                <remainingAnchorQuery>
-    //                where t.<whereColumn> = :slug
-    //
-    //                union all
-    //
-    //                select
-    //                    t.<primaryKey>
-    //                    <anchorQueryColumnList>
-    //                  , tree."path"  || t.<primaryKey>
-    //                  , tree.depth + 1 as depth
-    //                from <treeTable> t
-    //                join tree on t.parent = tree.<primaryKey>
-    //                <remainingAnchorQuery>
-    //              )
-    //              select
-    //                  <primaryKey>
-    //                , path
-    //                , depth
-    //                <remainingCteQueryColumnsList>
-    //              from tree
-    //              order by path;
-    //          """
-    //  );
-
-    //  queryTemplate.add("primaryKey", configuration.idColumn());
-    //  queryTemplate.add("anchorQueryColumnList",
-    //      joinColumnListToString(configuration.anchorQueryColumnSet(), ", "));
-    //  queryTemplate.add("treeTable", configuration.treeTable());
-    //  queryTemplate.add("remainingCteQueryColumnsList",
-    //      joinColumnListToString(
-    //          configuration.anchorQueryColumnSet(), ", ", false));
-    //  queryTemplate.add("whereColumn", configuration.whereColumn());
-
-    //  Map<String, String> queryParameters =
-    //      new HashMap<>(Map.of(configuration.whereColumn(), slug));
-    //  queryParameters.putAll(configuration.queryParameters());
-
     return jdbcTemplate.query(
         Query.builder()
             .withRecursive(
                 "tree",
                 Query.builder()
                     .select(
-                        """
-                                 t.id
-                               , t.parent, t.approved, t.created_on, t.author, t.published_on, t.title, t.body, t.slug
-                               , array[id] as "path"
-                               , 1 as "depth"
-                            """)
+                        List.of(
+                            "t.id",
+                            "t.parent",
+                            "t.approved",
+                            "t.created_on",
+                            "t.author",
+                            "t.published_on",
+                            "t.title",
+                            "t.body",
+                            "t.slug",
+                            "array[id] as path",
+                            "1 as depth"
+                        )
+                    )
+                    // """
+                    //          t.id
+                    //        , t.parent, t.approved, t.created_on, t.author, t.published_on, t.title, t.body, t.slug
+                    //        , array[id] as "path"
+                    //        , 1 as "depth"
+                    //     """)
                     .from("page_trees t")
                     .where("t.slug = :slug"),
                 Query.builder()
                     .select(
-                        """
-                                 t.id
-                               , t.parent, t.approved, t.created_on, t.author, t.published_on, t.title, t.body, t.slug
-                               , tree."path"  || t.id
-                               , tree.depth + 1 as depth
-                            """)
+                        List.of(
+                            "t.id",
+                            "t.parent",
+                            "t.approved",
+                            "t.created_on",
+                            "t.author",
+                            "t.published_on",
+                            "t.title",
+                            "t.body",
+                            "t.slug",
+                            "tree.path || t.id",
+                            "tree.depth +1 as depth"
+                        )
+                    )
+                    // """
+                    //          t.id
+                    //        , t.parent, t.approved, t.created_on, t.author, t.published_on, t.title, t.body, t.slug
+                    //        , tree."path"  || t.id
+                    //        , tree.depth + 1 as depth
+                    //     """)
                     .from("page_trees t")
                     .join("tree on t.parent = tree.id"),
                 Query.builder()
                     .select(
-                        """
-                                 id
-                               , path
-                               , depth
-                               , parent, approved, created_on, author, published_on, title, body, slug
-                            """
+                        List.of(
+                            "id",
+                            "parent",
+                            "approved",
+                            "created_on",
+                            "author",
+                            "published_on",
+                            "title",
+                            "body",
+                            "slug",
+                            "path",
+                            "depth"
+                        )
+                        // """
+                        //          id
+                        //        , path
+                        //        , depth
+                        //        , parent, approved, created_on, author, published_on, title, body, slug
+                        //     """
                     )
                     .from("tree")
                     .orderBy("path"))

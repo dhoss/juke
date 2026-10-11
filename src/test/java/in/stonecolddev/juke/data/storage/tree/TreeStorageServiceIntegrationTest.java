@@ -3,7 +3,6 @@ package in.stonecolddev.juke.data.storage.tree;
 import in.stonecolddev.juke.page.PageRecord;
 import in.stonecolddev.juke.util.AbstractDatabaseTest;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,17 +32,12 @@ public class TreeStorageServiceIntegrationTest extends AbstractDatabaseTest {
     startDatabase();
   }
 
-  @BeforeEach
-  public void cleanup() {
-
-  }
-
   @Test
   public void find() {
 
     // TODO: unhappy path tests
     assertEquals(
-        Optional.of(fullTree), treeStorageService.find("test-root-page"));
+        Optional.of(fullTree), treeStorageService.find(fullTree.slug()));
 
   }
 

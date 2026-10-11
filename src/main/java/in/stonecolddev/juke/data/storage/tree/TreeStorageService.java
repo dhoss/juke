@@ -35,6 +35,7 @@ public class TreeStorageService<T extends TreeRecord> {
     this.treeResultSet = treeResultSet;
   }
 
+  // TODO: make this take a TreeRecord instead of a String
   public Optional<TreeRecord> find(String slug) {
 
     return jdbcTemplate.query(
@@ -168,14 +169,75 @@ public class TreeStorageService<T extends TreeRecord> {
     );
   }
 
-  // TODO: implement ancestor retrieval
   public List<TreeRecord> ancestors(TreeRecord node) {
-    return List.of();
+    return jdbcTemplate.query(
+        // TODO: make this a general query that can be customized with additional fields and joins etc
+        Query.builder()
+            .withRecursive(
+                "tree",
+                Query.builder()
+                    .select(
+                        List.of(
+                            "t.id",
+                            "t.parent",
+                            "t.approved",
+                            "t.created_on",
+                            "t.author",
+                            "t.published_on",
+                            "t.title",
+                            "t.body",
+                            "t.slug",
+                            "array[id] as path",
+                            "1 as depth"
+                        )
+                    )
+                    .from("page_trees t")
+                    .where("t.slug = :slug"),
+                Query.builder()
+                    .select(
+                        List.of(
+                            "t.id",
+                            "t.parent",
+                            "t.approved",
+                            "t.created_on",
+                            "t.author",
+                            "t.published_on",
+                            "t.title",
+                            "t.body",
+                            "t.slug",
+                            "tree.path || t.id",
+                            "tree.depth +1 as depth"
+                        )
+                    )
+                    .from("page_trees t")
+                    .join("tree on t.id = tree.parent"),
+                Query.builder()
+                    .select(
+                        List.of(
+                            "id",
+                            "parent",
+                            "approved",
+                            "created_on",
+                            "author",
+                            "published_on",
+                            "title",
+                            "body",
+                            "slug",
+                            "path",
+                            "depth"
+                        )
+                    )
+                    .from("tree")
+                    .orderBy("path"))
+            .compiled(),
+        new MapSqlParameterSource().addValues(Map.of("slug", node.slug())),
+        treeResultSet.resultSetExtractorList()
+    );
   }
 
   // TODO: retrieve a tree's ancestor's
   public TreeRecord create(TreeRecord tree) {
-    // TODO: this should go in its own class
+    // TODO: GET RID OF THIS
     ST queryTemplate = new ST(
         """
             insert into <treeTable> (<valueSet>)
@@ -214,9 +276,7 @@ public class TreeStorageService<T extends TreeRecord> {
 
     log.info("adding child nodes if they exist");
     for (TreeRecord child : tree.children()) {
-
       addChild(tree, child);
-
     }
 
     return find(tree.slug())
@@ -225,6 +285,7 @@ public class TreeStorageService<T extends TreeRecord> {
                 "Can't find tree we just inserted with slug " + tree.slug()));
   }
 
+  // TODO: wrap this in a transaction
   public TreeRecord addChild(TreeRecord parent, TreeRecord child) {
     log.info("adding child {} to parent {}", child.slug(), parent.slug());
     create(child.reparent(parent));

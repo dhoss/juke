@@ -76,9 +76,10 @@ public class TreeFixtures {
       root.withChildren(
           Set.of(
               firstChild.withChildren(
+                  // resultset is sorted by path asc so these need to reflect that
                   Set.of(
-                      firstChildFirstChild,
-                      firstChildSecondChild))));
+                      firstChildSecondChild,
+                      firstChildFirstChild))));
 
   public static PageRecord newTreeRoot() {
     OffsetDateTime localNow = OffsetDateTime.now();
@@ -92,6 +93,7 @@ public class TreeFixtures {
 
   public static PageRecord newChild(PageRecord root) {
     Integer parentId = root.id();
+    // TODO: sort this by path since it should be more accurate/stable than id
     Integer id = root.children().stream()
         .max(Comparator.comparing(TreeRecord::id))
         .map(TreeRecord::id)

@@ -28,6 +28,7 @@ public class DatabaseTree {
   // TODO: clean this up
   // TODO: this should take a Set
   public static TreeRecord createTree(List<TreeRecord> nodes) {
+    // TODO: use "lowest" path instead of id since id may not be sequential
     // find root (parent is undef)
     // if no node's parent is undef, find the lowest id and make it parent
     // not sure if that's ideal

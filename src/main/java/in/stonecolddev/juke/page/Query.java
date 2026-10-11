@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.Accessors;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -14,6 +15,8 @@ import java.util.function.Function;
 @With
 public class Query {
 
+  // TODO: Query could probably be an FSM
+  //       everything up to an end state builds upon the query
   // Usage:
   // Query query =
   //     QueryBuilder
@@ -39,6 +42,10 @@ public class Query {
   private final String where;
   private final String orderBy;
 
+  // TODO: if an insert value is provided, there must be an accompanying values set
+  private final String insert;
+  private final Map<String, String> values;
+
   @Setter(AccessLevel.NONE)
   private final String compiled;
 
@@ -58,6 +65,8 @@ public class Query {
     private final String JOIN = "join" + SPACE;
     private final String WHERE = "where" + SPACE;
     private final String ORDER_BY = "order by" + SPACE;
+    private final String INSERT = "insert into" + SPACE;
+    private final String VALUES = "values(";
 
     public Query withRecursive(
         String cteName,

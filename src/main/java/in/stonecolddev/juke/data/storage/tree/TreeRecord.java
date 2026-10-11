@@ -37,4 +37,7 @@ public interface TreeRecord {
             .map(String::valueOf)
             .collect(Collectors.joining(".")));
   }
+
+  String toSlug();
+
 }

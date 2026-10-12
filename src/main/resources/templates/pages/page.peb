@@ -15,7 +15,7 @@
             {{  renderTree(page.children) }}
         </div>
         <div id="page-info">
-            <div>authored by {{ page.author }} on {{ page.publishedOn }}</div>
+            <div>authored by {{ page.authorId }} on {{ page.publishedOn }}</div>
         </div>
         <div id="page-nav"><a href="/pages">&laquo;back to pages</a></div>
     </div>

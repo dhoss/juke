@@ -22,10 +22,10 @@ public class Query {
   //     QueryBuilder
   //       .withRecursive(
   //          "tree",
-  //          QueryBuilder.select("t.id, t.author...")
+  //          QueryBuilder.select("t.id, t.authorId...")
   //                      .from("page_trees t")
   //                      .where("t.slug = :slug"),
-  //          QueryBuilder.select("t.id, t.author...")
+  //          QueryBuilder.select("t.id, t.authorId...")
   //                      .from("page_trees t")
   //                      .join("tree on t.parentId = tree.id"),
   //          QueryBuilder.select("id, path, depth")

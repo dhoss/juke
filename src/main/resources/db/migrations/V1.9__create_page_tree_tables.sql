@@ -1,7 +1,7 @@
 create table page_trees
 (
     id           integer      not null generated always as identity primary key,
-    author       integer      not null references authors (id),
+    author_id    integer      not null references authors (id),
     title        varchar(200) not null unique,
     slug         varchar(100) not null unique,
     body         varchar      not null,
@@ -12,7 +12,7 @@ create table page_trees
     updated_on   timestamptz
 );
 
-insert into page_trees(id, author, title, slug, body, parent_id, approved, created_on, published_on)
+insert into page_trees(id, author_id, title, slug, body, parent_id, approved, created_on, published_on)
     overriding system value
 values (1, (select id from users limit 1), 'test root page', 'test-root-page', 'test root page body', null, true,
         '2026-09-06 16:14:20.231 -0600',

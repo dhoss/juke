@@ -24,7 +24,7 @@ public record PageTreeResultSet() implements TreeResultSet<PageRecord> {
     pageRecord.slug(rs.getString("slug"));
     pageRecord.title(rs.getString("title"));
     pageRecord.body(rs.getString("body"));
-    pageRecord.author(rs.getInt("author"));
+    pageRecord.authorId(rs.getInt("author_id"));
     pageRecord.path(
         new ArrayList<>(
             Arrays.asList(

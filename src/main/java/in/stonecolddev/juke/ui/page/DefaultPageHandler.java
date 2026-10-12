@@ -50,8 +50,8 @@ public class DefaultPageHandler implements PageBuilder {
     TypeMap<CreateOrEditPageForm, PageEntity> propertyMapper = this.mapper.createTypeMap(CreateOrEditPageForm.class, PageEntity.class);
     propertyMapper.addMappings(
         m -> m.using(
-            (Converter<LocalDateTime, OffsetDateTime>) l ->
-                   l.getSource().atOffset(ZoneOffset.of(clock.getZone().getRules().getOffset(Instant.now()).getId())))
+                (Converter<LocalDateTime, OffsetDateTime>) l ->
+                    l.getSource().atOffset(ZoneOffset.of(clock.getZone().getRules().getOffset(Instant.now()).getId())))
             .map(CreateOrEditPageForm::getPublishedOn, PageEntity::setPublishedOn));
   }
 
@@ -62,33 +62,33 @@ public class DefaultPageHandler implements PageBuilder {
     return Optional.ofNullable(
         mapper.map(
             namedParameterJdbcTemplate.query(
-              // TODO: pull common query pieces out and compose queries from them
-              """
-              select
-                sb.title as "sidebar_title"
-              , sb.id as "sidebar_id"
-              , sbi.id as "sidebar_item_id"
-              , sbi.sidebar_menus_id as "parent_sidebar_id"
-              , sbi.title as "sidebar_item_title"
-              , sbi.body as "sidebar_item_body"
-              , p.id as "page_id"
-              , p.published_on as "page_published_on"
-              , p.title as "page_title"
-              , p.body as "page_body"
-              , p.slug as "page_slug"
-              , a.user_name as "page_author"
-              , a.id as "author_id"
-              from pages p
-              left join sidebar_menus sb on sb.layout_id = :layoutId
-              left join sidebar_menu_items sbi on sbi.sidebar_menus_id = sb.id
-              left join authors a on a.id = p.author_id
-              where p.slug = :slug
-              and p.is_deleted = false
-              """,
-              new MapSqlParameterSource()
-                  .addValue("slug", slug)
-                  .addValue("layoutId", Integer.parseInt(configuration.get("layoutId"))),
-          new PageEntityResultSetExtractor()), Page.class
+                // TODO: pull common query pieces out and compose queries from them
+                """
+                    select
+                      sb.title as "sidebar_title"
+                    , sb.id as "sidebar_id"
+                    , sbi.id as "sidebar_item_id"
+                    , sbi.sidebar_menus_id as "parent_sidebar_id"
+                    , sbi.title as "sidebar_item_title"
+                    , sbi.body as "sidebar_item_body"
+                    , p.id as "page_id"
+                    , p.published_on as "page_published_on"
+                    , p.title as "page_title"
+                    , p.body as "page_body"
+                    , p.slug as "page_slug"
+                    , a.user_name as "page_author"
+                    , a.id as "author_id"
+                    from pages p
+                    left join sidebar_menus sb on sb.layout_id = :layoutId
+                    left join sidebar_menu_items sbi on sbi.sidebar_menus_id = sb.id
+                    left join authors a on a.id = p.author_id
+                    where p.slug = :slug
+                    and p.is_deleted = false
+                    """,
+                new MapSqlParameterSource()
+                    .addValue("slug", slug)
+                    .addValue("layoutId", Integer.parseInt(configuration.get("layoutId"))),
+                new PageEntityResultSetExtractor()), Page.class
         )
     );
   }
@@ -104,23 +104,23 @@ public class DefaultPageHandler implements PageBuilder {
         namedParameterJdbcTemplate.query(
             // TODO: pull common query pieces out and compose queries from them
             """
-            select
-              p.id as "page_id"
-            , p.title as "page_title"
-            , p.slug as "page_slug"
-            , p.is_deleted as "page_is_deleted"
-            , p.published_on as "page_published_on"
-            , p.updated_on as "page_updated_on"
-            , p.created_on as "page_created_on"
-            , a.user_name as "page_author"
-            , a.id as "author_id"
-            from pages p
-            left join authors a on a.id = p.author_id
-            order by p.published_on desc
-            """,
+                select
+                  p.id as "page_id"
+                , p.title as "page_title"
+                , p.slug as "page_slug"
+                , p.is_deleted as "page_is_deleted"
+                , p.published_on as "page_published_on"
+                , p.updated_on as "page_updated_on"
+                , p.created_on as "page_created_on"
+                , a.user_name as "page_author"
+                , a.id as "author_id"
+                from pages p
+                left join authors a on a.id = p.author_id
+                order by p.published_on desc
+                """,
             rs -> {
               List<PageEntity> pageEntities = new ArrayList<>();
-              while (rs.next()){
+              while (rs.next()) {
                 PageEntity.PageEntityBuilder pb = PageEntity.builder();
                 pb.id(rs.getInt("page_id"));
                 pb.author(
@@ -137,7 +137,8 @@ public class DefaultPageHandler implements PageBuilder {
                 pageEntities.add(pb.build());
               }
               return pageEntities;
-            }),  new TypeToken<List<Page>>(){}.getType());
+            }), new TypeToken<List<Page>>() {
+        }.getType());
   }
 
   // TODO: this should probably be a DTO
@@ -147,12 +148,12 @@ public class DefaultPageHandler implements PageBuilder {
 
     return namedParameterJdbcTemplate.query(
         """
-        select
-          c.layout_id
-        , t.tz_name
-        from configuration c
-        left join timezones t on t.id = c.timezone_id
-        """,
+            select
+              c.layout_id
+            , t.tz_name
+            from configuration c
+            left join timezones t on t.id = c.timezone_id
+            """,
         rs -> {
           Map<String, String> kv = new HashMap<>();
           while (rs.next()) {
@@ -182,41 +183,42 @@ public class DefaultPageHandler implements PageBuilder {
 
     return mapper.map(
         namedParameterJdbcTemplate.query(
-        """
-            select
-              n.id as "news_id"
-            , n.title as "news_title"
-            , n.body as "news_body"
-            , n.type as "news_type"
-            , n.created_on as "news_created_on"
-            , n.published_on as "news_published_on"
-            , a.id as "author_id"
-            , a.user_name as "author_name"
-            from news n
-            left join authors a on a.id = n.author_id
-            where n.type = :type::news_type
-            and n.published_on is not null
-            order by n.published_on desc
-            """,
-        new MapSqlParameterSource().addValue("type", type),
-        rs -> {
-          List<NewsEntity> newsRows = new ArrayList<>();
-          while (rs.next()) {
-            NewsEntity.NewsEntityBuilder newsBuilder = NewsEntity.builder();
-            newsBuilder.id(rs.getInt("news_id"))
-                .title(rs.getString("news_title"))
-                .body(rs.getString("news_body"))
-                .createdOn(rs.getObject("news_created_on", OffsetDateTime.class))
-                .publishedOn(rs.getObject("news_published_on", OffsetDateTime.class))
-                .type(rs.getString("news_type"))
-                .author(AuthorEntity.builder()
-                    .id(rs.getInt("author_id"))
-                    .userName(rs.getString("author_name"))
-                    .build());
-            newsRows.add(newsBuilder.build());
-          }
-          return newsRows;
-        }), new TypeToken<List<News>>(){}.getType());
+            """
+                select
+                  n.id as "news_id"
+                , n.title as "news_title"
+                , n.body as "news_body"
+                , n.type as "news_type"
+                , n.created_on as "news_created_on"
+                , n.published_on as "news_published_on"
+                , a.id as "author_id"
+                , a.user_name as "author_name"
+                from news n
+                left join authors a on a.id = n.author_id
+                where n.type = :type::news_type
+                and n.published_on is not null
+                order by n.published_on desc
+                """,
+            new MapSqlParameterSource().addValue("type", type),
+            rs -> {
+              List<NewsEntity> newsRows = new ArrayList<>();
+              while (rs.next()) {
+                NewsEntity.NewsEntityBuilder newsBuilder = NewsEntity.builder();
+                newsBuilder.id(rs.getInt("news_id"))
+                    .title(rs.getString("news_title"))
+                    .body(rs.getString("news_body"))
+                    .createdOn(rs.getObject("news_created_on", OffsetDateTime.class))
+                    .publishedOn(rs.getObject("news_published_on", OffsetDateTime.class))
+                    .type(rs.getString("news_type"))
+                    .author(AuthorEntity.builder()
+                        .id(rs.getInt("author_id"))
+                        .userName(rs.getString("author_name"))
+                        .build());
+                newsRows.add(newsBuilder.build());
+              }
+              return newsRows;
+            }), new TypeToken<List<News>>() {
+        }.getType());
 
   }
 
@@ -290,20 +292,20 @@ public class DefaultPageHandler implements PageBuilder {
 
     page.slug(pageForm.getSlug());
 
-    // TODO: page author needs to come from session information
+    // TODO: page authorId needs to come from session information
     page.author(
         namedParameterJdbcTemplate.getJdbcTemplate().query(
-        "select id, user_name, email from authors where email = 'devin.austin@gmail.com'",
-        rs -> {
-          var author = AuthorEntity.builder();
-          while (rs.next()) {
-            author
-                .id(rs.getInt("id"))
-                .userName(rs.getString("user_name"))
-                .email(rs.getString("email"));
-          }
-          return author.build();
-        })
+            "select id, user_name, email from authors where email = 'devin.austin@gmail.com'",
+            rs -> {
+              var author = AuthorEntity.builder();
+              while (rs.next()) {
+                author
+                    .id(rs.getInt("id"))
+                    .userName(rs.getString("user_name"))
+                    .email(rs.getString("email"));
+              }
+              return author.build();
+            })
     );
 
     return page;

@@ -18,10 +18,10 @@ public class PageTreeConfiguration {
     return DatabaseTreeConfigurationBuilder.builder()
         .idColumn("id")
         .treeTableAlias("p")
-        .queryParameters(Map.of("author", "devin"))
+        .queryParameters(Map.of("authorId", "devin"))
         .anchorQueryColumnSet(
             Set.of(
-                "author",
+                "authorId",
                 "title",
                 "body",
                 "approved",

@@ -14,7 +14,7 @@ import static org.apache.commons.codec.digest.MurmurHash3.hash32x86;
 @RecordBuilder
 public record PageRecord(
     Integer id,
-    Integer author,
+    Integer authorId,
     String title,
     String slug,
     String body,
@@ -46,7 +46,7 @@ public record PageRecord(
 
   public Map<String, ?> valueMap() {
     Map<String, Object> valueMap = new HashMap<>(Map.of(
-        "author", author,
+        "author_id", authorId,
         "title", title,
         "slug", toSlug(), //slug,
         "body", body,

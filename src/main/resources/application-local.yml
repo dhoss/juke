@@ -2,11 +2,9 @@ spring:
   config:
     activate:
       on-profile: local
-  pebble:
-    cache: false
   devtools:
     restart:
-      additional-paths: file:src/main/resources/static/css/
+      additional-paths: file:src/main/resources/static/css/, file:src/main/resources/templates/
   application:
     name: juke
   datasource:
@@ -19,6 +17,8 @@ spring:
       password: juke
   flyway:
     enabled: false
+pebble:
+  cache: false
 logging:
   level:
     in.stonecolddev: DEBUG

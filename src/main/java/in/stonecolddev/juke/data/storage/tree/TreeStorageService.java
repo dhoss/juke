@@ -35,6 +35,10 @@ public class TreeStorageService<T extends TreeRecord> {
     this.treeResultSet = treeResultSet;
   }
 
+  public Optional<TreeRecord> find(TreeRecord tree) {
+    return find(tree.slug());
+  }
+
   // TODO: make this take a TreeRecord instead of a String
   public Optional<TreeRecord> find(String slug) {
 
@@ -235,7 +239,7 @@ public class TreeStorageService<T extends TreeRecord> {
     );
   }
 
-  // TODO: retrieve a tree's ancestor's
+  // TODO: retrieve a tree's ancestors
   public TreeRecord create(TreeRecord tree) {
     // TODO: GET RID OF THIS
     ST queryTemplate = new ST(

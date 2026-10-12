@@ -1,7 +1,23 @@
-{% extends "fragments/layout" %}
-{% block body %}
-<!-- begin page body -->
-<div id="page-body">{{ page.body | raw }}</div>
-<!-- end page body -->
-{% endblock %}
+    {% extends "fragments/layout" %}
+        {% import "macros/tree" %}
+    {% block body %}
+    <div id="page-container">
+        <div id="page-title">
+            <h2>{{ page.title }}</h2>
+        </div>
+        <!-- begin page body -->
+        <div id="page-body">
+                {{ page.body | raw }}
+        </div>
+        <!-- end page body -->
+        <div id="page-children">
+            <h3>Child pages:</h3>
+            {{  renderTree(page.children) }}
+        </div>
+        <div id="page-info">
+            <div>authored by {{ page.author }} on {{ page.publishedOn }}</div>
+        </div>
+        <div id="page-nav"><a href="/pages">&laquo;back to pages</a></div>
+    </div>
+    {% endblock %}
 

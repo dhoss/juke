@@ -29,12 +29,12 @@ public class DatabaseTree {
   // TODO: this should take a Set
   public static TreeRecord createTree(List<TreeRecord> nodes) {
     // TODO: use "lowest" path instead of id since id may not be sequential
-    // find root (parent is undef)
-    // if no node's parent is undef, find the lowest id and make it parent
+    // find root (parentId is undef)
+    // if no node's parentId is undef, find the lowest id and make it parentId
     // not sure if that's ideal
     TreeRecord root =
         nodes.stream()
-            .filter(node -> node.parent().isEmpty())
+            .filter(node -> node.parentId().isEmpty())
             .findFirst()
             .orElseGet(
                 () ->
@@ -44,14 +44,14 @@ public class DatabaseTree {
 
     for (TreeRecord node : nodes) {
 
-      if (node.parent().isPresent() && !node.id().equals(root.id())) {
+      if (node.parentId().isPresent() && !node.id().equals(root.id())) {
         nodes.stream()
             .filter(
                 parentNode -> parentNode.id().equals(
-                    node.parent().orElseThrow(
+                    node.parentId().orElseThrow(
                         () -> new RuntimeException("Parent of node doesn't exist but we really shouldn't get here"))))
             .findFirst()
-            .orElseThrow(() -> new RuntimeException("No such parent for node"))
+            .orElseThrow(() -> new RuntimeException("No such parentId for node"))
             .addChild(node);
       }
     }

@@ -51,7 +51,7 @@ public class TreeStorageService<T extends TreeRecord> {
                     .select(
                         List.of(
                             "t.id",
-                            "t.parent",
+                            "t.parent_id",
                             "t.approved",
                             "t.created_on",
                             "t.author",
@@ -69,7 +69,7 @@ public class TreeStorageService<T extends TreeRecord> {
                     .select(
                         List.of(
                             "t.id",
-                            "t.parent",
+                            "t.parent_id",
                             "t.approved",
                             "t.created_on",
                             "t.author",
@@ -82,12 +82,12 @@ public class TreeStorageService<T extends TreeRecord> {
                         )
                     )
                     .from("page_trees t")
-                    .join("tree on t.parent = tree.id"),
+                    .join("tree on t.parent_id = tree.id"),
                 Query.builder()
                     .select(
                         List.of(
                             "id",
-                            "parent",
+                            "parent_id",
                             "approved",
                             "created_on",
                             "author",
@@ -118,7 +118,7 @@ public class TreeStorageService<T extends TreeRecord> {
                     .select(
                         List.of(
                             "t.id",
-                            "t.parent",
+                            "t.parent_id",
                             "t.approved",
                             "t.created_on",
                             "t.author",
@@ -131,12 +131,12 @@ public class TreeStorageService<T extends TreeRecord> {
                         )
                     )
                     .from("page_trees t")
-                    .where("t.parent is null"),
+                    .where("t.parent_id is null"),
                 Query.builder()
                     .select(
                         List.of(
                             "t.id",
-                            "t.parent",
+                            "t.parent_id",
                             "t.approved",
                             "t.created_on",
                             "t.author",
@@ -149,12 +149,12 @@ public class TreeStorageService<T extends TreeRecord> {
                         )
                     )
                     .from("page_trees t")
-                    .join("tree on t.parent = tree.id"),
+                    .join("tree on t.parent_id = tree.id"),
                 Query.builder()
                     .select(
                         List.of(
                             "id",
-                            "parent",
+                            "parent_id",
                             "approved",
                             "created_on",
                             "author",
@@ -183,7 +183,7 @@ public class TreeStorageService<T extends TreeRecord> {
                     .select(
                         List.of(
                             "t.id",
-                            "t.parent",
+                            "t.parent_id",
                             "t.approved",
                             "t.created_on",
                             "t.author",
@@ -201,7 +201,7 @@ public class TreeStorageService<T extends TreeRecord> {
                     .select(
                         List.of(
                             "t.id",
-                            "t.parent",
+                            "t.parent_id",
                             "t.approved",
                             "t.created_on",
                             "t.author",
@@ -214,12 +214,12 @@ public class TreeStorageService<T extends TreeRecord> {
                         )
                     )
                     .from("page_trees t")
-                    .join("tree on t.id = tree.parent"),
+                    .join("tree on t.id = tree.parent_id"),
                 Query.builder()
                     .select(
                         List.of(
                             "id",
-                            "parent",
+                            "parent_id",
                             "approved",
                             "created_on",
                             "author",
@@ -291,10 +291,10 @@ public class TreeStorageService<T extends TreeRecord> {
 
   // TODO: wrap this in a transaction
   public TreeRecord addChild(TreeRecord parent, TreeRecord child) {
-    log.info("adding child {} to parent {}", child.slug(), parent.slug());
+    log.info("adding child {} to parentId {}", child.slug(), parent.slug());
     create(child.reparent(parent));
     return find(parent.slug()).orElseThrow(
-        () -> new RuntimeException("Can't find parent of child we just created for some reason"));
+        () -> new RuntimeException("Can't find parentId of child we just created for some reason"));
   }
 
 }

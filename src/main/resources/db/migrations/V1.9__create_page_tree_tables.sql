@@ -5,14 +5,14 @@ create table page_trees
     title        varchar(200) not null unique,
     slug         varchar(100) not null unique,
     body         varchar      not null,
-    parent       integer references page_trees (id),
+    parent_id    integer references page_trees (id),
     approved     boolean default false,
     created_on   timestamptz  not null,
     published_on timestamptz,
     updated_on   timestamptz
 );
 
-insert into page_trees(id, author, title, slug, body, parent, approved, created_on, published_on)
+insert into page_trees(id, author, title, slug, body, parent_id, approved, created_on, published_on)
     overriding system value
 values (1, (select id from users limit 1), 'test root page', 'test-root-page', 'test root page body', null, true,
         '2026-09-06 16:14:20.231 -0600',

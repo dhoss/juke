@@ -27,7 +27,7 @@ public class Query {
   //                      .where("t.slug = :slug"),
   //          QueryBuilder.select("t.id, t.author...")
   //                      .from("page_trees t")
-  //                      .join("tree on t.parent = tree.id"),
+  //                      .join("tree on t.parentId = tree.id"),
   //          QueryBuilder.select("id, path, depth")
   //                       .from("tree")
   //                       .orderBy("path")

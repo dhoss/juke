@@ -18,9 +18,10 @@ public record PageRecord(
     String title,
     String slug,
     String body,
-    Optional<Integer> parent,
+    Optional<Integer> parentId,
+    Optional<TreeRecord> parent,
     Set<TreeRecord> children,
-    Set<Integer> ancestors,
+    Set<Integer> ancestorIds,
     List<Integer> path,
     Integer depth,
     Boolean approved,
@@ -36,7 +37,7 @@ public record PageRecord(
   }
 
   public PageRecord reparent(TreeRecord parent) {
-    return this.withParent(Optional.of(parent.id()));
+    return this.withParentId(Optional.of(parent.id()));
   }
 
   public String slug() {
@@ -53,7 +54,7 @@ public record PageRecord(
         "published_on", publishedOn,
         "created_on", Optional.ofNullable(createdOn).orElseGet(OffsetDateTime::now)
     ));
-    parent.ifPresent(integer -> valueMap.put("parent", integer));
+    parentId.ifPresent(integer -> valueMap.put("parentId", integer));
     return valueMap;
   }
 

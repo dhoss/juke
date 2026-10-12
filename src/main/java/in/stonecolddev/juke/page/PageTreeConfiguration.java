@@ -27,9 +27,9 @@ public class PageTreeConfiguration {
                 "approved",
                 "created_on",
                 "published_on",
-                "parent"))
+                "parentId"))
         .treeTable("page_trees")
-        .parentColumn("parent")
+        .parentColumn("parentId")
         .remainingCteQueryColumnsSet(Set.of("author_id", "email"))
         .whereColumn("slug")
         .build();

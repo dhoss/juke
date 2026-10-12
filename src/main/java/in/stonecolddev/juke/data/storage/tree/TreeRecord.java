@@ -16,13 +16,15 @@ public interface TreeRecord {
 
   String slug();
 
-  Optional<Integer> parent();
+  Optional<Integer> parentId();
+
+  Optional<TreeRecord> parent();
 
   TreeRecord reparent(TreeRecord parent);
 
   Set<TreeRecord> children();
 
-  Set<Integer> ancestors();
+  Set<Integer> ancestorIds();
 
   List<Integer> path();
 

@@ -42,9 +42,9 @@ public record PageTreeResultSet() implements TreeResultSet<PageRecord> {
     // TODO: populate ancestor ids
 
     // rs.getInt(...) will return 0 if the column value is null so we have to do this
-    int parentId = rs.getInt("parent");
+    int parentId = rs.getInt("parent_id");
     if (parentId != 0) {
-      pageRecord.parent(Optional.of(parentId));
+      pageRecord.parentId(Optional.of(parentId));
     }
 
     return pageRecord.build();

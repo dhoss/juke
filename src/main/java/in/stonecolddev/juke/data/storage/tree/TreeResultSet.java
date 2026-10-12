@@ -33,12 +33,12 @@ public interface TreeResultSet<T extends TreeRecord> {
       ////////////////////////////////////////////
 
       for (TreeRecord node : nodes) {
-        nodeToParentMap.put(node.id(), node.parent());
+        nodeToParentMap.put(node.id(), node.parentId());
       }
 
       Integer currentRoot = 0;
       for (TreeRecord node : nodes) {
-        if (node.parent().isEmpty()) {
+        if (node.parentId().isEmpty()) {
           currentRoot = node.id();
           treeListPartitions.put(currentRoot, new HashSet<>(Set.of(node)));
         }

@@ -107,7 +107,22 @@ public class TreeStorageService<T extends TreeRecord> {
     return mapping;
   }
 
+  private Optional<TreeRecord> findRootBySlug(String slug) {
+    return find(
+        nodeInfoMap.get(
+                findRootId(
+                    nodeInfoMapSlugIndexed.get(slug).id(),
+                    nodeToParentMap()))
+            .slug());
+  }
+
   private TreeRecord findRootNodeInCache(String slug) {
+    if (treeCache.isEmpty()) {
+      TreeRecord root = findRootBySlug(slug).orElseThrow(
+          () -> new RuntimeException("Can't find root node for child " + slug));
+      treeCache.put(root.slug(), root);
+    }
+
     return treeCache.values()
         .stream()
         .filter(e ->

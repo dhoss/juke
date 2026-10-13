@@ -28,8 +28,7 @@ public record PageTreeResultSet() implements TreeResultSet<PageRecord> {
     pageRecord.path(
         new ArrayList<>(
             Arrays.asList(
-                (Integer[]) rs.getArray("path")
-                    .getArray())));
+                (Integer[]) rs.getArray("path").getArray())));
     pageRecord.depth(rs.getInt("depth"));
     pageRecord.approved(rs.getBoolean("approved"));
     pageRecord.createdOn(
@@ -39,7 +38,6 @@ public record PageTreeResultSet() implements TreeResultSet<PageRecord> {
         rs.getObject("published_on", OffsetDateTime.class)
             .truncatedTo(ChronoUnit.SECONDS));
 
-    // TODO: populate ancestor ids
 
     // rs.getInt(...) will return 0 if the column value is null so we have to do this
     int parentId = rs.getInt("parent_id");

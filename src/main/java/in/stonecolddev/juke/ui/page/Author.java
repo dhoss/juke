@@ -3,6 +3,7 @@ package in.stonecolddev.juke.ui.page;
 import lombok.*;
 import lombok.experimental.Accessors;
 
+@Deprecated
 @Data
 @Builder
 @NoArgsConstructor // for modelmapper

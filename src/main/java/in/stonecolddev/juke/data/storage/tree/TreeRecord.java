@@ -24,7 +24,9 @@ public interface TreeRecord {
 
   Set<TreeRecord> children();
 
-  Set<Integer> ancestorIds();
+  List<Integer> ancestorIds();
+
+  Set<TreeRecord> ancestors();
 
   List<Integer> path();
 

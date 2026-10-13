@@ -75,6 +75,7 @@ public class Query {
         QueryBuilder aggregate) {
 
       cteName = cteName + SPACE;
+      // I guess this is ok for cases like with recursive
       this.compiled =
           WITH_RECURSIVE +
               cteName +
@@ -87,6 +88,13 @@ public class Query {
               constructSelectQueryPart(aggregate);
 
       return this.build();
+    }
+
+    public String compiled() {
+      // TODO: inserts etc
+      if (!this.select.isEmpty())
+        this.compiled = constructSelectQueryPart(this);
+      return this.build().compiled();
     }
 
     private String constructSelectQueryPart(QueryBuilder qb) {

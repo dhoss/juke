@@ -19,7 +19,7 @@ public class TreeFixtures {
 
   public static final PageRecord root = PageRecordBuilder.builder()
       .id(1)
-      .author(1)
+      .authorId(1)
       .title("test root page")
       .slug("test-root-page")
       .body("test root page body")
@@ -32,7 +32,7 @@ public class TreeFixtures {
 
   public static final PageRecord firstChild = PageRecordBuilder.builder()
       .id(2)
-      .author(1)
+      .authorId(1)
       .title("test root page first child page")
       .slug("test-root-page-first-child-page")
       .body("test root page first child page body")
@@ -46,7 +46,7 @@ public class TreeFixtures {
 
   public static final PageRecord firstChildFirstChild = PageRecordBuilder.builder()
       .id(3)
-      .author(1)
+      .authorId(1)
       .title("test root page first child page first child")
       .slug("test-root-page-first-child-page-first-child")
       .body("test root page first child page body first child")
@@ -60,7 +60,7 @@ public class TreeFixtures {
 
   public static final PageRecord firstChildSecondChild = PageRecordBuilder.builder()
       .id(4)
-      .author(1)
+      .authorId(1)
       .title("test root page first child page second child")
       .slug("test-root-page-first-child-page-second-child")
       .body("test root page first child page body second child")

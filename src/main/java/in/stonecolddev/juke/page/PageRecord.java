@@ -2,12 +2,14 @@ package in.stonecolddev.juke.page;
 
 import com.github.slugify.Slugify;
 import in.stonecolddev.juke.data.storage.tree.TreeRecord;
+import in.stonecolddev.juke.user.JukeUser;
 import io.soabase.recordbuilder.core.RecordBuilder;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.codec.digest.MurmurHash3.hash32x86;
 
@@ -15,13 +17,15 @@ import static org.apache.commons.codec.digest.MurmurHash3.hash32x86;
 public record PageRecord(
     Integer id,
     Integer authorId,
+    JukeUser author,
     String title,
     String slug,
     String body,
     Optional<Integer> parentId,
     Optional<TreeRecord> parent,
     Set<TreeRecord> children,
-    Set<Integer> ancestorIds,
+    List<Integer> ancestorIds,
+    Set<TreeRecord> ancestors,
     List<Integer> path,
     Integer depth,
     Boolean approved,
@@ -42,6 +46,17 @@ public record PageRecord(
 
   public String slug() {
     return Optional.ofNullable(slug).orElseGet(this::toSlug);
+  }
+
+  public List<Integer> ancestorIds() {
+    System.out.println("**** ANCESTORS FROM PATH " + path());
+    return Optional.ofNullable(path())
+        .map(a ->
+            a.stream()
+                .peek(p -> System.out.println("**** ANCESTOR ID " + p))
+                .filter(id -> !id.equals(id()))
+                .collect(Collectors.toList()))
+        .orElseGet(List::of);
   }
 
   public Map<String, ?> valueMap() {

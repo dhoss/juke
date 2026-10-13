@@ -4,6 +4,16 @@
     <div id="page-container">
         <div id="page-title">
             <h2>{{ page.title }}</h2>
+            <h3>Ancestors:</h3>
+            path:
+            {{ page.path }}
+            {% for p in page.path %}
+            {{ p }}
+            {% endfor %}
+            ancestor ids:
+            {%  for ancestorId in page.ancestorIds %}
+                <div>{{ ancestorId }}</div>
+            {% endfor %}
         </div>
         <!-- begin page body -->
         <div id="page-body">

@@ -35,9 +35,12 @@ public class TreeStorageServiceIntegrationTest extends AbstractDatabaseTest {
   @Test
   public void find() {
 
-    // TODO: unhappy path tests
+    // TODO: test retrieving children, sub-children
     assertEquals(
         Optional.of(fullTree), treeStorageService.find(fullTree.slug()));
+
+    TreeRecord firstChild = fullTree.children().stream().findFirst().get();
+    assertEquals(Optional.of(firstChild), treeStorageService.find(firstChild.slug()));
 
   }
 

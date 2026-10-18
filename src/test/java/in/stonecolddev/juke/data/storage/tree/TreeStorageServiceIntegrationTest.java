@@ -48,6 +48,7 @@ public class TreeStorageServiceIntegrationTest extends AbstractDatabaseTest {
 
   @Test
   public void create() {
+    // TODO: test creating a full tree with children, children-children
     PageRecord newTree = newTreeRoot();
     assertEquals(newTree, treeStorageService.create(newTree));
   }
@@ -56,6 +57,7 @@ public class TreeStorageServiceIntegrationTest extends AbstractDatabaseTest {
   public void addChild() {
     PageRecord newTree = newTreeRoot();
     newTree = (PageRecord) treeStorageService.create(newTree);
+    System.out.println("**** NEW TREE IN ADDCHILD TEST " + newTree.slug());
     PageRecord childNode = newChild(newTree);
     // TODO: add test in create() to create tree with children
     assertEquals(

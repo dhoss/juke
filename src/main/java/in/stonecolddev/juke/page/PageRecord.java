@@ -34,6 +34,7 @@ public record PageRecord(
 
   public PageRecord {
     children = Optional.ofNullable(children).orElseGet(HashSet::new);
+    ancestorIds = Optional.ofNullable(ancestorIds).orElseGet(ArrayList::new);
   }
 
   public void addChild(TreeRecord child) {
@@ -48,15 +49,17 @@ public record PageRecord(
     return Optional.ofNullable(slug).orElseGet(this::toSlug);
   }
 
+  // TODO: memoize this
   public List<Integer> ancestorIds() {
     System.out.println("**** ANCESTORS FROM PATH " + path());
-    return Optional.ofNullable(path())
+    return Optional.ofNullable(ancestorIds)
+        .or(() -> Optional.ofNullable(path))
         .map(a ->
             a.stream()
                 .peek(p -> System.out.println("**** ANCESTOR ID " + p))
                 .filter(id -> !id.equals(id()))
                 .collect(Collectors.toList()))
-        .orElseGet(List::of);
+        .orElseGet(ArrayList::new);
   }
 
   public Map<String, ?> valueMap() {
@@ -69,7 +72,7 @@ public record PageRecord(
         "published_on", publishedOn,
         "created_on", Optional.ofNullable(createdOn).orElseGet(OffsetDateTime::now)
     ));
-    parentId.ifPresent(integer -> valueMap.put("parentId", integer));
+    parentId.ifPresent(integer -> valueMap.put("parent_id", integer));
     return valueMap;
   }
 

@@ -51,8 +51,8 @@ public class Query {
 
   public static class QueryBuilder {
 
-    // TODO: I would like this to be a fluent api at some point
-    //       e.g.
+    // TODO: I would like this to be a fluent api or DSL at some point
+    //       e.g. SELECT(what).FROM(where).JOIN(what).ON(what).WHERE(where).ORDER_BY(what)
     private final String NEW_LINE = " \n ";
     private final String SPACE = " ";
     private final String OPEN_PAREN = "(";
@@ -65,8 +65,8 @@ public class Query {
     private final String JOIN = "join" + SPACE;
     private final String WHERE = "where" + SPACE;
     private final String ORDER_BY = "order by" + SPACE;
-    private final String INSERT = "insert into" + SPACE;
-    private final String VALUES = "values(";
+    private final String INSERT_INTO = "insert into" + SPACE;
+    private final String VALUES = "values";
 
     public Query withRecursive(
         String cteName,
@@ -80,24 +80,48 @@ public class Query {
           WITH_RECURSIVE +
               cteName +
               AS +
-              constructSelectQueryPart(anchor) +
+              constructSelect(anchor) +
               UNION_ALL +
-              constructSelectQueryPart(recursive) +
+              constructSelect(recursive) +
               CLOSE_PAREN +
               NEW_LINE +
-              constructSelectQueryPart(aggregate);
+              constructSelect(aggregate);
 
       return this.build();
     }
 
-    public String compiled() {
-      // TODO: inserts etc
+    public String compile() {
+      String compiled = "";
+
+      //TODO: use a switch here
       if (!this.select.isEmpty())
-        this.compiled = constructSelectQueryPart(this);
+        compiled = constructSelect(this);
+
+      // if (!this.insert.isEmpty())
+      //   compiled = constructInsert(this);
+
+      this.compiled = compiled;
+      // TODO: check if compiled is blank string here
       return this.build().compiled();
     }
 
-    private String constructSelectQueryPart(QueryBuilder qb) {
+    private String constructInsert(QueryBuilder qb) {
+      return
+          INSERT_INTO +
+              qb.insert +
+              OPEN_PAREN +
+              // TODO: check for empty stuff here
+              String.join(",", qb.values.keySet()) +
+              CLOSE_PAREN +
+              NEW_LINE +
+              VALUES +
+              OPEN_PAREN +
+              // TODO: check for empty stuff here
+              String.join(",", qb.values.values()) +
+              CLOSE_PAREN;
+    }
+
+    private String constructSelect(QueryBuilder qb) {
       return
           SELECT +
               Optional.ofNullable(qb.select)

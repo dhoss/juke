@@ -13,6 +13,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static in.stonecolddev.juke.data.storage.tree.TreeFixtures.*;
 import static in.stonecolddev.juke.util.Fixtures.Database.startDatabase;
@@ -42,6 +43,10 @@ public class TreeStorageServiceIntegrationTest extends AbstractDatabaseTest {
     TreeRecord firstChild = fullTree.children().stream().findFirst().get();
     assertEquals(Optional.of(firstChild), treeStorageService.find(firstChild.slug()));
 
+    // TODO: make this pass
+    TreeRecord subChild = firstChild.children().stream().toList().getLast();
+    System.out.println("**** SUBCHILDREN " + firstChild.children().stream().map(c -> c.slug()).collect(Collectors.joining(",")));
+    assertEquals(Optional.of(subChild), treeStorageService.find(subChild.slug()));
   }
 
   // TODO: implement test for listTrees

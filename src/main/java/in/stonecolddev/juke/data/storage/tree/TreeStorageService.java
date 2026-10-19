@@ -1,5 +1,6 @@
 package in.stonecolddev.juke.data.storage.tree;
 
+import com.github.benmanes.caffeine.cache.CacheLoader;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import in.stonecolddev.juke.page.Query;
@@ -23,7 +24,6 @@ import static in.stonecolddev.juke.data.storage.tree.DatabaseTree.findRootId;
 // TODO: rename this
 public class TreeStorageService<T extends TreeRecord> {
 
-
   // TODO: CLEANUP
 
   private final NamedParameterJdbcTemplate jdbcTemplate;
@@ -32,13 +32,7 @@ public class TreeStorageService<T extends TreeRecord> {
 
   private final TreeResultSet<T> treeResultSet;
 
-  // private final Map<Integer, NodeInfo> nodeInfoMap;
-  // private final Map<String, NodeInfo> nodeInfoMapSlugIndexed;
-
   private final Map<String, TreeRecord> treeCache = new HashMap<>();
-
-  private final Map<Integer, Optional<Integer>> nodeToParentMapping = new HashMap<>();
-  private final Map<String, NodeInfo> nodeToParentMappingBySlug = new HashMap<>();
 
   private final LoadingCache<String, TreeRecord> treeCacheCaffeine;
 
@@ -62,73 +56,81 @@ public class TreeStorageService<T extends TreeRecord> {
     this.jdbcTemplate = jdbcTemplate;
     this.transactionTemplate = transactionTemplate;
     this.treeResultSet = treeResultSet;
-    //   this.nodeInfoMap = loadNodeToParentMapping();
-    //   this.nodeInfoMapSlugIndexed = mapNodeToParentMappingBySlug();
 
     // TODO: we need a cache wrapper
 
     // TODO: move common code to method
     this.nodeInfoCacheCaffeine =
-        Caffeine.newBuilder().build(this::findNodeInfoById);
-    this.nodeInfoCacheSlugIndexCaffeine = Caffeine.newBuilder().build(this::findNodeInfoBySlug);
+        Caffeine.newBuilder().build(
+            CacheLoader.bulk(
+                keys -> {
+                  Map<Integer, NodeInfo> nodes = new HashMap<>();
+                  for (Integer id : keys) {
+                    nodes.put(id, findNodeInfoById(id));
+                  }
+                  return nodes;
+                }
+            )
+        );
+    this.nodeInfoCacheSlugIndexCaffeine =
+        Caffeine.newBuilder().build(
+            CacheLoader.bulk(
+                keys -> {
+                  Map<String, NodeInfo> nodes = new HashMap<>();
+                  for (String slug : keys) {
+                    nodes.put(slug, findNodeInfoBySlug(slug));
+                  }
+                  return nodes;
+                }
+            )
+        );
     this.nodeToParentMappingCaffeine =
-        Caffeine.newBuilder().build(key -> findNodeInfoById(key).parentId());
+        Caffeine.newBuilder()
+            .build(
+                CacheLoader.bulk(
+                    keys -> {
+                      Map<Integer, Optional<Integer>> parentMapping = new HashMap<>();
+
+                      for (Integer id : keys) {
+                        parentMapping.put(id, findNodeInfoById(id).parentId());
+                      }
+
+                      return parentMapping;
+                    }));
 
     // TODO: move common code to method
     this.rootNodeCache =
-        Caffeine.newBuilder().build(key -> findNodeInfoBySlug(key).parentId().isEmpty());
-
-    // refreshNodeInfoCachesCaffeine();
+        Caffeine.newBuilder()
+            .build(key -> findNodeInfoBySlug(key).parentId().isEmpty());
 
     this.treeCacheCaffeine =
         Caffeine.newBuilder()
             .build(
-                key ->
-                    findInDbBySlug(key)
-                        .orElseThrow(() -> new RuntimeException("No such tree with slug " + key)));
+                CacheLoader.bulk(
+                    keys -> {
+                      Map<String, TreeRecord> trees = new HashMap<>();
+                      for (String key : keys) {
+                        trees.put(key, findInDbBySlug(key)
+                            .orElseThrow(
+                                () -> new RuntimeException(
+                                    "No such tree with slug " + key)));
+                      }
+                      return trees;
+
+                    }));
 
   }
-
-//  private void refreshNodeInfoCachesCaffeine() {
-//    nodeInfoCacheCaffeine.putAll(loadNodeToParentMapping());
-//    nodeToParentMappingCaffeine.putAll(nodeToParentMap());
-//    nodeInfoCacheSlugIndexCaffeine.putAll(mapNodeToParentMappingBySlug());
-//  }
 
   // we want to track a few things about our node relationships
   // for certain cases that don't warrant building out or retrieving full TreeRecords
   record NodeInfo(Integer id, Optional<Integer> parentId, String slug) {
   }
 
-  // TODO: move common functionality to single method
-  private Map<Integer, Optional<Integer>> nodeToParentMap() {
-    // nodeInfoMap.forEach(
-    //     (key, value) -> nodeToParentMapping.putIfAbsent(key, value.parentId()));
-    // return nodeToParentMapping;
-    // TODO: deal with nulls
-    // TODO: make this a loader
-    nodeInfoCacheCaffeine.asMap().forEach(
-        (key, value) ->
-            nodeToParentMappingCaffeine.asMap()
-                .putIfAbsent(key, value.parentId()));
-
-    return nodeToParentMappingCaffeine.asMap();
-  }
-
-  private Map<String, NodeInfo> mapNodeToParentMappingBySlug() {
-    // this.nodeInfoMap.forEach(
-    //     (_, value) -> nodeToParentMappingBySlug.putIfAbsent(value.slug, value));
-    // return nodeToParentMappingBySlug;
-    // TODO: deal with nulls
-    nodeInfoCacheCaffeine.asMap().forEach(
-        (_, value) -> nodeInfoCacheSlugIndexCaffeine.asMap().putIfAbsent(value.slug, value));
-    return nodeInfoCacheSlugIndexCaffeine.asMap();
-  }
-
   // TODO: move common code
   private NodeInfo findNodeInfoById(Integer id) {
     // load a simple mapping of a node's id to its parent's id and its slug
     // this allows for a simple cache look up for child nodes instead of the rigamarole of db calls every time
+    log.info("Loading node info for id {}", id);
     return jdbcTemplate.queryForObject(
         Query.builder()
             .select(List.of("id", "parent_id", "slug"))
@@ -136,7 +138,7 @@ public class TreeStorageService<T extends TreeRecord> {
             .where("id = :id")
             .compile(),
         new MapSqlParameterSource().addValue("id", id),
-        (rs, rowNum) ->
+        (rs, _) ->
             new NodeInfo(
                 rs.getInt("id"),
                 // TODO: move this to common method
@@ -149,6 +151,7 @@ public class TreeStorageService<T extends TreeRecord> {
   private NodeInfo findNodeInfoBySlug(String slug) {
     // load a simple mapping of a node's id to its parent's id and its slug
     // this allows for a simple cache look up for child nodes instead of the rigamarole of db calls every time
+    log.info("Loading node info for slug {}", slug);
     return jdbcTemplate.queryForObject(
         Query.builder()
             .select(List.of("id", "parent_id", "slug"))
@@ -156,7 +159,7 @@ public class TreeStorageService<T extends TreeRecord> {
             .where("slug = :slug")
             .compile(),
         new MapSqlParameterSource().addValue("slug", slug),
-        (rs, rowNum) ->
+        (rs, _) ->
             new NodeInfo(
                 rs.getInt("id"),
                 // TODO: move this to common method
@@ -165,46 +168,15 @@ public class TreeStorageService<T extends TreeRecord> {
                 rs.getString("slug")));
   }
 
-  // TODO: tests
-  private Map<Integer, NodeInfo> loadNodeToParentMapping() {
-    // load a simple mapping of a node's id to its parent's id and its slug
-    // this allows for a simple cache look up for child nodes instead of the rigamarole of db calls every time
-    return jdbcTemplate.query(
-        Query.builder()
-            .select(List.of("id", "parent_id", "slug"))
-            .from("page_trees")
-            .compile(),
-        (rs) -> {
-          Map<Integer, NodeInfo> mapping = new HashMap<>();
-          while (rs.next()) {
-            int id = rs.getInt("id");
-            int parentId = rs.getInt("parent_id");
-            mapping.put(
-                id,
-                new NodeInfo(
-                    id,
-                    // TODO: move this to common method
-                    Optional.ofNullable(parentId != 0 ? parentId : null),
-                    rs.getString("slug")));
-          }
-
-          return mapping;
-        }
-    );
-  }
-
   public Optional<TreeRecord> find(TreeRecord tree) {
     return find(tree.slug());
   }
 
   private boolean isRootNode(String slug) {
-    //return Optional.ofNullable(nodeInfoMapSlugIndexed.get(slug))
-    //    .filter(n -> n.parentId().isEmpty())
-    //    .isPresent();
     // TODO: move common code to method
-    return rootNodeCache.get(slug, key -> findNodeInfoBySlug(key).parentId().isEmpty());
+    return rootNodeCache.get(
+        slug, key -> findNodeInfoBySlug(key).parentId().isEmpty());
   }
-
 
   private Optional<TreeRecord> findNode(String slug) {
     return Optional.of(
@@ -216,75 +188,51 @@ public class TreeStorageService<T extends TreeRecord> {
                         "Can't find node by slug " + slug + " to populate in tree cache"))));
   }
 
-
   // TODO: this sucks rewrite it
   private Optional<TreeRecord> findRootBySlug(String slug) {
-    //return find(
-    //    nodeInfoMap.get(
-    //            // TODO: we should probably handle this being null
-    //            findRootId(
-    //                nodeInfoMapSlugIndexed.get(slug).id(), nodeToParentMap()))
-    //        .slug());
-    // TODO: move this to a common method
-    //return Optional.ofNullable(
-    //    treeCacheCaffeine.get(
-    //        nodeInfoCacheCaffeine.get(
-    //            findRootId(
-    //                nodeInfoCacheSlugIndexCaffeine.get(
-    //                    slug, this::findNodeInfoBySlug).id(),
-    //                nodeToParentMappingCaffeine.asMap()),
-    //            this::findNodeInfoById
-    //        ).slug(),
-    //        key -> findInDbBySlug(key).orElseThrow(() -> new RuntimeException("Can't find tree with slug " + key))
-    //    ));
+    log.info("**** NODEINFOCACHESLUGINDEX {}", nodeInfoCacheSlugIndexCaffeine.asMap());
+    NodeInfo nodeInfo = nodeInfoCacheSlugIndexCaffeine//.asMap()
+        .get(slug);
+    log.info("**** NODEINFOCACHESLUGINDEX AFTER {}", nodeInfoCacheSlugIndexCaffeine.asMap());
+    log.info("**** NODETOPARENTMAPPING {}", nodeToParentMappingCaffeine.asMap());
+    // TODO: there should be a better place to do this
+    // if (nodeToParentMappingCaffeine.asMap().isEmpty()) {
+    // log.info("nodeToParentMapping is empty, loading");
+    var maybeParent = nodeToParentMappingCaffeine.get(nodeInfo.id());
+    log.info("NODETOPARENTAPPINGAFTER LOAD {}", nodeToParentMappingCaffeine.asMap());
+    // TODO: recurse up to to the root, first level children are the only ones being populated right now
+    if (maybeParent.isPresent()) {
+      log.info("loading parent {} for {}", maybeParent.get(), nodeInfo.id());
+      nodeToParentMappingCaffeine.get(maybeParent.get());
+
+      log.info("NODETOPARENTAPPINGAFTER PARENT LOAD {}", nodeToParentMappingCaffeine.asMap());
+    }
+    // }
+    log.info("**** NODETOPARENTMAPPING AFTER {}", nodeToParentMappingCaffeine.asMap());
     return Optional.ofNullable(
-        treeCacheCaffeine.asMap().get(
-            nodeInfoCacheCaffeine.asMap().get(
-                findRootId(
-                    nodeInfoCacheSlugIndexCaffeine.asMap().get(
-                            slug) //, this::findNodeInfoBySlug)
-                        .id(),
-                    nodeToParentMappingCaffeine.asMap()) //,
-                //  this::findNodeInfoById
-            ).slug() //,
-//            key -> findInDbBySlug(key).orElseThrow(() -> new RuntimeException("Can't find tree with slug " + key))
-        ));
-  }
-
-  // TODO: we can probably memoize this
-  private TreeRecord findRootNodeInCache(String slug) {
-    //   if (treeCache.isEmpty()) {
-    //     TreeRecord root = findRootBySlug(slug).orElseThrow(
-    //         () -> new RuntimeException("Can't find root node for child " + slug));
-    //     treeCache.put(root.slug(), root);
-    //   }
-
-    // TODO: cache this
-    // return treeCache.values()
-    //     .stream()
-    //     .filter(e ->
-    //         e.id().equals(
-    //             // TODO: move common code to a method
-    //             findRootId(
-    //                 nodeInfoCacheSlugIndexCaffeine.get(slug).id(), nodeToParentMap())))
-    //     .findFirst()
-    return findRootBySlug(slug)
-        .orElseThrow(
-            () -> new RuntimeException(
-                "No root node found when searching for root node for slug " + slug));
+        treeCacheCaffeine//.asMap()
+            .get(
+                nodeInfoCacheCaffeine//.asMap()
+                    .get(
+                        findRootId(
+                            nodeInfo
+                                .id(),
+                            nodeToParentMappingCaffeine.asMap())
+                    ).slug()
+            ));
   }
 
   // TODO: memoize this
   private Optional<TreeRecord> findChildBySlug(String slug, TreeRecord parent) {
     // TODO: move common code to a method
     log.info("*** SLUG IN FINDCHILDBYSLUG {}", slug);
-    TreeRecord cachedParent = parent;// treeCacheCaffeine.get(parent.slug(), key -> findInDbBySlug(key).orElseThrow(() -> new RuntimeException("Can't find node by slug " + key)));
-    log.info("**** FOUND CACHEDPARENT IN FINDCHILDBYSLUG {}", cachedParent.slug());
-    log.info("**** CHILDREN OF CACHEDPARENT IN FINDCHILDBYSLUG {}", cachedParent.children().stream().map(c -> c.slug()).collect(Collectors.toSet()));
+    // treeCacheCaffeine.get(parent.slug(), key -> findInDbBySlug(key).orElseThrow(() -> new RuntimeException("Can't find node by slug " + key)));
+    log.info("**** FOUND CACHEDPARENT IN FINDCHILDBYSLUG {}", parent.slug());
+    log.info("**** CHILDREN OF CACHEDPARENT IN FINDCHILDBYSLUG {}", parent.children().stream().map(c -> c.slug()).collect(Collectors.toSet()));
     // if the parent record passed in contains no children, just return the child record itself
-    if (cachedParent.children().isEmpty())
+    if (parent.children().isEmpty())
       return Optional.of(treeCacheCaffeine.asMap().get(slug));
-    for (TreeRecord child : cachedParent.children()) {
+    for (TreeRecord child : parent.children()) {
       log.info("**** CHILD IN LOOP FINDCHILDBYSLUG {}", child.slug());
       if (child.slug().equals(slug))
         return Optional.of(child);

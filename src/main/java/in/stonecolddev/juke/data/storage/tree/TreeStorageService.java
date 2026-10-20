@@ -235,10 +235,11 @@ public class TreeStorageService<T extends TreeRecord> {
     log.info("*** SLUG IN FINDCHILDBYSLUG {}", slug);
     // treeCacheCaffeine.get(parent.slug(), key -> findInDbBySlug(key).orElseThrow(() -> new RuntimeException("Can't find node by slug " + key)));
     log.info("**** FOUND CACHEDPARENT IN FINDCHILDBYSLUG {}", parent.slug());
-    log.info("**** CHILDREN OF CACHEDPARENT IN FINDCHILDBYSLUG {}", parent.children().stream().map(c -> c.slug()).collect(Collectors.toSet()));
+    log.info("**** CHILDREN OF CACHEDPARENT ({}) IN FINDCHILDBYSLUG {}", parent.slug(), parent.children().stream().map(c -> c.slug()).collect(Collectors.toSet()));
     // if the parent record passed in contains no children, just return the child record itself
     if (parent.children().isEmpty())
-      return Optional.of(treeCacheCaffeine.asMap().get(slug));
+      return Optional.of(treeCacheCaffeine.get(slug));
+    //return Optional.of(treeCacheCaffeine.asMap().get(slug));
     for (TreeRecord child : parent.children()) {
       log.info("**** CHILD IN LOOP FINDCHILDBYSLUG {}", child.slug());
       if (child.slug().equals(slug))

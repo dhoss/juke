@@ -10,6 +10,7 @@
             <th scope="col">Published On</th>
             <th scope="col">Last Updated</th>
             <th scope="col">Approved?</th>
+            <th scope="col"># of children</th>
             <th scope="col">Edit</th>
             <th scope="col">Publish</th>
             <th scope="col">Delete</th>
@@ -22,6 +23,7 @@
                 <td>{{ page.publishedOn }}</td>
                 <td>{{ page.updatedOn }}</td>
                 <td>{{ page.approved }}</td>
+                <td>{{ page.children.size }}</td>
                 <td><a href="{{ href("/admin/pages/#{page.slug}/edit") }}">Edit</a></td>
                 <td>Publish</td>
                 <td>Delete</td>

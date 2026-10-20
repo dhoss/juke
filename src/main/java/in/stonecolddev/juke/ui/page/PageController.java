@@ -128,7 +128,6 @@ public class PageController {
       RedirectAttributes redirectAttributes) {
 
     // TODO: validation/error handling
-    //pageHandler.create(pageFormData);
     treeStorageService.create(mapPageFormToPageRecord(pageFormData));
     redirectAttributes.addFlashAttribute("formSubmissionMessage", "Page created");
 
@@ -156,7 +155,6 @@ public class PageController {
     ModelAndView mv = new ModelAndView("admin/pages/list");
 
     mv.addObject("pages", treeStorageService.listTrees());
-    //mv.addObject("pages", pageHandler.listPages());
 
     return mv;
   }

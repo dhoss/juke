@@ -201,12 +201,19 @@ public class TreeStorageService<T extends TreeRecord> {
     var maybeParent = nodeToParentMappingCaffeine.get(nodeInfo.id());
     log.info("NODETOPARENTAPPINGAFTER LOAD {}", nodeToParentMappingCaffeine.asMap());
     // TODO: recurse up to to the root, first level children are the only ones being populated right now
-    if (maybeParent.isPresent()) {
+    while (maybeParent.isPresent()) {
+
       log.info("loading parent {} for {}", maybeParent.get(), nodeInfo.id());
-      nodeToParentMappingCaffeine.get(maybeParent.get());
+      maybeParent = Optional.ofNullable(nodeToParentMappingCaffeine.get(maybeParent.get())).flatMap(p -> p);
 
       log.info("NODETOPARENTAPPINGAFTER PARENT LOAD {}", nodeToParentMappingCaffeine.asMap());
     }
+    // if (maybeParent.isPresent()) {
+    //   log.info("loading parent {} for {}", maybeParent.get(), nodeInfo.id());
+    //   nodeToParentMappingCaffeine.get(maybeParent.get());
+
+    //   log.info("NODETOPARENTAPPINGAFTER PARENT LOAD {}", nodeToParentMappingCaffeine.asMap());
+    // }
     // }
     log.info("**** NODETOPARENTMAPPING AFTER {}", nodeToParentMappingCaffeine.asMap());
     return Optional.ofNullable(

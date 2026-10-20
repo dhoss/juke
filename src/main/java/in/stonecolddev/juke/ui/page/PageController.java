@@ -45,9 +45,8 @@ public class PageController {
     mv.addAllObjects(
         Map.of(
             "page",
-            treeStorageService.find(pageSlug)
-                .orElseThrow(
-                    () -> new RuntimeException("No such page: " + pageSlug))));
+            treeStorageService.find(pageSlug).orElseThrow(
+                () -> new RuntimeException("No such page: " + pageSlug))));
 
     return mv;
   }

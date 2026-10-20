@@ -7,22 +7,16 @@ public class DatabaseTree {
   // TODO: memoize this
   public static Integer findRootId(
       Integer nodeId, Map<Integer, Optional<Integer>> nodeToParentMap) {
+
     Optional<Integer> maybeNodeParentId = nodeToParentMap.get(nodeId);
-    System.out.println("****NODE ID " + nodeId);
-    System.out.println("**** NODETOPARENTMAP " + nodeToParentMap);
-    System.out.println("**** MAYBENODEPARENTID " + maybeNodeParentId);
-    //Optional<Integer> maybeNodeParentId = Optional.ofNullable(nodeToParentMap.get(nodeId)).flatMap(p -> p);
     if (Optional.ofNullable(maybeNodeParentId).isEmpty())
-      throw new RuntimeException("maybeNodeParentId is null, something's broken!");
+      throw new RuntimeException("maybeNodeParentId is null in findRootId(), something's broken!");
     if (maybeNodeParentId.isEmpty())
       return nodeId;
 
     Integer lastCheckedId = maybeNodeParentId.get();
-    System.out.println("**** LASTCHECKEDID " + lastCheckedId);
     while (true) {
 
-      System.out.println("**** LASTCHECKEDID IN LOOP " + lastCheckedId);
-      System.out.println("**** MAYBENODEPARENTID IN LOOP " + maybeNodeParentId);
       if (maybeNodeParentId.isPresent()) {
         lastCheckedId = maybeNodeParentId.get();
         maybeNodeParentId = nodeToParentMap.get(lastCheckedId);

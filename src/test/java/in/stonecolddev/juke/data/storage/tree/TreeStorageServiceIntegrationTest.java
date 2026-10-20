@@ -13,7 +13,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static in.stonecolddev.juke.data.storage.tree.TreeFixtures.*;
 import static in.stonecolddev.juke.util.Fixtures.Database.startDatabase;
@@ -36,16 +35,14 @@ public class TreeStorageServiceIntegrationTest extends AbstractDatabaseTest {
   @Test
   public void find() {
 
-    // TODO: test retrieving children, sub-children
     assertEquals(
         Optional.of(fullTree), treeStorageService.find(fullTree.slug()));
 
+    // TODO: write method to get a child from the fullTree
     TreeRecord firstChild = fullTree.children().stream().findFirst().get();
     assertEquals(Optional.of(firstChild), treeStorageService.find(firstChild.slug()));
 
-    // TODO: make this pass
     TreeRecord subChild = firstChild.children().stream().toList().getLast();
-    System.out.println("**** SUBCHILDREN " + firstChild.children().stream().map(c -> c.slug()).collect(Collectors.joining(",")));
     assertEquals(Optional.of(subChild), treeStorageService.find(subChild.slug()));
   }
 
@@ -65,8 +62,9 @@ public class TreeStorageServiceIntegrationTest extends AbstractDatabaseTest {
   public void addChild() {
     PageRecord newTree = newTreeRoot();
     newTree = (PageRecord) treeStorageService.create(newTree);
-    System.out.println("**** NEW TREE IN ADDCHILD TEST " + newTree.slug());
+
     PageRecord childNode = newChild(newTree);
+
     // TODO: add test in create() to create tree with children
     assertEquals(
         newTree.withChildren(new HashSet<>(Set.of(childNode))),

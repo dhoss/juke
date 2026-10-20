@@ -34,6 +34,7 @@ public class TreeStorageService<T extends TreeRecord> {
 
   private final Map<String, TreeRecord> treeCache = new HashMap<>();
 
+  // TODO: replace with cache wrapper
   private final LoadingCache<String, TreeRecord> treeCacheCaffeine;
 
   private final LoadingCache<Integer, NodeInfo> nodeInfoCacheCaffeine;
@@ -190,58 +191,31 @@ public class TreeStorageService<T extends TreeRecord> {
 
   // TODO: this sucks rewrite it
   private Optional<TreeRecord> findRootBySlug(String slug) {
-    log.info("**** NODEINFOCACHESLUGINDEX {}", nodeInfoCacheSlugIndexCaffeine.asMap());
-    NodeInfo nodeInfo = nodeInfoCacheSlugIndexCaffeine//.asMap()
-        .get(slug);
-    log.info("**** NODEINFOCACHESLUGINDEX AFTER {}", nodeInfoCacheSlugIndexCaffeine.asMap());
-    log.info("**** NODETOPARENTMAPPING {}", nodeToParentMappingCaffeine.asMap());
-    // TODO: there should be a better place to do this
-    // if (nodeToParentMappingCaffeine.asMap().isEmpty()) {
-    // log.info("nodeToParentMapping is empty, loading");
-    var maybeParent = nodeToParentMappingCaffeine.get(nodeInfo.id());
-    log.info("NODETOPARENTAPPINGAFTER LOAD {}", nodeToParentMappingCaffeine.asMap());
-    // TODO: recurse up to to the root, first level children are the only ones being populated right now
+
+    NodeInfo nodeInfo = nodeInfoCacheSlugIndexCaffeine.get(slug);
+
+    Optional<Integer> maybeParent = nodeToParentMappingCaffeine.get(nodeInfo.id());
     while (maybeParent.isPresent()) {
-
-      log.info("loading parent {} for {}", maybeParent.get(), nodeInfo.id());
-      maybeParent = Optional.ofNullable(nodeToParentMappingCaffeine.get(maybeParent.get())).flatMap(p -> p);
-
-      log.info("NODETOPARENTAPPINGAFTER PARENT LOAD {}", nodeToParentMappingCaffeine.asMap());
+      maybeParent =
+          Optional.ofNullable(nodeToParentMappingCaffeine.get(maybeParent.get()))
+              .flatMap(p -> p);
     }
-    // if (maybeParent.isPresent()) {
-    //   log.info("loading parent {} for {}", maybeParent.get(), nodeInfo.id());
-    //   nodeToParentMappingCaffeine.get(maybeParent.get());
 
-    //   log.info("NODETOPARENTAPPINGAFTER PARENT LOAD {}", nodeToParentMappingCaffeine.asMap());
-    // }
-    // }
-    log.info("**** NODETOPARENTMAPPING AFTER {}", nodeToParentMappingCaffeine.asMap());
     return Optional.ofNullable(
-        treeCacheCaffeine//.asMap()
-            .get(
-                nodeInfoCacheCaffeine//.asMap()
-                    .get(
-                        findRootId(
-                            nodeInfo
-                                .id(),
-                            nodeToParentMappingCaffeine.asMap())
-                    ).slug()
-            ));
+        treeCacheCaffeine.get(
+            nodeInfoCacheCaffeine.get(
+                findRootId(
+                    nodeInfo.id(), nodeToParentMappingCaffeine.asMap())).slug()));
   }
 
   // TODO: memoize this
   private Optional<TreeRecord> findChildBySlug(String slug, TreeRecord parent) {
     // TODO: move common code to a method
-    log.info("*** SLUG IN FINDCHILDBYSLUG {}", slug);
-    // treeCacheCaffeine.get(parent.slug(), key -> findInDbBySlug(key).orElseThrow(() -> new RuntimeException("Can't find node by slug " + key)));
-    log.info("**** FOUND CACHEDPARENT IN FINDCHILDBYSLUG {}", parent.slug());
-    log.info("**** CHILDREN OF CACHEDPARENT ({}) IN FINDCHILDBYSLUG {}", parent.slug(), parent.children().stream().map(c -> c.slug()).collect(Collectors.toSet()));
-    // if the parent record passed in contains no children, just return the child record itself
+    // TODO: add failing test for this
     if (parent.children().isEmpty())
       return Optional.of(treeCacheCaffeine.get(slug));
-    //return Optional.of(treeCacheCaffeine.asMap().get(slug));
+
     for (TreeRecord child : parent.children()) {
-      log.info("**** CHILD IN LOOP FINDCHILDBYSLUG {}", child.slug());
       if (child.slug().equals(slug))
         return Optional.of(child);
 
@@ -259,14 +233,13 @@ public class TreeStorageService<T extends TreeRecord> {
 
     // if the node we're looking for is a root node, carry on as usual
     if (isRootNode(slug)) {
-      log.info("**** IS ROOT NODE INSIDE FIND {}", slug);
       return findNode(slug);
     } else {
-      log.info("**** IS NOT ROOT NODE INSIDE FIND {}", slug);
       // otherwise, find the root node, retrieve its tree, pick out the node and return it
-      TreeRecord parent = findRootBySlug(slug).orElseThrow(() -> new RuntimeException("Can't find root for slug " + slug));
-      log.info("**** PARENT INSIDE FIND {}", parent.slug());
-      return findChildBySlug(slug, parent);//findRootNodeInCache(slug));
+      return findChildBySlug(
+          slug,
+          findRootBySlug(slug).orElseThrow(
+              () -> new RuntimeException("Can't find root for slug " + slug)));
     }
   }
 
@@ -338,6 +311,7 @@ public class TreeStorageService<T extends TreeRecord> {
   }
 
   // TODO: pagination
+  // TODO: grab whatever we can out of the cache
   public List<TreeRecord> listTrees() {
 
     return jdbcTemplate.query(
@@ -492,18 +466,6 @@ public class TreeStorageService<T extends TreeRecord> {
             .map(String::valueOf)
             .collect(Collectors.joining(",")));
 
-    // TODO: make this a transaction
-    //          @Autowired
-    //          private NamedParameterJdbcTemplate jdbcTemplate;
-    //          @Autowired
-    //          private TransactionTemplate transactionTemplate;
-    //          public void executionWithManualControl() {
-    //              transactionTemplate.execute(status -> {
-    //                  // This block executes inside a managed transaction
-    //                  jdbcTemplate.update("UPDATE users...", params1);
-    //                  return null;
-    //              });
-    //          }
     String slug = tree.slug();
     TreeRecord createdTree = transactionTemplate.execute(status -> {
       // what does status do in the execute lambda
@@ -552,44 +514,50 @@ public class TreeStorageService<T extends TreeRecord> {
       //        status.rollbackToSavepoint(savepoint);
       //    }
       //});
+
       log.info("child count for node {}: {}", slug, tree.children().size());
       log.info("inserting node {}", slug);
       // TODO: maybe make this a method itself
       // TODO: we probably want to return the tree from here
       return treeCacheCaffeine.asMap().compute(
-          slug, (key, oldTreeValue) -> {
+          slug, (key, _) -> {
+
             log.info("Updating cache for key {}", slug);
             jdbcTemplate.update(
                 queryTemplate.render(),
                 new MapSqlParameterSource().addValues(tree.valueMap())
             );
 
-            Integer id = tree.id();
-            Optional<Integer> parentId = tree.parentId();
-            TreeRecord treeRecord = findInDbBySlug(key).orElseThrow(() -> new RuntimeException("Can't find tree inside cache write through with slug " + slug));
-            log.info("**** TREE JUST INSERTED {} -> {}", treeRecord.slug(), treeRecord.children().stream().map(c -> c.slug()).collect(Collectors.joining(",")));
-
-            log.info("**** TREE PASSED IN {} -> {}", tree.slug(), tree.children().stream().map(c -> c.slug()).collect(Collectors.joining(",")));
-            return treeRecord;
+            return findInDbBySlug(key).orElseThrow(
+                () -> new RuntimeException(
+                    "Can't find tree inside cache write through with slug " + slug));
           });
     });
+
+    // TODO: determine if refreshing these caches is correct
     log.info("refreshing caches after insert");
     try {
-      nodeInfoCacheCaffeine.refresh(createdTree.id()).get(); //.put(id, nodeInfo);
-      nodeInfoCacheSlugIndexCaffeine.refresh(createdTree.slug()).get();//.put(slug, nodeInfo);
-      nodeToParentMappingCaffeine.refresh(createdTree.id()).get(); //.put(id, parentId);
+      log.info("refreshing nodeInfo cache");
+      nodeInfoCacheCaffeine.refresh(createdTree.id()).get();
+
+      log.info("refreshing nodeInfoCacheSlugIndex cache");
+      nodeInfoCacheSlugIndexCaffeine.refresh(createdTree.slug()).get();
+
+      log.info("refreshing nodeToParentMapping cache");
+      nodeToParentMappingCaffeine.refresh(createdTree.id()).get();
+
+      log.info("refreshing rootNode cache");
       rootNodeCache.refresh(createdTree.slug()).get();
     } catch (InterruptedException | ExecutionException e) {
-      throw new RuntimeException("error refreshing cache: " + e);
+      throw new RuntimeException("error refreshing cache in create(): " + e);
     }
+
     log.info("adding child nodes if they exist");
     for (TreeRecord child : tree.children()) {
-      //for (TreeRecord child : tree.children()) {
       addChild(tree, child);
     }
 
-    return find(tree.slug())//slug)
-        //  return treeCacheCaffeine.get(tree.slug(), key -> findInDbBySlug(key).orElseThrow(() -> new RuntimeException("Can't find tree with slug " + key)));
+    return find(tree.slug())
         .orElseThrow(
             () -> new RuntimeException(
                 "Can't find tree we just inserted with slug " + slug));
@@ -597,24 +565,24 @@ public class TreeStorageService<T extends TreeRecord> {
 
   // TODO: wrap this in a transaction
   public TreeRecord addChild(TreeRecord parent, TreeRecord child) {
+
     log.info("adding child {} to parentId {}", child.slug(), parent.slug());
-    log.info("**** BEFORE CREATE IN ADDCHILD");
     create(child.reparent(parent));
+
     log.info("refreshing tree in cache, parent slug: {}", parent.slug());
     // TODO: figure out something better than catch and rethrow
     Optional<TreeRecord> refreshed = Optional.empty();
     try {
       refreshed = Optional.of(treeCacheCaffeine.refresh(parent.slug()).get());
-      log.info("refresh complete for {}", refreshed.map(r -> r.slug()));
-      log.info("**** REFRESHED CHILDREN {}", refreshed.map(mc -> mc.children().stream().map(c -> c.slug()).collect(Collectors.joining(","))));
+      log.info("refresh complete for {}", refreshed.map(TreeRecord::slug));
     } catch (ExecutionException | InterruptedException e) {
-      throw new RuntimeException("Error refreshing cache entry for slug " + parent.slug() + ": " + e);
+      throw new RuntimeException(
+          "Error refreshing cache entry for slug " + parent.slug() + ": " + e);
     }
-    log.info("**** AFTER CREATE IN ADDCHILD");
-    return refreshed
-        //  return find(parent.slug())
-        .orElseThrow(
-            () -> new RuntimeException("Can't find parentId of child we just created for some reason"));
+
+    return refreshed.orElseThrow(
+        () -> new RuntimeException(
+            "Can't find parentId of child we just created for some reason"));
   }
 
 }

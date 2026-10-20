@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles("it-test")
 @Tag("it-test")
+@Deprecated
 public class DefaultPageHandlerTest extends AbstractDatabaseTest {
 
   @Autowired

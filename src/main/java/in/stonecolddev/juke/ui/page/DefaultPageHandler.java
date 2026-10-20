@@ -19,6 +19,7 @@ import java.time.*;
 import java.util.*;
 
 @Component
+@Deprecated
 public class DefaultPageHandler implements PageBuilder {
 
   private final Logger log = LoggerFactory.getLogger(DefaultPageHandler.class);

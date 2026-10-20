@@ -3,6 +3,7 @@ package in.stonecolddev.juke.ui.page;
 
 import in.stonecolddev.juke.data.storage.tree.TreeStorageService;
 import in.stonecolddev.juke.page.PageRecord;
+import in.stonecolddev.juke.page.PageRecordBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
@@ -126,11 +128,24 @@ public class PageController {
       RedirectAttributes redirectAttributes) {
 
     // TODO: validation/error handling
-    pageHandler.create(pageFormData);
+    //pageHandler.create(pageFormData);
+    treeStorageService.create(mapPageFormToPageRecord(pageFormData));
     redirectAttributes.addFlashAttribute("formSubmissionMessage", "Page created");
 
     // TODO: return ModelAndView in createPage
     return new ModelAndView("redirect:/admin/pages");
+  }
+
+  // TODO: move this to the appropriate class
+  private PageRecord mapPageFormToPageRecord(CreateOrEditPageForm pageForm) {
+    return PageRecordBuilder.builder()
+        .title(pageForm.getTitle())
+        .body(pageForm.getBody())
+        .approved(false)
+        // TODO: FIX THIS
+        .authorId(1)
+        .publishedOn(OffsetDateTime.from(pageForm.getPublishedOn().atZone(clock.getZone())))
+        .build();
   }
 
   @GetMapping("/admin/pages")
@@ -140,7 +155,8 @@ public class PageController {
     // TODO: pages listing should allow pagination
     ModelAndView mv = new ModelAndView("admin/pages/list");
 
-    mv.addObject("pages", pageHandler.listPages());
+    mv.addObject("pages", treeStorageService.listTrees());
+    //mv.addObject("pages", pageHandler.listPages());
 
     return mv;
   }

@@ -51,12 +51,10 @@ public record PageRecord(
 
   // TODO: memoize this
   public List<Integer> ancestorIds() {
-    System.out.println("**** ANCESTORS FROM PATH " + path());
     return Optional.ofNullable(ancestorIds)
         .or(() -> Optional.ofNullable(path))
         .map(a ->
             a.stream()
-                .peek(p -> System.out.println("**** ANCESTOR ID " + p))
                 .filter(id -> !id.equals(id()))
                 .collect(Collectors.toList()))
         .orElseGet(ArrayList::new);
@@ -66,7 +64,7 @@ public record PageRecord(
     Map<String, Object> valueMap = new HashMap<>(Map.of(
         "author_id", authorId,
         "title", title,
-        "slug", toSlug(), //slug,
+        "slug", toSlug(),
         "body", body,
         "approved", approved,
         "published_on", publishedOn,

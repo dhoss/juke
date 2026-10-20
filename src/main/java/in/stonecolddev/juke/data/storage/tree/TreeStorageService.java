@@ -444,7 +444,6 @@ public class TreeStorageService<T extends TreeRecord> {
     );
   }
 
-  // TODO: retrieve a tree's ancestors
   public TreeRecord create(TreeRecord tree) {
     //  log.info("**** INSERT QUERY {}",
     //      Query.builder().insert(configuration.treeTable()).values(Map.of("title", "fart", "body", "fart body")).compile());
@@ -465,7 +464,7 @@ public class TreeStorageService<T extends TreeRecord> {
             .map(k -> ":" + k)
             .map(String::valueOf)
             .collect(Collectors.joining(",")));
-
+    ///////////////////////////////////
     String slug = tree.slug();
     TreeRecord createdTree = transactionTemplate.execute(status -> {
       // what does status do in the execute lambda
@@ -518,7 +517,6 @@ public class TreeStorageService<T extends TreeRecord> {
       log.info("child count for node {}: {}", slug, tree.children().size());
       log.info("inserting node {}", slug);
       // TODO: maybe make this a method itself
-      // TODO: we probably want to return the tree from here
       return treeCacheCaffeine.asMap().compute(
           slug, (key, _) -> {
 

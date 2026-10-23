@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 
 
+// TODO: refactor using Query
 @Component
 public class DatabaseUserPersistence {
 
@@ -66,7 +67,7 @@ public class DatabaseUserPersistence {
               """,
           new MapSqlParameterSource().addValues(
               Map.of("userName", userName, "role", role))) < 1) {
-        throw new RuntimeException("Can't add role " + role +" for user " + userName);
+        throw new RuntimeException("Can't add role " + role + " for user " + userName);
       }
     }
 
@@ -96,12 +97,12 @@ public class DatabaseUserPersistence {
         rs -> {
           // TODO: figure out this exception:
           //       Operation requires a scrollable ResultSet, but this ResultSet is FORWARD_ONLY.
-        //  if (!rs.next()) {
-        //    log.info("No such user {}", userName);
-        //    return Optional.empty();
-        //  }
+          //  if (!rs.next()) {
+          //    log.info("No such user {}", userName);
+          //    return Optional.empty();
+          //  }
 
-        //  rs.beforeFirst();
+          //  rs.beforeFirst();
           JukeUser.JukeUserBuilder userBuilder = JukeUser.builder();
           List<String> roles = new ArrayList<>();
           while (rs.next()) {

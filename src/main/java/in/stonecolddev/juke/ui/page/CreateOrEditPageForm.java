@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class CreateOrEditPageForm {
 
+  // TODO: account for children/parents
+  // TODO: need an approval field
   private String title;
   private String body;
   private LocalDateTime publishedOn;

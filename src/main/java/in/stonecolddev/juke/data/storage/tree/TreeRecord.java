@@ -10,7 +10,7 @@ public interface TreeRecord {
 
   // TODO: rename this to something more clear
   //       it's for holding k/v pairs to pass in to MapSqlParameterSource
-  Map<String, ?> valueMap();
+  Map<String, Object> valueMap();
 
   Integer id();
 

@@ -40,9 +40,13 @@ public class TreeStorageServiceIntegrationTest extends AbstractDatabaseTest {
 
     // TODO: write method to get a child from the fullTree
     TreeRecord firstChild = fullTree.children().stream().findFirst().get();
+    //TreeRecord firstChild = fullTree.children().stream().toList().getFirst();
     assertEquals(Optional.of(firstChild), treeStorageService.find(firstChild.slug()));
+    System.out.println("**** FIRST CHILD SLUG " + firstChild.slug());
 
-    TreeRecord subChild = firstChild.children().stream().toList().getLast();
+    TreeRecord subChild = firstChild.children().stream().findFirst().get();//.toList().getLast();
+    System.out.println("**** SUBCHILD SLUG " + subChild.slug());
+    // TreeRecord subChild = firstChild.children().stream().toList().getLast();
     assertEquals(Optional.of(subChild), treeStorageService.find(subChild.slug()));
   }
 

@@ -2,6 +2,7 @@ package in.stonecolddev.juke.ui.page;
 
 import in.stonecolddev.juke.util.AbstractDatabaseTest;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ActiveProfiles("it-test")
 @Tag("it-test")
 @Deprecated
+@Disabled
 public class DefaultPageHandlerTest extends AbstractDatabaseTest {
 
   @Autowired

@@ -7,7 +7,9 @@ import lombok.experimental.Accessors;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
@@ -44,7 +46,7 @@ public class Query {
 
   // TODO: if an insert value is provided, there must be an accompanying values set
   private final String insert;
-  private final Map<String, String> values;
+  private final Map<String, Object> values;
 
   @Setter(AccessLevel.NONE)
   private final String compiled;
@@ -90,34 +92,41 @@ public class Query {
       return this.build();
     }
 
-    public String compile() {
+    public Query compile() {
       String compiled = "";
 
       //TODO: use a switch here
-      if (!this.select.isEmpty())
+      if (Optional.ofNullable(this.select).filter(s -> !s.isEmpty()).isPresent())
         compiled = constructSelect(this);
 
-      // if (!this.insert.isEmpty())
-      //   compiled = constructInsert(this);
+      if (Optional.ofNullable(this.insert).filter(i -> !i.isEmpty()).isPresent())
+        compiled = constructInsert(this);
 
-      this.compiled = compiled;
+      System.out.println("(**** COMPILED QUERY " + compiled);
+      //this.compiled = compiled;
       // TODO: check if compiled is blank string here
-      return this.build().compiled();
+      return this.compiled(compiled).build();
     }
 
     private String constructInsert(QueryBuilder qb) {
+      Set<String> columnNames = qb.values.keySet();
       return
           INSERT_INTO +
               qb.insert +
               OPEN_PAREN +
               // TODO: check for empty stuff here
-              String.join(",", qb.values.keySet()) +
+              String.join(",", columnNames) +
               CLOSE_PAREN +
               NEW_LINE +
               VALUES +
               OPEN_PAREN +
               // TODO: check for empty stuff here
-              String.join(",", qb.values.values()) +
+              // just map placeholders for now
+              columnNames
+                  .stream()
+                  .map(k -> ":" + k)
+                  .map(Object::toString)
+                  .collect(Collectors.joining(",")) +
               CLOSE_PAREN;
     }
 

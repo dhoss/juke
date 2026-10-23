@@ -16,6 +16,7 @@ public class HttpExceptionHandler {
   private final Logger log = LoggerFactory.getLogger(HttpExceptionHandler.class);
 
 
+  // TODO: why doesn't this worK?
   @ResponseStatus(HttpStatus.NOT_FOUND)
   @ExceptionHandler(PageNotFoundException.class)
   public ModelAndView pageNotFoundExceptionHandler(HttpServletRequest req, PageNotFoundException e) {

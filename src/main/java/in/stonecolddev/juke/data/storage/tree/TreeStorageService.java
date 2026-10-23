@@ -9,11 +9,12 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.stringtemplate.v4.ST;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import static in.stonecolddev.juke.data.storage.tree.DatabaseTree.findRootId;
 
@@ -137,7 +138,8 @@ public class TreeStorageService<T extends TreeRecord> {
             .select(List.of("id", "parent_id", "slug"))
             .from("page_trees")
             .where("id = :id")
-            .compile(),
+            .compile()
+            .compiled(),
         new MapSqlParameterSource().addValue("id", id),
         (rs, _) ->
             new NodeInfo(
@@ -158,7 +160,8 @@ public class TreeStorageService<T extends TreeRecord> {
             .select(List.of("id", "parent_id", "slug"))
             .from("page_trees")
             .where("slug = :slug")
-            .compile(),
+            .compile()
+            .compiled(),
         new MapSqlParameterSource().addValue("slug", slug),
         (rs, _) ->
             new NodeInfo(
@@ -245,6 +248,8 @@ public class TreeStorageService<T extends TreeRecord> {
 
   private Optional<TreeRecord> findInDbBySlug(String slug) {
 
+    // TODO: pull out table name, non-generic columns into configuration/specific TreeStorage implementations
+    //       e.g.: PageTreeStorageService
     return jdbcTemplate.query(
         // TODO: make this a general query that can be customized with additional fields and joins etc
         Query.builder()
@@ -445,26 +450,7 @@ public class TreeStorageService<T extends TreeRecord> {
   }
 
   public TreeRecord create(TreeRecord tree) {
-    //  log.info("**** INSERT QUERY {}",
-    //      Query.builder().insert(configuration.treeTable()).values(Map.of("title", "fart", "body", "fart body")).compile());
-    // TODO: GET RID OF THIS
-    ST queryTemplate = new ST(
-        """
-            insert into <treeTable> (<valueSet>)
-            values (<valueMap>);
-            """
-    );
 
-    queryTemplate.add("treeTable", configuration.treeTable());
-    Set<String> valueSet = tree.valueMap().keySet();
-    queryTemplate.add("valueSet", String.join(",", valueSet));
-    queryTemplate.add("valueMap",
-        valueSet
-            .stream()
-            .map(k -> ":" + k)
-            .map(String::valueOf)
-            .collect(Collectors.joining(",")));
-    ///////////////////////////////////
     String slug = tree.slug();
     TreeRecord createdTree = transactionTemplate.execute(status -> {
       // what does status do in the execute lambda
@@ -520,10 +506,16 @@ public class TreeStorageService<T extends TreeRecord> {
       return treeCacheCaffeine.asMap().compute(
           slug, (key, _) -> {
 
+            Query insert = Query.builder().insert("page_trees").values(tree.valueMap()).compile();
+            log.info("***** INSERT QUERY {}", insert);
+            //    log.info("**** TREEVALUEMAP {}", tree.valueMap());
+            //    log.info("**** INSERTVALUES {}", insert.values());
             log.info("Updating cache for key {}", slug);
             jdbcTemplate.update(
-                queryTemplate.render(),
+                insert.compiled(),
+
                 new MapSqlParameterSource().addValues(tree.valueMap())
+                //new MapSqlParameterSource().addValues(insert.values())//tree.valueMap())
             );
 
             return findInDbBySlug(key).orElseThrow(

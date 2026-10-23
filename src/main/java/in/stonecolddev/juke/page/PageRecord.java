@@ -60,17 +60,25 @@ public record PageRecord(
         .orElseGet(ArrayList::new);
   }
 
-  public Map<String, ?> valueMap() {
-    Map<String, Object> valueMap = new HashMap<>(Map.of(
-        "author_id", authorId,
-        "title", title,
-        "slug", toSlug(),
-        "body", body,
-        "approved", approved,
-        "published_on", publishedOn,
-        "created_on", Optional.ofNullable(createdOn).orElseGet(OffsetDateTime::now)
-    ));
-    parentId.ifPresent(integer -> valueMap.put("parent_id", integer));
+  public Map<String, Object> valueMap() {
+    Map<String, Object> valueMap =
+        new HashMap<>(
+            Map.of(
+                "author_id", authorId,
+                "title", title,
+                "slug", toSlug(),
+                "body", body,
+                "approved", approved,
+                "published_on", publishedOn,
+                "created_on",
+                Optional.ofNullable(createdOn)
+                    .orElseGet(OffsetDateTime::now)
+            ));
+
+    System.out.println("***** PARENTID IN VALUEMAP " + parentId);
+    parentId.ifPresent(
+        integer -> valueMap.put("parent_id", integer));
+
     return valueMap;
   }
 

@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -39,14 +40,10 @@ public class TreeStorageServiceIntegrationTest extends AbstractDatabaseTest {
         Optional.of(fullTree), treeStorageService.find(fullTree.slug()));
 
     // TODO: write method to get a child from the fullTree
-    TreeRecord firstChild = fullTree.children().stream().findFirst().get();
-    //TreeRecord firstChild = fullTree.children().stream().toList().getFirst();
+    TreeRecord firstChild = fullTree.children().stream().sorted(Comparator.comparing(TreeRecord::id)).findFirst().get();
     assertEquals(Optional.of(firstChild), treeStorageService.find(firstChild.slug()));
-    System.out.println("**** FIRST CHILD SLUG " + firstChild.slug());
 
-    TreeRecord subChild = firstChild.children().stream().findFirst().get();//.toList().getLast();
-    System.out.println("**** SUBCHILD SLUG " + subChild.slug());
-    // TreeRecord subChild = firstChild.children().stream().toList().getLast();
+    TreeRecord subChild = firstChild.children().stream().sorted(Comparator.comparing(TreeRecord::id)).findFirst().get();
     assertEquals(Optional.of(subChild), treeStorageService.find(subChild.slug()));
   }
 

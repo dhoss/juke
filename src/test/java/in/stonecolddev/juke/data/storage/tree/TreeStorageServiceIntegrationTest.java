@@ -39,12 +39,17 @@ public class TreeStorageServiceIntegrationTest extends AbstractDatabaseTest {
     assertEquals(
         Optional.of(fullTree), treeStorageService.find(fullTree.slug()));
 
-    // TODO: write method to get a child from the fullTree
-    TreeRecord firstChild = fullTree.children().stream().sorted(Comparator.comparing(TreeRecord::id)).findFirst().get();
+    TreeRecord firstChild = findChild(fullTree.children());
     assertEquals(Optional.of(firstChild), treeStorageService.find(firstChild.slug()));
 
-    TreeRecord subChild = firstChild.children().stream().sorted(Comparator.comparing(TreeRecord::id)).findFirst().get();
+    TreeRecord subChild = findChild(firstChild.children());
     assertEquals(Optional.of(subChild), treeStorageService.find(subChild.slug()));
+  }
+
+  private TreeRecord findChild(Set<TreeRecord> children) {
+    return children.stream()
+        .min(Comparator.comparing(TreeRecord::id))
+        .orElseThrow(() -> new RuntimeException("Can't find a child in TreeRecord set"));
   }
 
   // TODO: implement test for listTrees

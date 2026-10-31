@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 
 import static org.apache.commons.codec.digest.MurmurHash3.hash32x86;
 
+// TODO: need a way to mark fields as immutable
+//       interface needs to define it
 @RecordBuilder
 public record PageRecord(
     Integer id,

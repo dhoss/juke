@@ -3,6 +3,8 @@ package in.stonecolddev.juke.data.storage.tree;
 import com.github.benmanes.caffeine.cache.CacheLoader;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.google.common.collect.MapDifference;
+import com.google.common.collect.Maps;
 import in.stonecolddev.juke.page.Query;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -15,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import static in.stonecolddev.juke.data.storage.tree.DatabaseTree.findRootId;
 
@@ -246,7 +249,8 @@ public class TreeStorageService<T extends TreeRecord> {
     }
   }
 
-  private Optional<TreeRecord> findInDbBySlug(String slug) {
+  // TODO: dunno how I feel about making this public
+  public Optional<TreeRecord> findInDbBySlug(String slug) {
 
     // TODO: pull out table name, non-generic columns into configuration/specific TreeStorage implementations
     //       e.g.: PageTreeStorageService
@@ -452,53 +456,9 @@ public class TreeStorageService<T extends TreeRecord> {
   public TreeRecord create(TreeRecord tree) {
 
     String slug = tree.slug();
+    // TODO: use status to get info about transaction
+    //       https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/transaction/TransactionStatus.html:w
     TreeRecord createdTree = transactionTemplate.execute(status -> {
-      // what does status do in the execute lambda
-      // In the execute or executeWithoutResult lambda expression, the status object is an instance of TransactionStatus. It acts as your handle to control the current transaction and check its state while it is running.
-      //Because the code inside the lambda is managed programmatically rather than by annotations, you use this object to explicitly talk to the underlying transaction manager.
-      //Here are the primary roles that status fulfills:
-      //
-      //1. Triggering a Manual Rollback
-      //
-      //By default, the TransactionTemplate automatically rolls back only if an unhandled RuntimeException or Error escapes the lambda block. If you catch a checked exception or encounter a business logic failure and want to abort, you tell the transaction manager via status:
-      //java
-      //transactionTemplate.executeWithoutResult(status -> {
-      //    try {
-      //        paymentService.chargeCard();
-      //        orderRepository.markPaid();
-      //    } catch (PaymentFailedException e) {
-      //        // Keeps the app from crashing, but safely rolls back the database changes
-      //        status.setRollbackOnly();
-      //    }
-      //});
-      //Use code with caution.
-      //
-      //2. Checking the Transaction State
-      //
-      //You can inspect the status object to make decisions based on the current state of the database transaction:
-      //• status.isNewTransaction(): Returns true if this lambda block actually started a brand-new database transaction, or false if it joined an already existing one.
-      //• status.isRollbackOnly(): Returns true if the transaction has already been marked for rollback (either by another step in the code or a previous error).
-      //• status.isCompleted(): Returns true if the transaction has already been committed or rolled back.
-      //
-      //3. Creating Savepoints (Nested Transactions)
-      //
-      //If your underlying transaction manager supports it (like JDBC or Hibernate with specific configurations), you can use status to create points to roll back to without aborting the whole transaction.
-      //java
-      //transactionTemplate.executeWithoutResult(status -> {
-      //    // Action A (Main action)
-      //    userRepository.updateProfile(user);
-      //
-      //    // Create a savepoint before attempting an optional action
-      //    Object savepoint = status.createSavepoint();
-      //
-      //    try {
-      //        // Action B (Optional action)
-      //        notificationRepository.logAuditTrail();
-      //    } catch (Exception e) {
-      //        // Only undoes Action B; Action A will still commit!
-      //        status.rollbackToSavepoint(savepoint);
-      //    }
-      //});
 
       log.info("child count for node {}: {}", slug, tree.children().size());
       log.info("inserting node {}", slug);
@@ -506,16 +466,12 @@ public class TreeStorageService<T extends TreeRecord> {
       return treeCacheCaffeine.asMap().compute(
           slug, (key, _) -> {
 
+            // TODO: pull generic query stuff into config object
             Query insert = Query.builder().insert("page_trees").values(tree.valueMap()).compile();
-            log.info("***** INSERT QUERY {}", insert);
-            //    log.info("**** TREEVALUEMAP {}", tree.valueMap());
-            //    log.info("**** INSERTVALUES {}", insert.values());
             log.info("Updating cache for key {}", slug);
             jdbcTemplate.update(
                 insert.compiled(),
-
                 new MapSqlParameterSource().addValues(tree.valueMap())
-                //new MapSqlParameterSource().addValues(insert.values())//tree.valueMap())
             );
 
             return findInDbBySlug(key).orElseThrow(
@@ -538,7 +494,7 @@ public class TreeStorageService<T extends TreeRecord> {
 
       log.info("refreshing rootNode cache");
       rootNodeCache.refresh(createdTree.slug()).get();
-    } catch (InterruptedException | ExecutionException e) {
+    } catch (InterruptedException | ExecutionException | NullPointerException e) {
       throw new RuntimeException("error refreshing cache in create(): " + e);
     }
 
@@ -547,10 +503,66 @@ public class TreeStorageService<T extends TreeRecord> {
       addChild(tree, child);
     }
 
+
+    // TODO: add test for create, make sure find hits cache after creating
     return find(tree.slug())
         .orElseThrow(
             () -> new RuntimeException(
                 "Can't find tree we just inserted with slug " + slug));
+  }
+
+  public TreeRecord update(TreeRecord tree) {
+
+    String slug = tree.slug();
+    TreeRecord updatedTree = transactionTemplate.execute(status -> {
+
+      log.info("child count for node {}: {}", slug, tree.children().size());
+      log.info("updating node {}", slug);
+      // TODO: maybe make this a method itself
+      return treeCacheCaffeine.asMap().compute(
+          slug, (key, _) -> {
+
+            Map<String, Object> newTree = tree.valueMap();
+            TreeRecord oldTree = findInDbBySlug(slug)
+                .orElseThrow(
+                    () -> new RuntimeException(
+                        "Can't find tree for update with slug " + slug));
+
+            MapDifference<String, Object> mapDiff = Maps.difference(oldTree.valueMap(), newTree);
+            if (mapDiff.areEqual()) {
+              log.info("Trees are the same, not running update query");
+              return tree;
+            }
+
+            Map<String, Object> newChangedValues =
+                mapDiff.entriesDiffering()
+                    .entrySet()
+                    .stream()
+                    //.map(d -> Map.of(d.getKey(), d.getValue().rightValue()))
+                    .collect(
+                        Collectors.toMap(Map.Entry::getKey, v -> v.getValue().rightValue()));
+            // TODO: pull generic query stuff into config object
+            Query update =
+                Query.builder()
+                    .update("page_trees")
+                    .set(newChangedValues)//treeValues)
+                    .compile();
+            log.info("***** UPDATE QUERY {}", update.compiled());
+            log.info("Updating cache for key {}", slug);
+            jdbcTemplate.update(
+                update.compiled(),
+                new MapSqlParameterSource().addValues(newChangedValues) // TODO: these should come from Query
+            );
+
+            return
+                findInDbBySlug(key).orElseThrow(
+                    () -> new RuntimeException(
+                        "Can't find tree inside cache write through with slug " + slug));
+          });
+    });
+
+    // TODO: add refreshes if needed
+    return updatedTree;
   }
 
   // TODO: wrap this in a transaction

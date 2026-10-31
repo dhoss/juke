@@ -1,6 +1,7 @@
 package in.stonecolddev.juke.ui.page;
 
 
+import in.stonecolddev.juke.data.storage.tree.TreeRecord;
 import in.stonecolddev.juke.data.storage.tree.TreeStorageService;
 import in.stonecolddev.juke.page.PageRecord;
 import in.stonecolddev.juke.page.PageRecordBuilder;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Controller
@@ -79,21 +81,24 @@ public class PageController {
   @GetMapping("/admin/pages/{slug}/edit")
   public ModelAndView editPage(@PathVariable("slug") String pageSlug) {
     ModelAndView mv = new ModelAndView("admin/pages/edit");
-    // TODO: findPage should probably throw the PageNotFound exception and have it bubble up to the controller endpoint
-    Page page = pageHandler.findPage(pageSlug)
+    // Page page = pageHandler.findPage(pageSlug)
+    //     .orElseThrow(() -> new PageNotFoundException("Page not found with slug " + pageSlug));
+
+    PageRecord page = (PageRecord) treeStorageService.findInDbBySlug(pageSlug)
         .orElseThrow(() -> new PageNotFoundException("Page not found with slug " + pageSlug));
 
-
-    CreateOrEditPageForm pageForm = new CreateOrEditPageForm();
-    pageForm.setTitle(page.title());
-    pageForm.setBody(page.body());
-    pageForm.setSlug(pageSlug);
-    pageForm.setPublishedOn(
-        LocalDateTime.parse(
-            page.publishedOn()
-                .atZoneSameInstant(clock.getZone())
-                .toLocalDateTime()
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"))));
+    CreateOrEditPageForm pageForm = mapPageRecordToPageForm(page);
+    //      new CreateOrEditPageForm();
+    //  pageForm.setTitle(page.title());
+    //  pageForm.setBody(page.body());
+    //  pageForm.setSlug(pageSlug);
+    //  pageForm.setPublishedOn(
+    //      LocalDateTime.parse(
+    //          page.publishedOn()
+    //              .atZoneSameInstant(clock.getZone())
+    //              .toLocalDateTime()
+    //              .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")))
+    //  );
 
     mv.addAllObjects(
         Map.of(
@@ -113,7 +118,8 @@ public class PageController {
       RedirectAttributes redirectAttributes) {
 
     pageFormData.setSlug(pageSlug);
-    pageHandler.save(pageFormData);
+    treeStorageService.update(mapPageFormToPageRecord(pageFormData));
+    //pageHandler.save(pageFormData);
 
     redirectAttributes.addFlashAttribute("formSubmissionMessage", "Page saved");
     return new ModelAndView("redirect:/admin/pages/" + pageSlug + "/edit");
@@ -144,6 +150,28 @@ public class PageController {
         // TODO: FIX THIS
         .authorId(1)
         .publishedOn(OffsetDateTime.from(pageForm.getPublishedOn().atZone(clock.getZone())))
+        .build();
+  }
+
+  private CreateOrEditPageForm mapPageRecordToPageForm(PageRecord page) {
+    return CreateOrEditPageForm.builder()
+        .approved(page.approved())
+        .body(page.body())
+        .children(
+            page.children()
+                .stream()
+                .map(TreeRecord::slug)
+                .collect(Collectors.toSet()))
+        .parent(page.parent().map(TreeRecord::slug))
+        .publishedOn(
+            // TODO: this sucks
+            LocalDateTime.parse(
+                page.publishedOn()
+                    .atZoneSameInstant(clock.getZone())
+                    .toLocalDateTime()
+                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"))))
+        .slug(page.slug())
+        .title(page.title())
         .build();
   }
 

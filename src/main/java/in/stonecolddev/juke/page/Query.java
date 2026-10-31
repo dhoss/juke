@@ -37,6 +37,8 @@ public class Query {
   //       );
   //     .
 
+  // TODO: it's going to be a lot better to define each of these methods
+  //       rather than relying on them as lombok setter/getters
   // this must be a List, Set sorts things automatically and can screw up column order
   private final List<String> select;
   private final String from;
@@ -48,6 +50,10 @@ public class Query {
   private final String insert;
   private final Map<String, Object> values;
 
+  private final String update;
+  private final Map<String, Object> set;
+  private final String onDuplicate;
+
   @Setter(AccessLevel.NONE)
   private final String compiled;
 
@@ -55,8 +61,8 @@ public class Query {
 
     // TODO: I would like this to be a fluent api or DSL at some point
     //       e.g. SELECT(what).FROM(where).JOIN(what).ON(what).WHERE(where).ORDER_BY(what)
-    private final String NEW_LINE = " \n ";
     private final String SPACE = " ";
+    private final String NEW_LINE = SPACE + "\n" + SPACE;
     private final String OPEN_PAREN = "(";
     private final String CLOSE_PAREN = ")";
     private final String AS = "as" + OPEN_PAREN;
@@ -68,7 +74,9 @@ public class Query {
     private final String WHERE = "where" + SPACE;
     private final String ORDER_BY = "order by" + SPACE;
     private final String INSERT_INTO = "insert into" + SPACE;
-    private final String VALUES = "values";
+    private final String INSERT_INTO_VALUES = "values";
+    private final String UPDATE = "update" + SPACE;
+    private final String UPDATE_SET = "set" + SPACE;
 
     public Query withRecursive(
         String cteName,
@@ -95,21 +103,50 @@ public class Query {
     public Query compile() {
       String compiled = "";
 
-      //TODO: use a switch here
-      if (Optional.ofNullable(this.select).filter(s -> !s.isEmpty()).isPresent())
+      //TODO: use a sealed class + pattern matching here
+      if (hasQueryKeyWord(this.select))//Optional.ofNullable(this.select).filter(s -> !s.isEmpty()).isPresent())
         compiled = constructSelect(this);
 
-      if (Optional.ofNullable(this.insert).filter(i -> !i.isEmpty()).isPresent())
+      if (hasQueryKeyWord(this.insert))//Optional.ofNullable(this.insert).filter(i -> !i.isEmpty()).isPresent())
         compiled = constructInsert(this);
 
-      System.out.println("(**** COMPILED QUERY " + compiled);
-      //this.compiled = compiled;
+      if (hasQueryKeyWord(this.update))//Optional.ofNullable(this.update).filter())
+        compiled = constructUpdate(this);
+
       // TODO: check if compiled is blank string here
       return this.compiled(compiled).build();
     }
 
+    private Boolean hasQueryKeyWord(List<String> keywords) {
+      return Optional.ofNullable(keywords).filter(k -> !k.isEmpty()).isPresent();
+    }
+
+    private Boolean hasQueryKeyWord(String keyword) {
+      return Optional.ofNullable(keyword).filter(k -> !k.isEmpty()).isPresent();
+    }
+
+    private String constructUpdate(QueryBuilder qb) {
+      // TODO: find a better way to filter immutable fields
+      Set<String> columnNames =
+          qb.set.keySet()
+              .stream()
+              .filter(c -> !c.equals("slug"))
+              .collect(Collectors.toSet());
+
+      return
+          UPDATE +
+              qb.update +
+              NEW_LINE +
+              UPDATE_SET +
+              NEW_LINE +
+              mapColumnValuesToNamedParams(columnNames, true) +
+              NEW_LINE +
+              createWhereClause(qb.where);
+    }
+
     private String constructInsert(QueryBuilder qb) {
       Set<String> columnNames = qb.values.keySet();
+      // TODO: it would be a good idea to build a tree here
       return
           INSERT_INTO +
               qb.insert +
@@ -118,16 +155,24 @@ public class Query {
               String.join(",", columnNames) +
               CLOSE_PAREN +
               NEW_LINE +
-              VALUES +
+              INSERT_INTO_VALUES +
               OPEN_PAREN +
               // TODO: check for empty stuff here
               // just map placeholders for now
-              columnNames
-                  .stream()
-                  .map(k -> ":" + k)
-                  .map(Object::toString)
-                  .collect(Collectors.joining(",")) +
+              mapColumnValuesToNamedParams(columnNames) +
               CLOSE_PAREN;
+    }
+
+    private String mapColumnValuesToNamedParams(Set<String> columnNames) {
+      return mapColumnValuesToNamedParams(columnNames, false);
+    }
+
+    private String mapColumnValuesToNamedParams(Set<String> columnNames, Boolean setKeyPairs) {
+      return columnNames
+          .stream()
+          .map(k -> (setKeyPairs ? k + "=" : "") + ":" + k)
+          .map(Object::toString)
+          .collect(Collectors.joining(","));
     }
 
     private String constructSelect(QueryBuilder qb) {
@@ -140,9 +185,16 @@ public class Query {
               FROM +
               qb.from +
               NEW_LINE +
-              createClause(qb.where, (w) -> WHERE + w) +
+              createWhereClause(qb.where) +
+              NEW_LINE +
+              // createClause(qb.where, (w) -> WHERE + w) +
               createClause(qb.join, (j) -> JOIN + j) +
+              NEW_LINE +
               createClause(qb.orderBy, (o) -> ORDER_BY + o);
+    }
+
+    private String createWhereClause(String where) {
+      return createClause(where, (w) -> WHERE + w);
     }
 
     private String createClause(String clause, Function<String, String> mapper) {

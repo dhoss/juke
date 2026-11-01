@@ -19,7 +19,10 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static in.stonecolddev.juke.page.PageRecord.generateSlug;
 
 @Slf4j
 @Controller
@@ -131,7 +134,7 @@ public class PageController {
   // TODO: move this to the appropriate class
   private PageRecord mapPageFormToPageRecord(CreateOrEditPageForm pageForm) {
     return PageRecordBuilder.builder()
-        .slug(pageForm.getSlug())
+        .slug(Optional.ofNullable(pageForm.getSlug()).filter(s -> !s.isBlank()).orElseGet(() -> generateSlug(pageForm.getTitle(), OffsetDateTime.now())))
         .title(pageForm.getTitle())
         .body(pageForm.getBody())
         .approved(false)

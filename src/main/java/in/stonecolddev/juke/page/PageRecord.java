@@ -96,6 +96,20 @@ public record PageRecord(
     if (Optional.ofNullable(slug).isPresent())
       return slug;
 
+    return generateSlug(title, createdOn);
+    //byte[] bytes = (title + createdOn).getBytes(StandardCharsets.UTF_8);
+    //return Slugify.builder()
+    //    .build()
+    //    .slugify(title +
+    //        Base64.getUrlEncoder()
+    //            .withoutPadding()
+    //            .encodeToString(
+    //                ByteBuffer.allocate(4)
+    //                    .putInt(hash32x86(bytes, 0, bytes.length, 0))
+    //                    .array()));
+  }
+
+  public static String generateSlug(String title, OffsetDateTime createdOn) {
     byte[] bytes = (title + createdOn).getBytes(StandardCharsets.UTF_8);
     return Slugify.builder()
         .build()

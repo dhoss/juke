@@ -1,12 +1,17 @@
 package in.stonecolddev.juke.data.storage.tree;
 
+import com.github.slugify.Slugify;
 import in.stonecolddev.juke.page.PageRecord;
 import in.stonecolddev.juke.page.PageRecordBuilder;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+
+import static org.apache.commons.codec.digest.MurmurHash3.hash32x86;
 
 public class TreeFixtures {
 
@@ -84,11 +89,26 @@ public class TreeFixtures {
   public static PageRecord newTreeRoot() {
     OffsetDateTime localNow = OffsetDateTime.now();
     return root.withId(5)
+        .withSlug(toSlug(root))
         .withPath(List.of(5))
         .withBody(root.body() + localNow)
         .withTitle(root.title() + localNow)
         .withChildren(new HashSet<>())
         .withBody(root.body() + localNow);
+  }
+
+  public static String toSlug(PageRecord tree) {
+    String title = tree.title();
+    byte[] bytes = (title + tree.createdOn()).getBytes(StandardCharsets.UTF_8);
+    return Slugify.builder()
+        .build()
+        .slugify(title +
+            Base64.getUrlEncoder()
+                .withoutPadding()
+                .encodeToString(
+                    ByteBuffer.allocate(4)
+                        .putInt(hash32x86(bytes, 0, bytes.length, 0))
+                        .array()));
   }
 
   public static PageRecord newChild(PageRecord root) {
@@ -104,12 +124,13 @@ public class TreeFixtures {
 
     int depth = root.depth() + 1;
 
-    return root.withId(id)
+    PageRecord child = root.withId(id)
         .withParentId(Optional.of(parentId))
         .withPath(path)
         .withDepth(depth)
         .withTitle(root.title() + " child " + depth)
         .withBody(root.body() + " child " + depth);
+    return child.withSlug(toSlug(child));
   }
 
 }

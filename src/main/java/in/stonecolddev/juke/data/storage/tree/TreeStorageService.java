@@ -234,7 +234,6 @@ public class TreeStorageService<T extends TreeRecord> {
   }
 
   // TODO: implement this: https://github.com/ben-manes/caffeine/tree/master/examples/indexable
-  // TODO: make this take a TreeRecord instead of a String
   public Optional<TreeRecord> find(String slug) {
 
     // if the node we're looking for is a root node, carry on as usual
@@ -456,6 +455,7 @@ public class TreeStorageService<T extends TreeRecord> {
   public TreeRecord create(TreeRecord tree) {
 
     String slug = tree.slug();
+    log.debug("***** TREE BEFORE INSERT {}", tree);
     // TODO: use status to get info about transaction
     //       https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/transaction/TransactionStatus.html:w
     TreeRecord createdTree = transactionTemplate.execute(status -> {
@@ -467,10 +467,15 @@ public class TreeStorageService<T extends TreeRecord> {
           slug, (key, _) -> {
 
             // TODO: pull generic query stuff into config object
-            Query insert = Query.builder().insert("page_trees").values(tree.valueMap()).compile();
             log.info("Updating cache for key {}", slug);
+            log.debug("***** TREE INSIDE INSERT {}", tree);
+            log.debug("***** TREE VALUEMAP INSIDE INSERT {}", tree.valueMap());
             jdbcTemplate.update(
-                insert.compiled(),
+                Query.builder()
+                    .insert("page_trees")
+                    .values(tree.valueMap())
+                    .compile()
+                    .compiled(),
                 new MapSqlParameterSource().addValues(tree.valueMap())
             );
 
@@ -481,22 +486,22 @@ public class TreeStorageService<T extends TreeRecord> {
     });
 
     // TODO: determine if refreshing these caches is correct
-    log.info("refreshing caches after insert");
-    try {
-      log.info("refreshing nodeInfo cache");
-      nodeInfoCacheCaffeine.refresh(createdTree.id()).get();
-
-      log.info("refreshing nodeInfoCacheSlugIndex cache");
-      nodeInfoCacheSlugIndexCaffeine.refresh(createdTree.slug()).get();
-
-      log.info("refreshing nodeToParentMapping cache");
-      nodeToParentMappingCaffeine.refresh(createdTree.id()).get();
-
-      log.info("refreshing rootNode cache");
-      rootNodeCache.refresh(createdTree.slug()).get();
-    } catch (InterruptedException | ExecutionException | NullPointerException e) {
-      throw new RuntimeException("error refreshing cache in create(): " + e);
-    }
+//    log.info("refreshing caches after insert");
+//    try {
+//      log.info("refreshing nodeInfo cache");
+//      nodeInfoCacheCaffeine.refresh(createdTree.id()).get();
+//
+//      log.info("refreshing nodeInfoCacheSlugIndex cache");
+//      nodeInfoCacheSlugIndexCaffeine.refresh(createdTree.slug()).get();
+//
+//      log.info("refreshing nodeToParentMapping cache");
+//      nodeToParentMappingCaffeine.refresh(createdTree.id()).get();
+//
+//      log.info("refreshing rootNode cache");
+//      rootNodeCache.refresh(createdTree.slug()).get();
+//    } catch (InterruptedException | ExecutionException | NullPointerException e) {
+//      throw new RuntimeException("error refreshing cache in create(): " + e);
+//    }
 
     log.info("adding child nodes if they exist");
     for (TreeRecord child : tree.children()) {
@@ -505,7 +510,7 @@ public class TreeStorageService<T extends TreeRecord> {
 
 
     // TODO: add test for create, make sure find hits cache after creating
-    return find(tree.slug())
+    return findInDbBySlug(tree.slug())
         .orElseThrow(
             () -> new RuntimeException(
                 "Can't find tree we just inserted with slug " + slug));
@@ -514,23 +519,23 @@ public class TreeStorageService<T extends TreeRecord> {
   public TreeRecord update(TreeRecord tree) {
 
     String slug = tree.slug();
-    TreeRecord updatedTree = transactionTemplate.execute(status -> {
+
+    log.debug("***** TREE BEFORE INSERT {}", tree);
+    return transactionTemplate.execute(status -> {
 
       log.info("child count for node {}: {}", slug, tree.children().size());
       log.info("updating node {}", slug);
       // TODO: maybe make this a method itself
       return treeCacheCaffeine.asMap().compute(
           slug, (key, _) -> {
-            log.debug("***** KEY IN CACHE UPDATE {}", key);
 
-            Map<String, Object> newTree = tree.valueMap();
             TreeRecord oldTree = findInDbBySlug(slug)
                 .orElseThrow(
                     () -> new RuntimeException(
                         "Can't find tree for update with slug " + slug));
 
             MapDifference<String, Object> mapDiff =
-                Maps.difference(oldTree.valueMap(), newTree);
+                Maps.difference(oldTree.valueMap(), tree.valueMap());
             Map<String, Object> newChangedValues =
                 mapDiff.entriesDiffering()
                     .entrySet()
@@ -554,7 +559,7 @@ public class TreeStorageService<T extends TreeRecord> {
                     .compile();
             // TODO: this should be taken care of by Query somehow
             newChangedValues.put("slug", slug);
-            log.info("***** UPDATE QUERY {}", update.compiled());
+            log.debug("*(**** CHANGFED VALUES INSIDE INSERT {}", newChangedValues);
             log.info("Updating cache for key {}", slug);
             jdbcTemplate.update(
                 update.compiled(),
@@ -562,15 +567,11 @@ public class TreeStorageService<T extends TreeRecord> {
                 new MapSqlParameterSource().addValues(newChangedValues)
             );
 
-            return
-                findInDbBySlug(slug).orElseThrow(
-                    () -> new RuntimeException(
-                        "Can't find tree inside cache write through with slug " + slug));
+            return findInDbBySlug(slug).orElseThrow(
+                () -> new RuntimeException(
+                    "Can't find tree inside cache write through with slug " + slug));
           });
     });
-
-    // TODO: add refreshes if needed
-    return updatedTree;
   }
 
   // TODO: wrap this in a transaction
@@ -581,6 +582,7 @@ public class TreeStorageService<T extends TreeRecord> {
 
     log.info("refreshing tree in cache, parent slug: {}", parent.slug());
     // TODO: figure out something better than catch and rethrow
+    // TODO: do we need to refresh here or just return findInDbBySlug?
     Optional<TreeRecord> refreshed = Optional.empty();
     try {
       refreshed = Optional.of(treeCacheCaffeine.refresh(parent.slug()).get());
@@ -594,5 +596,4 @@ public class TreeStorageService<T extends TreeRecord> {
         () -> new RuntimeException(
             "Can't find parentId of child we just created for some reason"));
   }
-
 }

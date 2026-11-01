@@ -2,7 +2,6 @@ package in.stonecolddev.juke.util;
 
 import org.flywaydb.core.Flyway;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
 
 public class Fixtures {
 
@@ -27,17 +26,24 @@ public class Fixtures {
       System.setProperty("spring.datasource.hikari.username", postgres.getUsername());
       System.setProperty("spring.datasource.hikari.password", postgres.getPassword());
 
-      initDb(postgres.getJdbcUrl());
+      initDb();
     }
 
-    private static void initDb(String jdbcUrl) {
+    public static void truncateDatabase() {
+      flyway().clean();
+      flyway().migrate();
+    }
 
-      Flyway flyway = Flyway.configure()
+    private static Flyway flyway() {
+      return Flyway.configure()
+          .cleanDisabled(false)
           .locations("classpath:db/migrations")
-          .dataSource(jdbcUrl, username, password)
+          .dataSource(postgres.getJdbcUrl(), username, password)
           .load();
+    }
 
-      flyway.migrate();
+    private static void initDb() {
+      flyway().migrate();
     }
   }
 

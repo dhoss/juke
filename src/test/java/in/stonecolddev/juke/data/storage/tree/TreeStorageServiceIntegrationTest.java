@@ -2,6 +2,7 @@ package in.stonecolddev.juke.data.storage.tree;
 
 import in.stonecolddev.juke.page.PageRecord;
 import in.stonecolddev.juke.util.AbstractDatabaseTest;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import java.util.Set;
 
 import static in.stonecolddev.juke.data.storage.tree.TreeFixtures.*;
 import static in.stonecolddev.juke.util.Fixtures.Database.startDatabase;
+import static in.stonecolddev.juke.util.Fixtures.Database.truncateDatabase;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Testcontainers
@@ -31,6 +33,11 @@ public class TreeStorageServiceIntegrationTest extends AbstractDatabaseTest {
   @BeforeAll
   public static void beforeAll() {
     startDatabase();
+  }
+
+  @AfterEach
+  public void afterEach() {
+    truncateDatabase();
   }
 
   @Test

@@ -104,13 +104,13 @@ public class Query {
       String compiled = "";
 
       //TODO: use a sealed class + pattern matching here
-      if (hasQueryKeyWord(this.select))//Optional.ofNullable(this.select).filter(s -> !s.isEmpty()).isPresent())
+      if (hasQueryKeyWord(this.select))
         compiled = constructSelect(this);
 
-      if (hasQueryKeyWord(this.insert))//Optional.ofNullable(this.insert).filter(i -> !i.isEmpty()).isPresent())
+      if (hasQueryKeyWord(this.insert))
         compiled = constructInsert(this);
 
-      if (hasQueryKeyWord(this.update))//Optional.ofNullable(this.update).filter())
+      if (hasQueryKeyWord(this.update))
         compiled = constructUpdate(this);
 
       // TODO: check if compiled is blank string here

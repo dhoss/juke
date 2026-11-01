@@ -81,24 +81,11 @@ public class PageController {
   @GetMapping("/admin/pages/{slug}/edit")
   public ModelAndView editPage(@PathVariable("slug") String pageSlug) {
     ModelAndView mv = new ModelAndView("admin/pages/edit");
-    // Page page = pageHandler.findPage(pageSlug)
-    //     .orElseThrow(() -> new PageNotFoundException("Page not found with slug " + pageSlug));
 
     PageRecord page = (PageRecord) treeStorageService.findInDbBySlug(pageSlug)
         .orElseThrow(() -> new PageNotFoundException("Page not found with slug " + pageSlug));
 
     CreateOrEditPageForm pageForm = mapPageRecordToPageForm(page);
-    //      new CreateOrEditPageForm();
-    //  pageForm.setTitle(page.title());
-    //  pageForm.setBody(page.body());
-    //  pageForm.setSlug(pageSlug);
-    //  pageForm.setPublishedOn(
-    //      LocalDateTime.parse(
-    //          page.publishedOn()
-    //              .atZoneSameInstant(clock.getZone())
-    //              .toLocalDateTime()
-    //              .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")))
-    //  );
 
     mv.addAllObjects(
         Map.of(
@@ -111,6 +98,7 @@ public class PageController {
     return mv;
   }
 
+  // TODO: we don't need the slug in the URL
   @PostMapping("/admin/pages/{slug}/edit/save")
   public ModelAndView savePageEdits(
       @PathVariable("slug") String pageSlug,
@@ -119,7 +107,6 @@ public class PageController {
 
     pageFormData.setSlug(pageSlug);
     treeStorageService.update(mapPageFormToPageRecord(pageFormData));
-    //pageHandler.save(pageFormData);
 
     redirectAttributes.addFlashAttribute("formSubmissionMessage", "Page saved");
     return new ModelAndView("redirect:/admin/pages/" + pageSlug + "/edit");
@@ -144,6 +131,7 @@ public class PageController {
   // TODO: move this to the appropriate class
   private PageRecord mapPageFormToPageRecord(CreateOrEditPageForm pageForm) {
     return PageRecordBuilder.builder()
+        .slug(pageForm.getSlug())
         .title(pageForm.getTitle())
         .body(pageForm.getBody())
         .approved(false)

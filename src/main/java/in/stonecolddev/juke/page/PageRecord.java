@@ -47,9 +47,9 @@ public record PageRecord(
     return this.withParentId(Optional.of(parent.id()));
   }
 
-  public String slug() {
-    return Optional.ofNullable(slug).orElseGet(this::toSlug);
-  }
+  // public String slug() {
+//    return Optional.ofNullable(slug).orElseGet(this::toSlug);
+//  }
 
   // TODO: memoize this
   public List<Integer> ancestorIds() {
@@ -77,7 +77,6 @@ public record PageRecord(
                     .orElseGet(OffsetDateTime::now)
             ));
 
-    System.out.println("***** PARENTID IN VALUEMAP " + parentId);
     parentId.ifPresent(
         integer -> valueMap.put("parent_id", integer));
 
@@ -93,6 +92,10 @@ public record PageRecord(
 
   // TODO: write tests to make sure this works properly when title is changed
   public String toSlug() {
+    // we want this marginally idempotent
+    if (Optional.ofNullable(slug).isPresent())
+      return slug;
+
     byte[] bytes = (title + createdOn).getBytes(StandardCharsets.UTF_8);
     return Slugify.builder()
         .build()

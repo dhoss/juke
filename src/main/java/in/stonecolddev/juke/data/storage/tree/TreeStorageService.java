@@ -521,6 +521,7 @@ public class TreeStorageService<T extends TreeRecord> {
       // TODO: maybe make this a method itself
       return treeCacheCaffeine.asMap().compute(
           slug, (key, _) -> {
+            log.debug("***** KEY IN CACHE UPDATE {}", key);
 
             Map<String, Object> newTree = tree.valueMap();
             TreeRecord oldTree = findInDbBySlug(slug)
@@ -528,34 +529,41 @@ public class TreeStorageService<T extends TreeRecord> {
                     () -> new RuntimeException(
                         "Can't find tree for update with slug " + slug));
 
-            MapDifference<String, Object> mapDiff = Maps.difference(oldTree.valueMap(), newTree);
-            if (mapDiff.areEqual()) {
-              log.info("Trees are the same, not running update query");
-              return tree;
-            }
-
+            MapDifference<String, Object> mapDiff =
+                Maps.difference(oldTree.valueMap(), newTree);
             Map<String, Object> newChangedValues =
                 mapDiff.entriesDiffering()
                     .entrySet()
                     .stream()
-                    //.map(d -> Map.of(d.getKey(), d.getValue().rightValue()))
                     .collect(
-                        Collectors.toMap(Map.Entry::getKey, v -> v.getValue().rightValue()));
+                        Collectors.toMap(
+                            Map.Entry::getKey,
+                            v -> v.getValue().rightValue()));
+
+            if (mapDiff.areEqual() || newChangedValues.isEmpty()) {
+              log.info("Trees are the same, or there were no changes made, not running update query");
+              return oldTree;
+            }
+
             // TODO: pull generic query stuff into config object
             Query update =
                 Query.builder()
                     .update("page_trees")
-                    .set(newChangedValues)//treeValues)
+                    .set(newChangedValues)
+                    .where("slug = :slug")
                     .compile();
+            // TODO: this should be taken care of by Query somehow
+            newChangedValues.put("slug", slug);
             log.info("***** UPDATE QUERY {}", update.compiled());
             log.info("Updating cache for key {}", slug);
             jdbcTemplate.update(
                 update.compiled(),
-                new MapSqlParameterSource().addValues(newChangedValues) // TODO: these should come from Query
+                // TODO: these should come from Query
+                new MapSqlParameterSource().addValues(newChangedValues)
             );
 
             return
-                findInDbBySlug(key).orElseThrow(
+                findInDbBySlug(slug).orElseThrow(
                     () -> new RuntimeException(
                         "Can't find tree inside cache write through with slug " + slug));
           });

@@ -5,10 +5,16 @@
                 Welcome, Guest
                 {% else %}
 
-                <!-- TODO: add user profile link here -->
-                {{  userSession.get().user.userName }}
-                {%  endif %}
+                <a href="/users/home">{{  userSession.get().user.userName }}</a>
+                {% endif %}
         </td>
+
+        {% if userSession.get().user.roles contains "admin" %}
+            <td class="tableColumnHeader" align="center">
+                <a href="/admin">admin zone</a>
+            </td>
+        {%  endif %}
+
         {% if userSession.isPresent() %}
             <td class="tableColumnHeader" align="center"
                 onmouseover="changeColumn(this,'on');style.cursor='hand'" onmouseout="changeColumn(this,'off')">

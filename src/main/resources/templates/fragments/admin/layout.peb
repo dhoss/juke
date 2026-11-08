@@ -24,6 +24,10 @@
                 <li class="nav-item">
                     <a class="nav-link active" aria-current="page" href="{{ href('/admin/pages') }}">Pages</a>
                 </li>
+                <!-- TODO: align this to the far right side or add a separator -->
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="{{ href('/') }}">Exit Admin Zone</a>
+                </li>
             </ul>
             <!--
             <form class="d-flex">

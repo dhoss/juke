@@ -15,28 +15,37 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-public class SecurityConfig {
+public class SecurityConfiguration {
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http.csrf(AbstractHttpConfigurer::disable) // TODO: enable csrf
         // TODO: why are these headers disabled?
         .headers(
-            headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
+            headers ->
+                headers.frameOptions(
+                    HeadersConfigurer.FrameOptionsConfig::disable))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(HttpMethod.GET, "/img/*").permitAll()
             .requestMatchers(HttpMethod.GET, "/css/*").permitAll()
             .requestMatchers(HttpMethod.GET, "/").permitAll()
-            .requestMatchers(HttpMethod.GET, "/*.html").permitAll()
+            .requestMatchers(HttpMethod.GET, "/pages").permitAll()
+            .requestMatchers(HttpMethod.GET, "/pages/*.html").permitAll()
             .requestMatchers(HttpMethod.GET, "/users/new").permitAll()
-            .requestMatchers(HttpMethod.POST,"/users/create").permitAll()
-            .requestMatchers(HttpMethod.GET,"/users/welcome").permitAll()
+            .requestMatchers(HttpMethod.POST, "/users/create").permitAll()
+            // TODO: update this to whatever default user role
+            .requestMatchers(HttpMethod.GET, "/users/welcome").permitAll()
+            // TODO: make this suck less
+            .requestMatchers(HttpMethod.GET, "/users/home").hasAnyAuthority("admin", "regular_user")
             .requestMatchers(HttpMethod.GET, "/admin").hasAuthority("admin")
             .requestMatchers(HttpMethod.GET, "/admin/**").hasAuthority("admin")
             .anyRequest()
             .authenticated())
         .formLogin(
-            form -> form.loginPage("/login").permitAll());
+            form ->
+                form.loginPage("/login")
+                    .permitAll()
+                    .defaultSuccessUrl("/users/home", true));
 
     return http.build();
   }

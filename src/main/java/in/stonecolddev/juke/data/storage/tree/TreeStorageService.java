@@ -191,6 +191,7 @@ public class TreeStorageService<T extends TreeRecord> {
             slug,
             (k) ->
                 findInDbBySlug(k).orElseThrow(
+                    // TODO: custom exceptions
                     () -> new RuntimeException(
                         "Can't find node by slug " + slug + " to populate in tree cache"))));
   }
@@ -244,6 +245,7 @@ public class TreeStorageService<T extends TreeRecord> {
       return findChildBySlug(
           slug,
           findRootBySlug(slug).orElseThrow(
+              // TODO: custom exceptions
               () -> new RuntimeException("Can't find root for slug " + slug)));
     }
   }
@@ -455,7 +457,6 @@ public class TreeStorageService<T extends TreeRecord> {
   public TreeRecord create(TreeRecord tree) {
 
     String slug = tree.slug();
-    log.debug("***** TREE BEFORE INSERT {}", tree);
     // TODO: use status to get info about transaction
     //       https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/transaction/TransactionStatus.html:w
     TreeRecord createdTree = transactionTemplate.execute(status -> {
@@ -468,8 +469,6 @@ public class TreeStorageService<T extends TreeRecord> {
 
             // TODO: pull generic query stuff into config object
             log.info("Updating cache for key {}", slug);
-            log.debug("***** TREE INSIDE INSERT {}", tree);
-            log.debug("***** TREE VALUEMAP INSIDE INSERT {}", tree.valueMap());
             jdbcTemplate.update(
                 Query.builder()
                     .insert("page_trees")
@@ -480,6 +479,7 @@ public class TreeStorageService<T extends TreeRecord> {
             );
 
             return findInDbBySlug(key).orElseThrow(
+                // TODO: custom exceptions
                 () -> new RuntimeException(
                     "Can't find tree inside cache write through with slug " + slug));
           });
@@ -512,6 +512,7 @@ public class TreeStorageService<T extends TreeRecord> {
     // TODO: add test for create, make sure find hits cache after creating
     return findInDbBySlug(tree.slug())
         .orElseThrow(
+            // TODO: custom exceptions
             () -> new RuntimeException(
                 "Can't find tree we just inserted with slug " + slug));
   }
@@ -520,7 +521,6 @@ public class TreeStorageService<T extends TreeRecord> {
 
     String slug = tree.slug();
 
-    log.debug("***** TREE BEFORE INSERT {}", tree);
     return transactionTemplate.execute(status -> {
 
       log.info("child count for node {}: {}", slug, tree.children().size());
@@ -531,6 +531,7 @@ public class TreeStorageService<T extends TreeRecord> {
 
             TreeRecord oldTree = findInDbBySlug(slug)
                 .orElseThrow(
+                    // TODO: custom exceptions
                     () -> new RuntimeException(
                         "Can't find tree for update with slug " + slug));
 
@@ -559,7 +560,6 @@ public class TreeStorageService<T extends TreeRecord> {
                     .compile();
             // TODO: this should be taken care of by Query somehow
             newChangedValues.put("slug", slug);
-            log.debug("*(**** CHANGFED VALUES INSIDE INSERT {}", newChangedValues);
             log.info("Updating cache for key {}", slug);
             jdbcTemplate.update(
                 update.compiled(),
@@ -568,6 +568,7 @@ public class TreeStorageService<T extends TreeRecord> {
             );
 
             return findInDbBySlug(slug).orElseThrow(
+                // TODO: custom exceptions
                 () -> new RuntimeException(
                     "Can't find tree inside cache write through with slug " + slug));
           });
@@ -582,17 +583,18 @@ public class TreeStorageService<T extends TreeRecord> {
 
     log.info("refreshing tree in cache, parent slug: {}", parent.slug());
     // TODO: figure out something better than catch and rethrow
-    // TODO: do we need to refresh here or just return findInDbBySlug?
     Optional<TreeRecord> refreshed = Optional.empty();
     try {
       refreshed = Optional.of(treeCacheCaffeine.refresh(parent.slug()).get());
       log.info("refresh complete for {}", refreshed.map(TreeRecord::slug));
     } catch (ExecutionException | InterruptedException e) {
+      // TODO: custom exceptions
       throw new RuntimeException(
           "Error refreshing cache entry for slug " + parent.slug() + ": " + e);
     }
 
     return refreshed.orElseThrow(
+        // TODO: custom exceptions
         () -> new RuntimeException(
             "Can't find parentId of child we just created for some reason"));
   }

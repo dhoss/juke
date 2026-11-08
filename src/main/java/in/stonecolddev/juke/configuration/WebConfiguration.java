@@ -6,11 +6,11 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class WebConfig implements WebMvcConfigurer {
+public class WebConfiguration implements WebMvcConfigurer {
 
   private final CommonPagePropertiesInterceptor commonPagePropertiesInterceptor;
 
-  public WebConfig(CommonPagePropertiesInterceptor commonPagePropertiesInterceptor) {
+  public WebConfiguration(CommonPagePropertiesInterceptor commonPagePropertiesInterceptor) {
     this.commonPagePropertiesInterceptor = commonPagePropertiesInterceptor;
   }
 
@@ -18,7 +18,10 @@ public class WebConfig implements WebMvcConfigurer {
   public void addInterceptors(InterceptorRegistry registry) {
     registry.addInterceptor(commonPagePropertiesInterceptor)
         .addPathPatterns("/")
-        .addPathPatterns("/*.html")
+        .addPathPatterns("/pages")
+        .addPathPatterns("/pages/*.html")
+        .addPathPatterns("/users")
+        .addPathPatterns("/users/*")
         .excludePathPatterns("/admin/*");
   }
 }

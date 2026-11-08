@@ -43,6 +43,14 @@ public class UserController {
     return mv;
   }
 
+  @GetMapping("/users/home")
+  public ModelAndView userHome() {
+    ModelAndView mv = new ModelAndView("/users/home");
+
+    return mv;
+  }
+
+  // TODO: fix this
   @GetMapping("/users/welcome")
   public ModelAndView welcome() {
     return new ModelAndView("/users/create-user-result.html");

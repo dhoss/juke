@@ -1,0 +1,4 @@
+    {% extends "fragments/layout" %}
+    {% block body %}
+    <h1>Welcome, {{ userSession.get().user.userName }}</h1>
+    {% endblock %}

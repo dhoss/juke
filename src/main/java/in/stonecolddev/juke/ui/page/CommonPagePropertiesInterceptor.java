@@ -2,7 +2,6 @@ package in.stonecolddev.juke.ui.page;
 
 import in.stonecolddev.juke.configuration.JukeConfiguration;
 import in.stonecolddev.juke.metrics.PerRequestMetricsCollector;
-import in.stonecolddev.juke.user.Session;
 import in.stonecolddev.juke.user.SessionService;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
@@ -53,16 +52,17 @@ public class CommonPagePropertiesInterceptor implements HandlerInterceptor {
   public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView mv) {
     log.info("Populating common page data");
     pageConstructionSample.stop(registry.timer("pageConstructionTimer"));
+    // TODO: get rid of this
     assert mv != null;
+    // TODO: aggregate all query counts before adding pageQueryCounter key
     mv.addAllObjects(
         Map.of(
             "pageConstructionTimer", registry.timer("pageConstructionTimer").totalTime(TimeUnit.SECONDS),
-            // TODO: figure out how to get pageQueryCounter updated with the query counts from below
             "pageQueryCounter", perRequestMetricsCollector.counterValue("pageQueryCounter"),
             "jukeAppVersion", jukeConfiguration.getVersion(),
             "userSession", sessionService.findSession(request.getUserPrincipal()),
-                "stats", sessionService.stats() // TODO: THIS SHOULD BE IN ITS OWN CLASS
-            ));
+            "stats", sessionService.stats() // TODO: THIS SHOULD BE IN ITS OWN CLASS
+        ));
   }
 
 }

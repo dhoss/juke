@@ -81,14 +81,58 @@ public class PageController {
     return mv;
   }
 
+  @GetMapping("/admin/pages/{slug}/add-child")
+  public ModelAndView addChildPage(@PathVariable("slug") String pageSlug) {
+    ModelAndView mv = new ModelAndView("admin/pages/add-child");
+
+    CreateOrEditPageForm pageForm = new CreateOrEditPageForm();
+    pageForm.setParentSlug(pageSlug);
+    mv.addAllObjects(
+        Map.of(
+            "page", pageForm,
+            "pageData",
+            treeStorageService.findInDbBySlug(pageSlug)
+                .orElseThrow(
+                    () -> new PageNotFoundException(
+                        "Page not found with slug " + pageSlug)),
+            // TODO: create helper to create form action urls
+            "action", "/admin/pages/" + pageSlug + "/add-child/save"
+        )
+    );
+
+    return mv;
+  }
+
+  @PostMapping("/admin/pages/{slug}/add-child/save")
+  public ModelAndView saveAddChildPage(
+      @PathVariable("slug") String pageSlug,
+      @ModelAttribute CreateOrEditPageForm pageFormData,
+      RedirectAttributes redirectAttributes) {
+
+    pageFormData.setParentSlug(pageSlug);
+    PageRecord childPage = (PageRecord) treeStorageService.addChild(
+        treeStorageService.findInDbBySlug(pageSlug)
+            .orElseThrow(
+                () -> new PageNotFoundException(
+                    "Page not found with slug " + pageSlug)),
+        mapPageFormToPageRecord(pageFormData));
+
+    redirectAttributes.addFlashAttribute("formSubmissionMessage", "Page saved");
+    return new ModelAndView("redirect:/admin/pages/" + childPage.slug() + "/edit");
+  }
+
   @GetMapping("/admin/pages/{slug}/edit")
   public ModelAndView editPage(@PathVariable("slug") String pageSlug) {
     ModelAndView mv = new ModelAndView("admin/pages/edit");
 
     mv.addAllObjects(
         Map.of(
-            "page", mapPageRecordToPageForm((PageRecord) treeStorageService.findInDbBySlug(pageSlug)
-                .orElseThrow(() -> new PageNotFoundException("Page not found with slug " + pageSlug))),
+            "page",
+            mapPageRecordToPageForm(
+                (PageRecord) treeStorageService.findInDbBySlug(pageSlug)
+                    .orElseThrow(
+                        () -> new PageNotFoundException(
+                            "Page not found with slug " + pageSlug))),
             // TODO: create helper to create form action urls
             "action", "/admin/pages/" + pageSlug + "/edit/save"
         )
@@ -131,7 +175,22 @@ public class PageController {
   // TODO: move this to the appropriate class
   private PageRecord mapPageFormToPageRecord(CreateOrEditPageForm pageForm) {
     return PageRecordBuilder.builder()
-        .slug(Optional.ofNullable(pageForm.getSlug()).filter(s -> !s.isBlank()).orElseGet(() -> generateSlug(pageForm.getTitle(), OffsetDateTime.now())))
+        .parent(
+            Optional.of(
+                PageRecordBuilder.builder()
+                    .slug(
+                        // TODO: move this to a common method
+                        Optional.ofNullable(pageForm.getParentSlug())
+                            .filter(s -> !s.isBlank())
+                            .orElseGet(() -> ""))
+                    .build()
+            )
+        )
+        .slug(
+            // TODO: move this to a common method
+            Optional.ofNullable(pageForm.getSlug())
+                .filter(s -> !s.isBlank())
+                .orElseGet(() -> generateSlug(pageForm.getTitle(), OffsetDateTime.now())))
         .title(pageForm.getTitle())
         .body(pageForm.getBody())
         .approved(false)
@@ -150,7 +209,7 @@ public class PageController {
                 .stream()
                 .map(TreeRecord::slug)
                 .collect(Collectors.toSet()))
-        .parent(page.parent().map(TreeRecord::slug))
+        .parentSlug(page.parent().map(TreeRecord::slug).orElseGet(() -> ""))
         .publishedOn(
             // TODO: this sucks
             LocalDateTime.parse(

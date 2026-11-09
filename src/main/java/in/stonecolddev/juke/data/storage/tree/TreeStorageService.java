@@ -486,28 +486,29 @@ public class TreeStorageService<T extends TreeRecord> {
     });
 
     // TODO: determine if refreshing these caches is correct
-//    log.info("refreshing caches after insert");
-//    try {
-//      log.info("refreshing nodeInfo cache");
-//      nodeInfoCacheCaffeine.refresh(createdTree.id()).get();
-//
-//      log.info("refreshing nodeInfoCacheSlugIndex cache");
-//      nodeInfoCacheSlugIndexCaffeine.refresh(createdTree.slug()).get();
-//
-//      log.info("refreshing nodeToParentMapping cache");
-//      nodeToParentMappingCaffeine.refresh(createdTree.id()).get();
-//
-//      log.info("refreshing rootNode cache");
-//      rootNodeCache.refresh(createdTree.slug()).get();
-//    } catch (InterruptedException | ExecutionException | NullPointerException e) {
-//      throw new RuntimeException("error refreshing cache in create(): " + e);
-//    }
+    log.info("refreshing caches after insert");
+    // try {
+    //   log.info("refreshing nodeInfo cache");
+    //   nodeInfoCacheCaffeine.refresh(createdTree.id()).get();
+
+    //   log.info("refreshing nodeInfoCacheSlugIndex cache");
+    //   nodeInfoCacheSlugIndexCaffeine.refresh(createdTree.slug()).get();
+
+    //   log.info("refreshing nodeToParentMapping cache");
+    //   nodeToParentMappingCaffeine.refresh(createdTree.id()).get();
+
+    //   log.info("refreshing rootNode cache");
+    //   rootNodeCache.refresh(createdTree.slug()).get();
+    // } catch (InterruptedException | ExecutionException | NullPointerException e) {
+    //   throw new RuntimeException("error refreshing cache in create(): " + e);
+    // }
+
+    refreshTreeCaches(createdTree);
 
     log.info("adding child nodes if they exist");
     for (TreeRecord child : tree.children()) {
       addChild(tree, child);
     }
-
 
     // TODO: add test for create, make sure find hits cache after creating
     return findInDbBySlug(tree.slug())
@@ -521,7 +522,7 @@ public class TreeStorageService<T extends TreeRecord> {
 
     String slug = tree.slug();
 
-    return transactionTemplate.execute(status -> {
+    TreeRecord updatedTree = transactionTemplate.execute(status -> {
 
       log.info("child count for node {}: {}", slug, tree.children().size());
       log.info("updating node {}", slug);
@@ -573,29 +574,62 @@ public class TreeStorageService<T extends TreeRecord> {
                     "Can't find tree inside cache write through with slug " + slug));
           });
     });
+
+    return updatedTree;
   }
 
   // TODO: wrap this in a transaction
   public TreeRecord addChild(TreeRecord parent, TreeRecord child) {
 
     log.info("adding child {} to parentId {}", child.slug(), parent.slug());
-    create(child.reparent(parent));
+    return create(child.reparent(parent));
 
-    log.info("refreshing tree in cache, parent slug: {}", parent.slug());
-    // TODO: figure out something better than catch and rethrow
-    Optional<TreeRecord> refreshed = Optional.empty();
+//    log.info("refreshing tree in cache, parent slug: {}", parent.slug());
+//    // TODO: figure out something better than catch and rethrow
+//    return refreshTreeCaches()
+    // Optional<TreeRecord> refreshed =
+    //     Optional.of(refreshTreeCaches(parent))
+    //         .stream()
+    //         .peek((s) -> System.out.println("REFRESHED " + s.slug()))
+    //         //treeCacheCaffeine.refresh(parent.slug()).get())
+    //         .map(t -> t.children().stream().filter(c -> c.slug().equals(child.slug())).findFirst())
+    //
+    //         .peek((s) -> System.out.println("REFRESHED " + s.get().slug()))
+    //         .flatMap(s -> s)
+    //         .findFirst();
+    // // .orElseThrow(() ->
+    // //     new RuntimeException("Can't find slug in cache to refresh: " + parent.slug())
+    // // );
+
+    // return refreshed.orElseThrow(
+    //     // TODO: custom exceptions
+    //     () -> new RuntimeException(
+    //         "addChild failed: Can't find parentId of child we just created for some reason"));
+  }
+
+  private TreeRecord refreshTreeCaches(TreeRecord updatedTree) {
+
+    log.info("refreshing caches after update");
     try {
-      refreshed = Optional.of(treeCacheCaffeine.refresh(parent.slug()).get());
-      log.info("refresh complete for {}", refreshed.map(TreeRecord::slug));
-    } catch (ExecutionException | InterruptedException e) {
-      // TODO: custom exceptions
-      throw new RuntimeException(
-          "Error refreshing cache entry for slug " + parent.slug() + ": " + e);
+      log.info("refreshing nodeInfo cache");
+      nodeInfoCacheCaffeine.refresh(updatedTree.id()).get();
+
+      log.info("refreshing nodeInfoCacheSlugIndex cache");
+      nodeInfoCacheSlugIndexCaffeine.refresh(updatedTree.slug()).get();
+
+      log.info("refreshing nodeToParentMapping cache");
+      nodeToParentMappingCaffeine.refresh(updatedTree.id()).get();
+
+      log.info("refreshing rootNode cache");
+      rootNodeCache.refresh(updatedTree.slug()).get();
+      log.info("refresh complete for {}", updatedTree.slug());
+    } catch (InterruptedException | ExecutionException | NullPointerException e) {
+      throw new RuntimeException("error refreshing cache in create(): " + e);
     }
 
-    return refreshed.orElseThrow(
-        // TODO: custom exceptions
-        () -> new RuntimeException(
-            "Can't find parentId of child we just created for some reason"));
+    return find(updatedTree.slug())
+        .orElseThrow(
+            () -> new RuntimeException(
+                "Can't find refreshed key: " + updatedTree.slug()));
   }
 }

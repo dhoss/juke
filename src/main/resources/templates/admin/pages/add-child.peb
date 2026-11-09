@@ -1,0 +1,6 @@
+    {% extends "fragments/admin/layout" %}
+    {% block body %}
+    <h1>Add child page to <a href="/pages/{{ pageData.slug }}.html" target="_blank"><em>{{ pageData.title }}:</em></a>
+    </h1>
+    {% include "admin/pages/fragments/page-form" %}
+    {% endblock %}

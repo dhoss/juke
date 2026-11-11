@@ -5,6 +5,7 @@ import in.stonecolddev.juke.data.storage.tree.TreeRecord;
 import in.stonecolddev.juke.data.storage.tree.TreeStorageService;
 import in.stonecolddev.juke.page.PageRecord;
 import in.stonecolddev.juke.page.PageRecordBuilder;
+import in.stonecolddev.juke.ui.view.View;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,77 +31,100 @@ public class PageController {
 
   private final TreeStorageService<PageRecord> treeStorageService;
 
-  private final DefaultPageHandler pageHandler;
-
   private final Clock clock;
-
 
   public PageController(
       TreeStorageService<PageRecord> treeStorageService,
-      DefaultPageHandler pageHandler,
       Clock clock
   ) {
     this.treeStorageService = treeStorageService;
-    this.pageHandler = pageHandler;
     this.clock = clock;
   }
 
   @GetMapping("/pages/{pageSlug}.html")
   public ModelAndView findPage(@PathVariable("pageSlug") String pageSlug) {
-    ModelAndView mv = new ModelAndView("pages/page");
+    return View.builder()
+        .name("pages/page")
+        .templateData(
+            Map.of("page",
+                treeStorageService.find(pageSlug).orElseThrow(
+                    () -> new RuntimeException("No such page: " + pageSlug))))
+        .toView();
 
-    mv.addAllObjects(
-        Map.of(
-            "page",
-            treeStorageService.find(pageSlug).orElseThrow(
-                () -> new RuntimeException("No such page: " + pageSlug))));
-
-    return mv;
   }
 
   // TODO: pagination
   @GetMapping("/pages")
   public ModelAndView listTreePages() {
-    ModelAndView mv = new ModelAndView("pages/list-pages");
-    mv.addAllObjects(Map.of("pages", treeStorageService.listTrees()));
+    // ModelAndView mv = new ModelAndView("pages/list-pages");
+    // mv.addAllObjects(Map.of("pages", treeStorageService.listTrees()));
 
-    return mv;
+    // return mv;
+
+    return View.builder()
+        .name("pages/list-pages")
+        .templateData(Map.of("pages", treeStorageService.listTrees()))
+        .toView();
   }
 
   @GetMapping("/admin/pages/new")
   public ModelAndView newPage() {
-    ModelAndView mv = new ModelAndView("admin/pages/new");
+    // TODO: clean up
+    //ModelAndView mv = new ModelAndView("admin/pages/new");
 
-    mv.addAllObjects(
-        Map.of(
-            "page", new CreateOrEditPageForm(),
-            "action", "/admin/pages/create"
-        )
-    );
+    //mv.addAllObjects(
+    // Map.of(
+    //     "page", new CreateOrEditPageForm(),
+    //     "action", "/admin/pages/create"
+    // )
+    //);
 
-    return mv;
+    //return mv;
+
+    return View.builder()
+        .name("admin/pages/new")
+        .templateData(
+            Map.of(
+                "page", new CreateOrEditPageForm(),
+                "action", "/admin/pages/create"))
+        .toView();
   }
 
   @GetMapping("/admin/pages/{slug}/add-child")
   public ModelAndView addChildPage(@PathVariable("slug") String pageSlug) {
-    ModelAndView mv = new ModelAndView("admin/pages/add-child");
+    // TODO: clean up
+    //ModelAndView mv = new ModelAndView("admin/pages/add-child");
 
     CreateOrEditPageForm pageForm = new CreateOrEditPageForm();
     pageForm.setParentSlug(pageSlug);
-    mv.addAllObjects(
-        Map.of(
-            "page", pageForm,
-            "pageData",
-            treeStorageService.findInDbBySlug(pageSlug)
-                .orElseThrow(
-                    () -> new PageNotFoundException(
-                        "Page not found with slug " + pageSlug)),
-            // TODO: create helper to create form action urls
-            "action", "/admin/pages/" + pageSlug + "/add-child/save"
-        )
-    );
+    //  mv.addAllObjects(
+    //      Map.of(
+    //          "page", pageForm,
+    //          "pageData",
+    //          treeStorageService.findInDbBySlug(pageSlug)
+    //              .orElseThrow(
+    //                  () -> new PageNotFoundException(
+    //                      "Page not found with slug " + pageSlug)),
+    //          // TODO: create helper to create form action urls
+    //          "action", "/admin/pages/" + pageSlug + "/add-child/save"
+    //      )
+    //  );
 
-    return mv;
+    //  return mv;
+    return View.builder()
+        .name("admin/pages/add-child")
+        .templateData(
+            Map.of(
+                "page", pageForm,
+                "pageData",
+                treeStorageService.findInDbBySlug(pageSlug)
+                    .orElseThrow(
+                        () -> new PageNotFoundException(
+                            "Page not found with slug " + pageSlug)),
+                // TODO: create helper to create form action urls
+                "action", "/admin/pages/" + pageSlug + "/add-child/save"
+            ))
+        .toView();
   }
 
   @PostMapping("/admin/pages/{slug}/add-child/save")
@@ -165,60 +189,7 @@ public class PageController {
     treeStorageService.create(mapPageFormToPageRecord(pageFormData));
     redirectAttributes.addFlashAttribute("formSubmissionMessage", "Page created");
 
-    // TODO: return ModelAndView in createPage
     return new ModelAndView("redirect:/admin/pages");
-  }
-
-  // TODO: implement "create child page" endpoint
-
-  // TODO: move this to the appropriate class
-  private PageRecord mapPageFormToPageRecord(CreateOrEditPageForm pageForm) {
-    return PageRecordBuilder.builder()
-        .parent(
-            Optional.of(
-                PageRecordBuilder.builder()
-                    .slug(
-                        // TODO: move this to a common method
-                        Optional.ofNullable(pageForm.getParentSlug())
-                            .filter(s -> !s.isBlank())
-                            .orElseGet(() -> ""))
-                    .build()
-            )
-        )
-        .slug(
-            // TODO: move this to a common method
-            Optional.ofNullable(pageForm.getSlug())
-                .filter(s -> !s.isBlank())
-                .orElseGet(() -> generateSlug(pageForm.getTitle(), OffsetDateTime.now())))
-        .title(pageForm.getTitle())
-        .body(pageForm.getBody())
-        .approved(false)
-        // TODO: FIX THIS
-        .authorId(1)
-        .publishedOn(OffsetDateTime.from(pageForm.getPublishedOn().atZone(clock.getZone())))
-        .build();
-  }
-
-  private CreateOrEditPageForm mapPageRecordToPageForm(PageRecord page) {
-    return CreateOrEditPageForm.builder()
-        .approved(page.approved())
-        .body(page.body())
-        .children(
-            page.children()
-                .stream()
-                .map(TreeRecord::slug)
-                .collect(Collectors.toSet()))
-        .parentSlug(page.parent().map(TreeRecord::slug).orElseGet(() -> ""))
-        .publishedOn(
-            // TODO: this sucks
-            LocalDateTime.parse(
-                page.publishedOn()
-                    .atZoneSameInstant(clock.getZone())
-                    .toLocalDateTime()
-                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"))))
-        .slug(page.slug())
-        .title(page.title())
-        .build();
   }
 
   @GetMapping("/admin/pages")
@@ -231,5 +202,67 @@ public class PageController {
     mv.addObject("pages", treeStorageService.listTrees());
 
     return mv;
+  }
+
+  private PageRecord mapPageFormToPageRecord(CreateOrEditPageForm pageForm) {
+    return PageRecordBuilder.builder()
+        .parent(
+            Optional.of(
+                PageRecordBuilder.builder()
+                    .slug(maybeParentSlug(pageForm.getParentSlug()))
+                    .build()))
+        .slug(findOrCreateSlug(pageForm))
+        .title(pageForm.getTitle())
+        .body(pageForm.getBody())
+        .approved(false)
+        // TODO: FIX THIS
+        .authorId(1)
+        .publishedOn(
+            OffsetDateTime.from(
+                pageForm.getPublishedOn()
+                    .atZone(clock.getZone())))
+        .build();
+  }
+
+  private String maybeParentSlug(String maybeSlug) {
+    return maybeString(maybeSlug).orElseGet(() -> "");
+  }
+
+  private String findOrCreateSlug(CreateOrEditPageForm pageForm) {
+    return maybeString(pageForm.getSlug())
+        .orElseGet(
+            () -> generateSlug(pageForm.getTitle(), OffsetDateTime.now()));
+  }
+
+  private String maybeParentSlug(Optional<TreeRecord> maybeParent) {
+    return maybeParent.map(TreeRecord::slug).orElseGet(() -> "");
+  }
+
+  private Optional<String> maybeString(String maybe) {
+    return Optional.ofNullable(maybe)
+        .filter(s -> !s.isBlank());
+
+  }
+
+  private CreateOrEditPageForm mapPageRecordToPageForm(PageRecord page) {
+    return CreateOrEditPageForm.builder()
+        .approved(page.approved())
+        .body(page.body())
+        .children(
+            page.children()
+                .stream()
+                .map(TreeRecord::slug)
+                .collect(Collectors.toSet()))
+        .parentSlug(maybeParentSlug(page.parent()))
+        .publishedOn(
+            // TODO: this sucks
+            LocalDateTime.parse(
+                page.publishedOn()
+                    .atZoneSameInstant(clock.getZone())
+                    .toLocalDateTime()
+                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"))))
+        .slug(page.slug())
+        .title(page.title())
+        .build();
   }
 }

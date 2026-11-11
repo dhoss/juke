@@ -250,7 +250,6 @@ public class TreeStorageService<T extends TreeRecord> {
     }
   }
 
-  // TODO: dunno how I feel about making this public
   public Optional<TreeRecord> findInDbBySlug(String slug) {
 
     // TODO: pull out table name, non-generic columns into configuration/specific TreeStorage implementations
@@ -387,73 +386,6 @@ public class TreeStorageService<T extends TreeRecord> {
     );
   }
 
-  // TODO: I'm not sure we need this
-  public List<TreeRecord> ancestors(TreeRecord node) {
-    return jdbcTemplate.query(
-        // TODO: make this a general query that can be customized with additional fields and joins etc
-        Query.builder()
-            .withRecursive(
-                "tree",
-                Query.builder()
-                    .select(
-                        List.of(
-                            "t.id",
-                            "t.parent_id",
-                            "t.approved",
-                            "t.created_on",
-                            "t.author_id",
-                            "t.published_on",
-                            "t.title",
-                            "t.body",
-                            "t.slug",
-                            "array[id] as path",
-                            "1 as depth"
-                        )
-                    )
-                    .from("page_trees t")
-                    .where("t.slug = :slug"),
-                Query.builder()
-                    .select(
-                        List.of(
-                            "t.id",
-                            "t.parent_id",
-                            "t.approved",
-                            "t.created_on",
-                            "t.author_id",
-                            "t.published_on",
-                            "t.title",
-                            "t.body",
-                            "t.slug",
-                            "tree.path || t.id",
-                            "tree.depth +1 as depth"
-                        )
-                    )
-                    .from("page_trees t")
-                    .join("tree on t.id = tree.parent_id"),
-                Query.builder()
-                    .select(
-                        List.of(
-                            "id",
-                            "parent_id",
-                            "approved",
-                            "created_on",
-                            "author_id",
-                            "published_on",
-                            "title",
-                            "body",
-                            "slug",
-                            "path",
-                            "depth"
-                        )
-                    )
-                    .from("tree")
-                    .orderBy("path"))
-            .compiled(),
-        new MapSqlParameterSource().addValues(Map.of("slug", node.slug())),
-        treeResultSet.resultSetExtractorList()
-    );
-  }
-
   public TreeRecord create(TreeRecord tree) {
 
     String slug = tree.slug();
@@ -485,24 +417,7 @@ public class TreeStorageService<T extends TreeRecord> {
           });
     });
 
-    // TODO: determine if refreshing these caches is correct
     log.info("refreshing caches after insert");
-    // try {
-    //   log.info("refreshing nodeInfo cache");
-    //   nodeInfoCacheCaffeine.refresh(createdTree.id()).get();
-
-    //   log.info("refreshing nodeInfoCacheSlugIndex cache");
-    //   nodeInfoCacheSlugIndexCaffeine.refresh(createdTree.slug()).get();
-
-    //   log.info("refreshing nodeToParentMapping cache");
-    //   nodeToParentMappingCaffeine.refresh(createdTree.id()).get();
-
-    //   log.info("refreshing rootNode cache");
-    //   rootNodeCache.refresh(createdTree.slug()).get();
-    // } catch (InterruptedException | ExecutionException | NullPointerException e) {
-    //   throw new RuntimeException("error refreshing cache in create(): " + e);
-    // }
-
     refreshTreeCaches(createdTree);
 
     log.info("adding child nodes if they exist");
@@ -522,7 +437,7 @@ public class TreeStorageService<T extends TreeRecord> {
 
     String slug = tree.slug();
 
-    TreeRecord updatedTree = transactionTemplate.execute(status -> {
+    return transactionTemplate.execute(status -> {
 
       log.info("child count for node {}: {}", slug, tree.children().size());
       log.info("updating node {}", slug);
@@ -574,8 +489,6 @@ public class TreeStorageService<T extends TreeRecord> {
                     "Can't find tree inside cache write through with slug " + slug));
           });
     });
-
-    return updatedTree;
   }
 
   // TODO: wrap this in a transaction
@@ -583,28 +496,6 @@ public class TreeStorageService<T extends TreeRecord> {
 
     log.info("adding child {} to parentId {}", child.slug(), parent.slug());
     return create(child.reparent(parent));
-
-//    log.info("refreshing tree in cache, parent slug: {}", parent.slug());
-//    // TODO: figure out something better than catch and rethrow
-//    return refreshTreeCaches()
-    // Optional<TreeRecord> refreshed =
-    //     Optional.of(refreshTreeCaches(parent))
-    //         .stream()
-    //         .peek((s) -> System.out.println("REFRESHED " + s.slug()))
-    //         //treeCacheCaffeine.refresh(parent.slug()).get())
-    //         .map(t -> t.children().stream().filter(c -> c.slug().equals(child.slug())).findFirst())
-    //
-    //         .peek((s) -> System.out.println("REFRESHED " + s.get().slug()))
-    //         .flatMap(s -> s)
-    //         .findFirst();
-    // // .orElseThrow(() ->
-    // //     new RuntimeException("Can't find slug in cache to refresh: " + parent.slug())
-    // // );
-
-    // return refreshed.orElseThrow(
-    //     // TODO: custom exceptions
-    //     () -> new RuntimeException(
-    //         "addChild failed: Can't find parentId of child we just created for some reason"));
   }
 
   private TreeRecord refreshTreeCaches(TreeRecord updatedTree) {

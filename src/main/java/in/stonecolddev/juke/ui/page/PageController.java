@@ -155,7 +155,6 @@ public class PageController {
   }
 
   // TODO: Add test for creating a page
-  // TODO: decide on whether or not the page creation URL should just be POST /new instead of /create
   // TODO: validate title before submission so existing slugs etc can't be sent in the request (see create() in DefaultPageHandler)
   @PostMapping("/admin/pages/create")
   public ModelAndView createPage(

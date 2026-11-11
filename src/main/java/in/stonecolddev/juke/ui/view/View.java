@@ -12,6 +12,9 @@ import java.util.Map;
 @Accessors(fluent = true)
 public class View {
 
+  // TODO: this could handle taking a result Optional from the db/cache
+  //       and dealing with the orElseThrow so that doesn't have to be done
+  //       in every endpoint
   private String name;
   private Map<String, Object> templateData;
 

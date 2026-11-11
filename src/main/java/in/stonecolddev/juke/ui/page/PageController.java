@@ -41,6 +41,17 @@ public class PageController {
     this.clock = clock;
   }
 
+  @GetMapping("/")
+  public ModelAndView frontPage() {
+    return View.builder()
+        .name("pages/page")
+        .templateData(
+            Map.of("page",
+                treeStorageService.find(pageSlug).orElseThrow(
+                    () -> new RuntimeException("No such page: " + pageSlug))))
+        .toView();
+  }
+
   @GetMapping("/pages/{pageSlug}.html")
   public ModelAndView findPage(@PathVariable("pageSlug") String pageSlug) {
     return View.builder()
